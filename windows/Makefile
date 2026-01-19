@@ -23,7 +23,8 @@ LIBS = gdi32.lib user32.lib
 DEMOS = cuda_render cuda_particles cuda_mandelbrot cuda_3d_cube cuda_fluid \
         cuda_raymarcher cuda_nbody cuda_primitives cuda_functions cuda_life \
         cuda_perlin cuda_flame cuda_tunnel cuda_cornell cuda_corridor \
-        cuda_fractal cuda_pyramid cuda_teapot cuda_planets cuda_sgipipes
+        cuda_fractal cuda_pyramid cuda_teapot cuda_planets cuda_sgipipes \
+        cuda_molecule
 
 .PHONY: all clean help
 
@@ -91,6 +92,9 @@ cuda_planets: cuda_planets.cu win32_display.h
 
 cuda_sgipipes: cuda_sgipipes.cu win32_display.h
 	$(NVCC) $(NVCCFLAGS) -o cuda_sgipipes.exe cuda_sgipipes.cu $(LIBS)
+
+cuda_molecule: cuda_molecule.cu win32_display.h
+	$(NVCC) $(NVCCFLAGS) -o cuda_molecule.exe cuda_molecule.cu $(LIBS)
 
 clean:
 	@if exist *.exe del /Q *.exe
