@@ -10786,6 +10786,65 @@ void buildPropanethialSoxide(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// ============== ENVIRONMENTAL/CLIMATE MOLECULES ==============
+
+// Build CFC-12 / Freon-12 (CCl2F2) - Ozone-depleting refrigerant
+void buildCFC12(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "CFC-12/Freon-12 (CCl2F2)");
+
+    // Tetrahedral carbon center with 2 Cl and 2 F
+    // Central carbon
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);         // 0: C
+
+    // Two chlorine atoms (larger, green)
+    addAtom(mol, 1.2f, 1.0f, 0.5f, ATOM_CL);        // 1: Cl
+    addAtom(mol, -1.2f, 1.0f, 0.5f, ATOM_CL);       // 2: Cl
+
+    // Two fluorine atoms (smaller, light green)
+    addAtom(mol, 0.6f, -1.0f, -0.8f, ATOM_F);       // 3: F
+    addAtom(mol, -0.6f, -0.5f, 1.0f, ATOM_F);       // 4: F
+
+    // Bonds (all single bonds to central carbon)
+    addBond(mol, 0, 1, 1);   // C-Cl
+    addBond(mol, 0, 2, 1);   // C-Cl
+    addBond(mol, 0, 3, 1);   // C-F
+    addBond(mol, 0, 4, 1);   // C-F
+
+    centerMolecule(mol);
+}
+
+// Build SF6 - Sulfur Hexafluoride (most potent greenhouse gas)
+void buildSF6(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Sulfur Hexafluoride (SF6)");
+
+    // Octahedral geometry - sulfur at center, 6 fluorines at vertices
+    // Central sulfur
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_S);         // 0: S
+
+    // Six fluorine atoms in octahedral arrangement
+    float d = 1.6f;  // S-F bond length
+    addAtom(mol, d, 0.0f, 0.0f, ATOM_F);            // 1: F (+x)
+    addAtom(mol, -d, 0.0f, 0.0f, ATOM_F);           // 2: F (-x)
+    addAtom(mol, 0.0f, d, 0.0f, ATOM_F);            // 3: F (+y)
+    addAtom(mol, 0.0f, -d, 0.0f, ATOM_F);           // 4: F (-y)
+    addAtom(mol, 0.0f, 0.0f, d, ATOM_F);            // 5: F (+z)
+    addAtom(mol, 0.0f, 0.0f, -d, ATOM_F);           // 6: F (-z)
+
+    // Bonds (all single bonds from sulfur to fluorines)
+    addBond(mol, 0, 1, 1);   // S-F
+    addBond(mol, 0, 2, 1);   // S-F
+    addBond(mol, 0, 3, 1);   // S-F
+    addBond(mol, 0, 4, 1);   // S-F
+    addBond(mol, 0, 5, 1);   // S-F
+    addBond(mol, 0, 6, 1);   // S-F
+
+    centerMolecule(mol);
+}
+
 // Random molecule generator
 float randf() { return (float)rand() / RAND_MAX; }
 
@@ -10864,7 +10923,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
-#define NUM_MOLECULES 225
+#define NUM_MOLECULES 227
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildWater, buildMethane, buildBenzene, buildEthanol,
@@ -10948,6 +11007,8 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildVanillin, buildLimonene, buildMenthol, buildCinnamaldehyde,
     // Lachrymatory
     buildPropanethialSoxide,
+    // Environmental/Climate
+    buildCFC12, buildSF6,
     buildRandomMolecule
 };
 
@@ -11033,6 +11094,8 @@ const char* moleculeNames[NUM_MOLECULES] = {
     "Vanillin/Vanilla", "Limonene/Citrus", "Menthol/Mint", "Cinnamaldehyde/Cinnamon",
     // Lachrymatory
     "Onion Factor/Tears",
+    // Environmental/Climate
+    "CFC-12/Freon", "SF6/Greenhouse",
     "Random"
 };
 
