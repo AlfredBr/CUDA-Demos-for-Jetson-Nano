@@ -275,9 +275,11 @@ void initUniformSphere(Bodies* b, int n) {
         b->y[i] = r * sinf(phi) * sinf(theta);
         b->z[i] = r * cosf(phi);
 
-        b->vx[i] = gaussRand() * 0.5f;
-        b->vy[i] = gaussRand() * 0.5f;
-        b->vz[i] = gaussRand() * 0.5f;
+        // Add some rotation around Y-axis plus random motion for interesting collapse
+        float vrot = 0.3f * sqrtf(r);  // Partial rotational support
+        b->vx[i] = -vrot * sinf(theta) + gaussRand() * 0.3f;
+        b->vy[i] = gaussRand() * 0.3f;
+        b->vz[i] = vrot * cosf(theta) + gaussRand() * 0.3f;
 
         b->mass[i] = 0.5f + randf() * 0.5f;
     }
