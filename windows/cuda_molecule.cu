@@ -777,9 +777,8 @@ void buildCaffeine(Molecule* mol) {
     addAtom(mol, -2.0f, 3.8f, 0.0f, ATOM_C);      // CH3 on N6
     addAtom(mol, 2.0f, 5.8f, 0.0f, ATOM_C);       // CH3 on N8
 
-    // Hydrogens on imidazole
-    addAtom(mol, -1.8f, 1.0f, 0.0f, ATOM_H);      // H on C5
-    addAtom(mol, 3.0f, 3.2f, 0.0f, ATOM_H);       // H on C9
+    // Hydrogen on imidazole C8 position
+    addAtom(mol, 3.0f, 3.2f, 0.0f, ATOM_H);       // H on C9 (C8 position in IUPAC)
 
     // Hydrogens on methyl groups (simplified - 3 each)
     addAtom(mol, -1.5f, -1.5f, 0.0f, ATOM_H);
@@ -815,20 +814,19 @@ void buildCaffeine(Molecule* mol) {
     addBond(mol, 5, 12, 1);
     addBond(mol, 7, 13, 1);
 
-    // C-H bonds
-    addBond(mol, 4, 14, 1);
-    addBond(mol, 8, 15, 1);
+    // C-H bond (C9/C8 position)
+    addBond(mol, 8, 14, 1);
 
     // Methyl H bonds
+    addBond(mol, 11, 15, 1);
     addBond(mol, 11, 16, 1);
     addBond(mol, 11, 17, 1);
-    addBond(mol, 11, 18, 1);
+    addBond(mol, 12, 18, 1);
     addBond(mol, 12, 19, 1);
     addBond(mol, 12, 20, 1);
-    addBond(mol, 12, 21, 1);
+    addBond(mol, 13, 21, 1);
     addBond(mol, 13, 22, 1);
     addBond(mol, 13, 23, 1);
-    addBond(mol, 13, 24, 1);
 
     centerMolecule(mol);
 }
@@ -1364,9 +1362,8 @@ void buildBoricAcid(Molecule* mol) {
     mol->numBonds = 0;
     strcpy(mol->name, "Boric Acid (H3BO3)");
 
-    // Note: We don't have boron, so we'll use a carbon placeholder
-    // In real life this would need ATOM_B
-    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);     // B (shown as C - boron not defined)
+    // Boron center with three OH groups
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_B);     // B (boron)
     addAtom(mol, 1.3f, 0.0f, 0.0f, ATOM_O);     // OH
     addAtom(mol, -0.65f, 1.1f, 0.0f, ATOM_O);   // OH
     addAtom(mol, -0.65f, -1.1f, 0.0f, ATOM_O);  // OH
