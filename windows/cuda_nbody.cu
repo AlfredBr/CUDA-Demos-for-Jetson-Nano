@@ -116,6 +116,110 @@ __global__ void computeForcesKernel(
     }
 }
 
+// ============== FIND MAX MASS BODY ==============
+__global__ void findMaxMassKernel(
+    const float* mass,
+    const float* px, const float* py, const float* pz,
+    int n,
+    int* maxIdx,
+    float* maxMass,
+    float* maxX, float* maxY, float* maxZ)
+{
+    __shared__ float s_mass[256];
+    __shared__ int s_idx[256];
+
+    int tid = threadIdx.x;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Load mass and index
+    if (i < n) {
+        s_mass[tid] = mass[i];
+        s_idx[tid] = i;
+    } else {
+        s_mass[tid] = -1.0f;
+        s_idx[tid] = 0;
+    }
+    __syncthreads();
+
+    // Parallel reduction to find max
+    for (int stride = blockDim.x / 2; stride > 0; stride >>= 1) {
+        if (tid < stride) {
+            if (s_mass[tid + stride] > s_mass[tid]) {
+                s_mass[tid] = s_mass[tid + stride];
+                s_idx[tid] = s_idx[tid + stride];
+            }
+        }
+        __syncthreads();
+    }
+
+    // First block writes the result (simple approach for single block)
+    if (tid == 0) {
+        // Use atomic compare for multi-block scenario
+        if (s_mass[0] > *maxMass) {
+            *maxMass = s_mass[0];
+            *maxIdx = s_idx[0];
+            *maxX = px[s_idx[0]];
+            *maxY = py[s_idx[0]];
+            *maxZ = pz[s_idx[0]];
+        }
+    }
+}
+
+// Host function to find max mass body (more reliable for multi-block)
+void findMaxMassBody(
+    float* h_mass, float* h_x, float* h_y, float* h_z,
+    float* d_mass, float* d_x, float* d_y, float* d_z,
+    int n,
+    int* outIdx, float* outMass, float* outX, float* outY, float* outZ)
+{
+    // Copy current positions and masses from device
+    cudaMemcpy(h_mass, d_mass, n * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_x, d_x, n * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_y, d_y, n * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_z, d_z, n * sizeof(float), cudaMemcpyDeviceToHost);
+
+    // Find max on host
+    int maxIdx = 0;
+    float maxMass = h_mass[0];
+    for (int i = 1; i < n; i++) {
+        if (h_mass[i] > maxMass) {
+            maxMass = h_mass[i];
+            maxIdx = i;
+        }
+    }
+
+    *outIdx = maxIdx;
+    *outMass = maxMass;
+    *outX = h_x[maxIdx];
+    *outY = h_y[maxIdx];
+    *outZ = h_z[maxIdx];
+}
+
+// Calculate camera distance for mass to occupy given viewport fraction
+float calculateCameraDistance(float mass, float viewportFraction, float focalLength) {
+    // Approximate visual radius based on mass (bodies are drawn larger for higher mass)
+    // Base radius + additional size for massive bodies
+    float visualRadius = 1.0f + sqrtf(mass) * 2.0f;
+
+    // For perspective projection: screenSize = objectSize * focalLength / distance
+    // We want: screenSize / viewportSize = viewportFraction
+    // So: objectSize * focalLength / distance = viewportSize * viewportFraction
+    // distance = objectSize * focalLength / (viewportSize * viewportFraction)
+
+    float viewportSize = fminf((float)WIDTH, (float)HEIGHT);
+    float targetScreenSize = viewportSize * viewportFraction;
+
+    // From renderBodiesKernel: scale = 400.0f / depth, screenPos = worldPos * scale
+    // So: screenRadius = visualRadius * 400.0f / depth
+    // We want: screenRadius = targetScreenSize / 2
+    // Therefore: depth = visualRadius * 400.0f * 2 / targetScreenSize
+
+    float distance = visualRadius * 800.0f / targetScreenSize;
+
+    // Clamp to reasonable range
+    return fmaxf(20.0f, fminf(200.0f, distance));
+}
+
 // ============== INTEGRATION (Leapfrog) ==============
 __global__ void integrateKernel(
     float* px, float* py, float* pz,
@@ -428,6 +532,7 @@ void initFigure8(Bodies* b, int n) {
 
 int main() {
     printf("=== Windows CUDA N-Body Gravity Simulation ===\n\n");
+    printf("Camera auto-tracks the largest mass (40%% viewport)\n\n");
     printf("Controls:\n");
     printf("  1       - Uniform sphere collapse\n");
     printf("  2       - Rotating disk galaxy\n");
@@ -435,7 +540,6 @@ int main() {
     printf("  4       - Central mass + orbiters\n");
     printf("  5       - Figure-8 three-body\n");
     printf("  Arrows  - Rotate view\n");
-    printf("  W/S     - Zoom in/out\n");
     printf("  +/-     - Time step\n");
     printf("  T       - Toggle trails\n");
     printf("  Space   - Pause/resume\n");
@@ -494,6 +598,15 @@ int main() {
     float zoom = 80.0f;
     float camX = 0, camY = 0, camZ = 0;
 
+    // Max mass tracking
+    int maxMassIdx = 0;
+    float maxMass = 0.0f;
+    float targetX = 0.0f, targetY = 0.0f, targetZ = 0.0f;
+    float smoothCamX = 0.0f, smoothCamY = 0.0f, smoothCamZ = 0.0f;
+    float smoothZoom = 80.0f;
+    const float CAM_SMOOTH_FACTOR = 0.05f;  // Smoothing for camera movement
+    const float VIEWPORT_FRACTION = 0.4f;   // Target: mass occupies 40% of viewport
+
     srand(42);
 
     // Initialize with rotating disk
@@ -535,14 +648,14 @@ int main() {
 
                 if (key == XK_Escape || key == XK_q) goto cleanup;
 
-                // View controls
+                // View controls (rotation only - zoom is auto-adjusted)
                 if (key == XK_Left) rotY -= 0.1f;
                 if (key == XK_Right) rotY += 0.1f;
                 if (key == XK_Up) rotX -= 0.1f;
                 if (key == XK_Down) rotX += 0.1f;
-                if (key == XK_w) zoom -= 5.0f;
-                if (key == XK_s) zoom += 5.0f;
-                zoom = fmaxf(20.0f, fminf(200.0f, zoom));
+                // W/S now adjust smoothing factor for camera tracking
+                if (key == XK_w) { /* reserved for future use */ }
+                if (key == XK_s) { /* reserved for future use */ }
 
                 // Time step
                 if (key == XK_plus || key == XK_equal) dt *= 1.2f;
@@ -591,6 +704,10 @@ int main() {
                     // Clear screen
                     cudaMemset(d_pixels, 0, WIDTH * HEIGHT * 4);
 
+                    // Reset camera tracking to follow new max mass body
+                    smoothCamX = 0; smoothCamY = 0; smoothCamZ = 0;
+                    smoothZoom = 80.0f;
+
                     printf("Preset: %s\n", presetNames[preset-1]);
                 }
             }
@@ -613,6 +730,28 @@ int main() {
                 numBodies, dt);
         }
 
+        // Find the body with maximum mass and track it
+        findMaxMassBody(
+            h_bodies.mass, h_bodies.x, h_bodies.y, h_bodies.z,
+            d_mass, d_x, d_y, d_z,
+            numBodies,
+            &maxMassIdx, &maxMass, &targetX, &targetY, &targetZ);
+
+        // Calculate ideal camera distance for 40% viewport coverage
+        float idealZoom = calculateCameraDistance(maxMass, VIEWPORT_FRACTION, 400.0f);
+
+        // Smoothly interpolate camera position to follow the max mass body
+        smoothCamX += (targetX - smoothCamX) * CAM_SMOOTH_FACTOR;
+        smoothCamY += (targetY - smoothCamY) * CAM_SMOOTH_FACTOR;
+        smoothCamZ += (targetZ - smoothCamZ) * CAM_SMOOTH_FACTOR;
+        smoothZoom += (idealZoom - smoothZoom) * CAM_SMOOTH_FACTOR;
+
+        // Update camera to point at max mass body
+        camX = smoothCamX;
+        camY = smoothCamY;
+        camZ = smoothCamZ;
+        zoom = smoothZoom;
+
         // Render
         clearKernel<<<dispGridSize, dispBlockSize>>>(d_pixels, WIDTH, HEIGHT, showTrails);
 
@@ -632,8 +771,9 @@ int main() {
         frameCount++;
         double now = win32_get_time(display);
         if (now - lastFpsTime >= 1.0) {
-            printf("FPS: %.1f | Bodies: %d | dt: %.4f\n",
-                   frameCount / (now - lastFpsTime), numBodies, dt);
+            printf("FPS: %.1f | Bodies: %d | dt: %.4f | MaxMass: %.2f @ (%.1f,%.1f,%.1f)\n",
+                   frameCount / (now - lastFpsTime), numBodies, dt,
+                   maxMass, targetX, targetY, targetZ);
             frameCount = 0;
             lastFpsTime = now;
         }
