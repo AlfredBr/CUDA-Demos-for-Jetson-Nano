@@ -139,23 +139,23 @@ __device__ float intersectSphere(float3 ro, float3 rd, float3 center, float radi
 __device__ float intersectCylinder(float3 ro, float3 rd, float3 pa, float3 pb, float radius, float3* outNormal) {
     float3 ba = make_float3(pb.x - pa.x, pb.y - pa.y, pb.z - pa.z);
     float3 oc = make_float3(ro.x - pa.x, ro.y - pa.y, ro.z - pa.z);
-    
+
     float baba = dot3(ba, ba);
     float bard = dot3(ba, rd);
     float baoc = dot3(ba, oc);
-    
+
     float k2 = baba - bard * bard;
     float k1 = baba * dot3(oc, rd) - baoc * bard;
     float k0 = baba * dot3(oc, oc) - baoc * baoc - radius * radius * baba;
-    
+
     if (fabsf(k2) < 0.0001f) return -1.0f;
-    
+
     float h = k1 * k1 - k2 * k0;
     if (h < 0.0f) return -1.0f;
-    
+
     h = sqrtf(h);
     float t = (-k1 - h) / k2;
-    
+
     float y = baoc + t * bard;
     if (y > 0.0f && y < baba && t > 0.0f) {
         float3 hitPoint = make_float3(ro.x + t * rd.x, ro.y + t * rd.y, ro.z + t * rd.z);
@@ -165,7 +165,7 @@ __device__ float intersectCylinder(float3 ro, float3 rd, float3 pa, float3 pb, f
         *outNormal = normalize3(make_float3(hitPoint.x - onAxis.x, hitPoint.y - onAxis.y, hitPoint.z - onAxis.z));
         return t;
     }
-    
+
     return -1.0f;
 }
 
@@ -174,17 +174,170 @@ __device__ float intersectCylinder(float3 ro, float3 rd, float3 pa, float3 pb, f
 __global__ void clearKernel(unsigned char* pixels, int width, int height) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
-    
+
     if (x >= width || y >= height) return;
-    
+
     int idx = (y * width + x) * 4;
-    
+
     // Gradient background
     float gy = (float)y / height;
     pixels[idx + 0] = (unsigned char)(20 + gy * 30);
     pixels[idx + 1] = (unsigned char)(25 + gy * 35);
     pixels[idx + 2] = (unsigned char)(35 + gy * 40);
     pixels[idx + 3] = 255;
+}
+
+// Simple 6x8 bitmap font for text rendering (covers ASCII 32-127)
+// Each character is 6 pixels wide, stored in the lower 6 bits of each byte
+__device__ unsigned char getPixel(int c, int px, int py) {
+    // Simplified built-in font - returns 1 if pixel should be lit
+    if (c < 32 || c > 127) return 0;
+
+    // Font patterns for common characters (6 wide x 8 tall)
+    static const unsigned char font[][8] = {
+        {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}, // 32 space
+        {0x04,0x04,0x04,0x04,0x04,0x00,0x04,0x00}, // 33 !
+        {0x0A,0x0A,0x0A,0x00,0x00,0x00,0x00,0x00}, // 34 "
+        {0x0A,0x0A,0x1F,0x0A,0x1F,0x0A,0x0A,0x00}, // 35 #
+        {0x04,0x0F,0x14,0x0E,0x05,0x1E,0x04,0x00}, // 36 $
+        {0x18,0x19,0x02,0x04,0x08,0x13,0x03,0x00}, // 37 %
+        {0x08,0x14,0x14,0x08,0x15,0x12,0x0D,0x00}, // 38 &
+        {0x04,0x04,0x08,0x00,0x00,0x00,0x00,0x00}, // 39 '
+        {0x02,0x04,0x08,0x08,0x08,0x04,0x02,0x00}, // 40 (
+        {0x08,0x04,0x02,0x02,0x02,0x04,0x08,0x00}, // 41 )
+        {0x00,0x04,0x15,0x0E,0x15,0x04,0x00,0x00}, // 42 *
+        {0x00,0x04,0x04,0x1F,0x04,0x04,0x00,0x00}, // 43 +
+        {0x00,0x00,0x00,0x00,0x00,0x04,0x04,0x08}, // 44 ,
+        {0x00,0x00,0x00,0x1F,0x00,0x00,0x00,0x00}, // 45 -
+        {0x00,0x00,0x00,0x00,0x00,0x00,0x04,0x00}, // 46 .
+        {0x01,0x02,0x02,0x04,0x08,0x08,0x10,0x00}, // 47 /
+        {0x0E,0x11,0x13,0x15,0x19,0x11,0x0E,0x00}, // 48 0
+        {0x04,0x0C,0x04,0x04,0x04,0x04,0x0E,0x00}, // 49 1
+        {0x0E,0x11,0x01,0x02,0x04,0x08,0x1F,0x00}, // 50 2
+        {0x0E,0x11,0x01,0x06,0x01,0x11,0x0E,0x00}, // 51 3
+        {0x02,0x06,0x0A,0x12,0x1F,0x02,0x02,0x00}, // 52 4
+        {0x1F,0x10,0x1E,0x01,0x01,0x11,0x0E,0x00}, // 53 5
+        {0x06,0x08,0x10,0x1E,0x11,0x11,0x0E,0x00}, // 54 6
+        {0x1F,0x01,0x02,0x04,0x08,0x08,0x08,0x00}, // 55 7
+        {0x0E,0x11,0x11,0x0E,0x11,0x11,0x0E,0x00}, // 56 8
+        {0x0E,0x11,0x11,0x0F,0x01,0x02,0x0C,0x00}, // 57 9
+        {0x00,0x00,0x04,0x00,0x00,0x04,0x00,0x00}, // 58 :
+        {0x00,0x00,0x04,0x00,0x00,0x04,0x04,0x08}, // 59 ;
+        {0x02,0x04,0x08,0x10,0x08,0x04,0x02,0x00}, // 60 <
+        {0x00,0x00,0x1F,0x00,0x1F,0x00,0x00,0x00}, // 61 =
+        {0x08,0x04,0x02,0x01,0x02,0x04,0x08,0x00}, // 62 >
+        {0x0E,0x11,0x01,0x02,0x04,0x00,0x04,0x00}, // 63 ?
+        {0x0E,0x11,0x17,0x15,0x17,0x10,0x0E,0x00}, // 64 @
+        {0x0E,0x11,0x11,0x1F,0x11,0x11,0x11,0x00}, // 65 A
+        {0x1E,0x11,0x11,0x1E,0x11,0x11,0x1E,0x00}, // 66 B
+        {0x0E,0x11,0x10,0x10,0x10,0x11,0x0E,0x00}, // 67 C
+        {0x1E,0x11,0x11,0x11,0x11,0x11,0x1E,0x00}, // 68 D
+        {0x1F,0x10,0x10,0x1E,0x10,0x10,0x1F,0x00}, // 69 E
+        {0x1F,0x10,0x10,0x1E,0x10,0x10,0x10,0x00}, // 70 F
+        {0x0E,0x11,0x10,0x17,0x11,0x11,0x0F,0x00}, // 71 G
+        {0x11,0x11,0x11,0x1F,0x11,0x11,0x11,0x00}, // 72 H
+        {0x0E,0x04,0x04,0x04,0x04,0x04,0x0E,0x00}, // 73 I
+        {0x07,0x02,0x02,0x02,0x02,0x12,0x0C,0x00}, // 74 J
+        {0x11,0x12,0x14,0x18,0x14,0x12,0x11,0x00}, // 75 K
+        {0x10,0x10,0x10,0x10,0x10,0x10,0x1F,0x00}, // 76 L
+        {0x11,0x1B,0x15,0x15,0x11,0x11,0x11,0x00}, // 77 M
+        {0x11,0x19,0x15,0x13,0x11,0x11,0x11,0x00}, // 78 N
+        {0x0E,0x11,0x11,0x11,0x11,0x11,0x0E,0x00}, // 79 O
+        {0x1E,0x11,0x11,0x1E,0x10,0x10,0x10,0x00}, // 80 P
+        {0x0E,0x11,0x11,0x11,0x15,0x12,0x0D,0x00}, // 81 Q
+        {0x1E,0x11,0x11,0x1E,0x14,0x12,0x11,0x00}, // 82 R
+        {0x0E,0x11,0x10,0x0E,0x01,0x11,0x0E,0x00}, // 83 S
+        {0x1F,0x04,0x04,0x04,0x04,0x04,0x04,0x00}, // 84 T
+        {0x11,0x11,0x11,0x11,0x11,0x11,0x0E,0x00}, // 85 U
+        {0x11,0x11,0x11,0x11,0x11,0x0A,0x04,0x00}, // 86 V
+        {0x11,0x11,0x11,0x15,0x15,0x1B,0x11,0x00}, // 87 W
+        {0x11,0x11,0x0A,0x04,0x0A,0x11,0x11,0x00}, // 88 X
+        {0x11,0x11,0x0A,0x04,0x04,0x04,0x04,0x00}, // 89 Y
+        {0x1F,0x01,0x02,0x04,0x08,0x10,0x1F,0x00}, // 90 Z
+        {0x0E,0x08,0x08,0x08,0x08,0x08,0x0E,0x00}, // 91 [
+        {0x10,0x08,0x08,0x04,0x02,0x02,0x01,0x00}, // 92 backslash
+        {0x0E,0x02,0x02,0x02,0x02,0x02,0x0E,0x00}, // 93 ]
+        {0x04,0x0A,0x11,0x00,0x00,0x00,0x00,0x00}, // 94 ^
+        {0x00,0x00,0x00,0x00,0x00,0x00,0x1F,0x00}, // 95 _
+        {0x08,0x04,0x02,0x00,0x00,0x00,0x00,0x00}, // 96 `
+        {0x00,0x00,0x0E,0x01,0x0F,0x11,0x0F,0x00}, // 97 a
+        {0x10,0x10,0x1E,0x11,0x11,0x11,0x1E,0x00}, // 98 b
+        {0x00,0x00,0x0E,0x11,0x10,0x11,0x0E,0x00}, // 99 c
+        {0x01,0x01,0x0F,0x11,0x11,0x11,0x0F,0x00}, // 100 d
+        {0x00,0x00,0x0E,0x11,0x1F,0x10,0x0E,0x00}, // 101 e
+        {0x02,0x05,0x04,0x0E,0x04,0x04,0x04,0x00}, // 102 f
+        {0x00,0x00,0x0F,0x11,0x11,0x0F,0x01,0x0E}, // 103 g
+        {0x10,0x10,0x16,0x19,0x11,0x11,0x11,0x00}, // 104 h
+        {0x04,0x00,0x0C,0x04,0x04,0x04,0x0E,0x00}, // 105 i
+        {0x02,0x00,0x06,0x02,0x02,0x02,0x12,0x0C}, // 106 j
+        {0x10,0x10,0x12,0x14,0x18,0x14,0x12,0x00}, // 107 k
+        {0x0C,0x04,0x04,0x04,0x04,0x04,0x0E,0x00}, // 108 l
+        {0x00,0x00,0x1A,0x15,0x15,0x11,0x11,0x00}, // 109 m
+        {0x00,0x00,0x16,0x19,0x11,0x11,0x11,0x00}, // 110 n
+        {0x00,0x00,0x0E,0x11,0x11,0x11,0x0E,0x00}, // 111 o
+        {0x00,0x00,0x1E,0x11,0x11,0x1E,0x10,0x10}, // 112 p
+        {0x00,0x00,0x0F,0x11,0x11,0x0F,0x01,0x01}, // 113 q
+        {0x00,0x00,0x16,0x19,0x10,0x10,0x10,0x00}, // 114 r
+        {0x00,0x00,0x0E,0x10,0x0E,0x01,0x1E,0x00}, // 115 s
+        {0x04,0x04,0x0E,0x04,0x04,0x05,0x02,0x00}, // 116 t
+        {0x00,0x00,0x11,0x11,0x11,0x13,0x0D,0x00}, // 117 u
+        {0x00,0x00,0x11,0x11,0x11,0x0A,0x04,0x00}, // 118 v
+        {0x00,0x00,0x11,0x11,0x15,0x15,0x0A,0x00}, // 119 w
+        {0x00,0x00,0x11,0x0A,0x04,0x0A,0x11,0x00}, // 120 x
+        {0x00,0x00,0x11,0x11,0x11,0x0F,0x01,0x0E}, // 121 y
+        {0x00,0x00,0x1F,0x02,0x04,0x08,0x1F,0x00}, // 122 z
+        {0x02,0x04,0x04,0x08,0x04,0x04,0x02,0x00}, // 123 {
+        {0x04,0x04,0x04,0x04,0x04,0x04,0x04,0x00}, // 124 |
+        {0x08,0x04,0x04,0x02,0x04,0x04,0x08,0x00}, // 125 }
+        {0x00,0x00,0x08,0x15,0x02,0x00,0x00,0x00}, // 126 ~
+        {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}, // 127
+    };
+
+    int idx = c - 32;
+    if (idx < 0 || idx >= 96) return 0;
+    if (py < 0 || py >= 8) return 0;
+    if (px < 0 || px >= 6) return 0;
+
+    unsigned char row = font[idx][py];
+    return (row >> (4 - px)) & 1;
+}
+
+// Text rendering kernel - renders scaled bitmap text
+__global__ void renderTextKernel(
+    unsigned char* pixels, int width, int height,
+    const char* text, int textLen, int startX, int startY, int scale)
+{
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (x >= width || y >= height) return;
+
+    // Check if pixel is in text region
+    int charWidth = 6 * scale;
+    int charHeight = 8 * scale;
+    int textWidth = textLen * charWidth;
+
+    if (x < startX || x >= startX + textWidth || y < startY || y >= startY + charHeight)
+        return;
+
+    // Find which character and which pixel within the character
+    int relX = x - startX;
+    int relY = y - startY;
+    int charIndex = relX / charWidth;
+    int pixelX = (relX % charWidth) / scale;
+    int pixelY = relY / scale;
+
+    if (charIndex >= textLen) return;
+
+    unsigned char c = text[charIndex];
+    if (getPixel(c, pixelX, pixelY)) {
+        int idx = (y * width + x) * 4;
+        // White text
+        pixels[idx + 0] = 255;  // B
+        pixels[idx + 1] = 255;  // G
+        pixels[idx + 2] = 255;  // R
+        pixels[idx + 3] = 255;  // A
+    }
 }
 
 __global__ void renderMoleculeKernel(
@@ -195,57 +348,57 @@ __global__ void renderMoleculeKernel(
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
-    
+
     if (x >= width || y >= height) return;
-    
+
     // Camera setup
     float aspectRatio = (float)width / height;
     float fovScale = tanf(0.5f * 0.8f);
-    
+
     float ndcX = (2.0f * x / width - 1.0f) * aspectRatio * fovScale;
     float ndcY = (1.0f - 2.0f * y / height) * fovScale;
-    
+
     // Ray direction
     float3 rd = normalize3(make_float3(ndcX, ndcY, 1.0f));
-    
+
     // Rotate ray
     float cosY = cosf(rotY), sinY = sinf(rotY);
     float cosX = cosf(rotX), sinX = sinf(rotX);
-    
+
     float rx = rd.x * cosY + rd.z * sinY;
     float rz = -rd.x * sinY + rd.z * cosY;
     rd.x = rx; rd.z = rz;
-    
+
     float ry = rd.y * cosX - rd.z * sinX;
     rz = rd.y * sinX + rd.z * cosX;
     rd.y = ry; rd.z = rz;
-    
+
     // Ray origin
     float3 ro = make_float3(0, 0, -zoom);
-    
+
     // Rotate camera
     float cox = ro.x * cosY + ro.z * sinY;
     float coz = -ro.x * sinY + ro.z * cosY;
     ro.x = cox; ro.z = coz;
-    
+
     float coy = ro.y * cosX - ro.z * sinX;
     coz = ro.y * sinX + ro.z * cosX;
     ro.y = coy; ro.z = coz;
-    
+
     // Lighting
     float3 lightDir = normalize3(make_float3(0.5f, 0.8f, -0.3f));
     float3 lightDir2 = normalize3(make_float3(-0.3f, 0.2f, 0.5f));
-    
+
     float minT = 1e10f;
     float3 hitNormal;
     float3 hitColor;
     int hitType = 0;  // 0=none, 1=atom, 2=bond
-    
+
     // Test atoms (spheres)
     for (int i = 0; i < numAtoms; i++) {
         float3 center = make_float3(atoms[i].x, atoms[i].y, atoms[i].z);
         float radius = atoms[i].radius;
-        
+
         float t = intersectSphere(ro, rd, center, radius);
         if (t > 0.0f && t < minT) {
             minT = t;
@@ -255,20 +408,20 @@ __global__ void renderMoleculeKernel(
             hitType = 1;
         }
     }
-    
+
     // Test bonds (cylinders)
     float bondRadius = 0.08f;
     for (int i = 0; i < numBonds; i++) {
         int a1 = bonds[i].atom1;
         int a2 = bonds[i].atom2;
-        
+
         float3 p1 = make_float3(atoms[a1].x, atoms[a1].y, atoms[a1].z);
         float3 p2 = make_float3(atoms[a2].x, atoms[a2].y, atoms[a2].z);
-        
+
         // For double/triple bonds, offset cylinders
         int order = bonds[i].order;
         float3 bondDir = normalize3(make_float3(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z));
-        
+
         // Find perpendicular vector
         float3 perp;
         if (fabsf(bondDir.x) < 0.9f) {
@@ -276,7 +429,7 @@ __global__ void renderMoleculeKernel(
         } else {
             perp = normalize3(make_float3(-bondDir.z, 0, bondDir.x));
         }
-        
+
         for (int b = 0; b < order; b++) {
             float3 offset = make_float3(0, 0, 0);
             if (order == 2) {
@@ -286,10 +439,10 @@ __global__ void renderMoleculeKernel(
                 float off = (b - 1) * 0.1f;
                 offset = make_float3(perp.x * off, perp.y * off, perp.z * off);
             }
-            
+
             float3 bp1 = make_float3(p1.x + offset.x, p1.y + offset.y, p1.z + offset.z);
             float3 bp2 = make_float3(p2.x + offset.x, p2.y + offset.y, p2.z + offset.z);
-            
+
             float3 cylNormal;
             float t = intersectCylinder(ro, rd, bp1, bp2, bondRadius, &cylNormal);
             if (t > 0.0f && t < minT) {
@@ -300,21 +453,21 @@ __global__ void renderMoleculeKernel(
             }
         }
     }
-    
+
     int idx = (y * width + x) * 4;
-    
+
     if (hitType > 0) {
         // Phong shading with two lights
         float diffuse1 = fmaxf(0.0f, dot3(hitNormal, lightDir));
         float diffuse2 = fmaxf(0.0f, dot3(hitNormal, lightDir2)) * 0.3f;
-        
+
         float3 viewDir = normalize3(make_float3(-rd.x, -rd.y, -rd.z));
         float3 reflectDir = reflect3(make_float3(-lightDir.x, -lightDir.y, -lightDir.z), hitNormal);
         float spec = powf(fmaxf(0.0f, dot3(viewDir, reflectDir)), 40.0f);
-        
+
         float ambient = 0.15f;
         float3 finalColor;
-        
+
         if (hitType == 1) {
             // Atom - glossy plastic look
             finalColor.x = hitColor.x * (ambient + diffuse1 * 0.7f + diffuse2) + spec * 0.6f;
@@ -326,13 +479,13 @@ __global__ void renderMoleculeKernel(
             finalColor.y = hitColor.y * (ambient + diffuse1 * 0.5f + diffuse2) + spec * 0.4f;
             finalColor.z = hitColor.z * (ambient + diffuse1 * 0.5f + diffuse2) + spec * 0.4f;
         }
-        
+
         // Fresnel rim lighting
         float fresnel = powf(1.0f - fmaxf(0.0f, dot3(viewDir, hitNormal)), 3.0f);
         finalColor.x += fresnel * 0.15f;
         finalColor.y += fresnel * 0.15f;
         finalColor.z += fresnel * 0.2f;
-        
+
         pixels[idx + 0] = (unsigned char)fminf(255.0f, finalColor.z * 255.0f);
         pixels[idx + 1] = (unsigned char)fminf(255.0f, finalColor.y * 255.0f);
         pixels[idx + 2] = (unsigned char)fminf(255.0f, finalColor.x * 255.0f);
@@ -348,11 +501,11 @@ void addAtom(Molecule* mol, float x, float y, float z, int type) {
     a->y = y;
     a->z = z;
     a->type = type;
-    
+
     // Set radius based on type
     float radii[] = {0.25f, 0.40f, 0.38f, 0.35f, 0.45f, 0.45f, 0.45f, 0.50f, 0.35f, 0.55f};
     a->radius = radii[type];
-    
+
     mol->numAtoms++;
 }
 
@@ -375,7 +528,7 @@ void centerMolecule(Molecule* mol) {
     cx /= mol->numAtoms;
     cy /= mol->numAtoms;
     cz /= mol->numAtoms;
-    
+
     for (int i = 0; i < mol->numAtoms; i++) {
         mol->atoms[i].x -= cx;
         mol->atoms[i].y -= cy;
@@ -388,14 +541,14 @@ void buildWater(Molecule* mol) {
     mol->numAtoms = 0;
     mol->numBonds = 0;
     strcpy(mol->name, "Water (H2O)");
-    
+
     addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_O);
     addAtom(mol, 0.76f, 0.59f, 0.0f, ATOM_H);
     addAtom(mol, -0.76f, 0.59f, 0.0f, ATOM_H);
-    
+
     addBond(mol, 0, 1, 1);
     addBond(mol, 0, 2, 1);
-    
+
     centerMolecule(mol);
 }
 
@@ -404,18 +557,18 @@ void buildMethane(Molecule* mol) {
     mol->numAtoms = 0;
     mol->numBonds = 0;
     strcpy(mol->name, "Methane (CH4)");
-    
+
     addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
     addAtom(mol, 0.63f, 0.63f, 0.63f, ATOM_H);
     addAtom(mol, -0.63f, -0.63f, 0.63f, ATOM_H);
     addAtom(mol, -0.63f, 0.63f, -0.63f, ATOM_H);
     addAtom(mol, 0.63f, -0.63f, -0.63f, ATOM_H);
-    
+
     addBond(mol, 0, 1, 1);
     addBond(mol, 0, 2, 1);
     addBond(mol, 0, 3, 1);
     addBond(mol, 0, 4, 1);
-    
+
     centerMolecule(mol);
 }
 
@@ -424,32 +577,32 @@ void buildBenzene(Molecule* mol) {
     mol->numAtoms = 0;
     mol->numBonds = 0;
     strcpy(mol->name, "Benzene (C6H6)");
-    
+
     float r = 1.4f;
     float rH = 2.2f;
-    
+
     // Carbon ring
     for (int i = 0; i < 6; i++) {
         float angle = i * PI / 3.0f;
         addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);
     }
-    
+
     // Hydrogen atoms
     for (int i = 0; i < 6; i++) {
         float angle = i * PI / 3.0f;
         addAtom(mol, rH * cosf(angle), rH * sinf(angle), 0.0f, ATOM_H);
     }
-    
+
     // C-C bonds (alternating single/double for aromatic)
     for (int i = 0; i < 6; i++) {
         addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
     }
-    
+
     // C-H bonds
     for (int i = 0; i < 6; i++) {
         addBond(mol, i, i + 6, 1);
     }
-    
+
     centerMolecule(mol);
 }
 
@@ -458,26 +611,26 @@ void buildEthanol(Molecule* mol) {
     mol->numAtoms = 0;
     mol->numBonds = 0;
     strcpy(mol->name, "Ethanol (C2H5OH)");
-    
+
     // Carbons
     addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C1
     addAtom(mol, 1.5f, 0.0f, 0.0f, ATOM_C);      // C2
-    
+
     // Oxygen
     addAtom(mol, 2.2f, 1.1f, 0.0f, ATOM_O);      // O
-    
+
     // Hydrogens on C1
     addAtom(mol, -0.5f, 0.9f, 0.3f, ATOM_H);
     addAtom(mol, -0.5f, -0.5f, 0.8f, ATOM_H);
     addAtom(mol, -0.5f, -0.4f, -0.9f, ATOM_H);
-    
+
     // Hydrogens on C2
     addAtom(mol, 2.0f, -0.5f, 0.85f, ATOM_H);
     addAtom(mol, 2.0f, -0.5f, -0.85f, ATOM_H);
-    
+
     // Hydrogen on O
     addAtom(mol, 3.1f, 1.0f, 0.0f, ATOM_H);
-    
+
     // Bonds
     addBond(mol, 0, 1, 1);  // C-C
     addBond(mol, 1, 2, 1);  // C-O
@@ -487,7 +640,7 @@ void buildEthanol(Molecule* mol) {
     addBond(mol, 1, 6, 1);
     addBond(mol, 1, 7, 1);
     addBond(mol, 2, 8, 1);  // O-H
-    
+
     centerMolecule(mol);
 }
 
@@ -496,7 +649,7 @@ void buildCaffeine(Molecule* mol) {
     mol->numAtoms = 0;
     mol->numBonds = 0;
     strcpy(mol->name, "Caffeine (C8H10N4O2)");
-    
+
     // Purine ring system (approximate coordinates)
     // Imidazole ring
     addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);       // N1
@@ -504,39 +657,39 @@ void buildCaffeine(Molecule* mol) {
     addAtom(mol, 1.2f, 1.9f, 0.0f, ATOM_N);       // N3
     addAtom(mol, 0.0f, 2.4f, 0.0f, ATOM_C);       // C4
     addAtom(mol, -0.8f, 1.2f, 0.0f, ATOM_C);      // C5
-    
+
     // Pyrimidine ring
     addAtom(mol, -0.8f, 3.6f, 0.0f, ATOM_N);      // N6
     addAtom(mol, 0.0f, 4.8f, 0.0f, ATOM_C);       // C7
     addAtom(mol, 1.4f, 4.6f, 0.0f, ATOM_N);       // N8
     addAtom(mol, 1.8f, 3.3f, 0.0f, ATOM_C);       // C9
-    
+
     // Carbonyl oxygens
     addAtom(mol, 2.3f, -0.2f, 0.0f, ATOM_O);      // O1
     addAtom(mol, -0.4f, 5.9f, 0.0f, ATOM_O);      // O2
-    
+
     // Methyl groups
     addAtom(mol, -0.5f, -1.3f, 0.0f, ATOM_C);     // CH3 on N1
     addAtom(mol, -2.0f, 3.8f, 0.0f, ATOM_C);      // CH3 on N6
     addAtom(mol, 2.0f, 5.8f, 0.0f, ATOM_C);       // CH3 on N8
-    
+
     // Hydrogens on imidazole
     addAtom(mol, -1.8f, 1.0f, 0.0f, ATOM_H);      // H on C5
     addAtom(mol, 3.0f, 3.2f, 0.0f, ATOM_H);       // H on C9
-    
+
     // Hydrogens on methyl groups (simplified - 3 each)
     addAtom(mol, -1.5f, -1.5f, 0.0f, ATOM_H);
     addAtom(mol, -0.1f, -1.8f, 0.8f, ATOM_H);
     addAtom(mol, -0.1f, -1.8f, -0.8f, ATOM_H);
-    
+
     addAtom(mol, -2.3f, 4.8f, 0.0f, ATOM_H);
     addAtom(mol, -2.5f, 3.3f, 0.8f, ATOM_H);
     addAtom(mol, -2.5f, 3.3f, -0.8f, ATOM_H);
-    
+
     addAtom(mol, 1.5f, 6.7f, 0.0f, ATOM_H);
     addAtom(mol, 2.5f, 5.8f, 0.9f, ATOM_H);
     addAtom(mol, 2.5f, 5.8f, -0.9f, ATOM_H);
-    
+
     // Bonds - rings
     addBond(mol, 0, 1, 1);
     addBond(mol, 1, 2, 2);
@@ -548,20 +701,20 @@ void buildCaffeine(Molecule* mol) {
     addBond(mol, 6, 7, 1);
     addBond(mol, 7, 8, 1);
     addBond(mol, 8, 2, 1);
-    
+
     // Carbonyl bonds
     addBond(mol, 1, 9, 2);
     addBond(mol, 6, 10, 2);
-    
+
     // Methyl bonds
     addBond(mol, 0, 11, 1);
     addBond(mol, 5, 12, 1);
     addBond(mol, 7, 13, 1);
-    
+
     // C-H bonds
     addBond(mol, 4, 14, 1);
     addBond(mol, 8, 15, 1);
-    
+
     // Methyl H bonds
     addBond(mol, 11, 16, 1);
     addBond(mol, 11, 17, 1);
@@ -572,7 +725,7 @@ void buildCaffeine(Molecule* mol) {
     addBond(mol, 13, 22, 1);
     addBond(mol, 13, 23, 1);
     addBond(mol, 13, 24, 1);
-    
+
     centerMolecule(mol);
 }
 
@@ -581,7 +734,7 @@ void buildAdenine(Molecule* mol) {
     mol->numAtoms = 0;
     mol->numBonds = 0;
     strcpy(mol->name, "Adenine (DNA base)");
-    
+
     // Purine ring
     addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);       // N1
     addAtom(mol, 1.3f, 0.3f, 0.0f, ATOM_C);       // C2
@@ -589,22 +742,22 @@ void buildAdenine(Molecule* mol) {
     addAtom(mol, 0.9f, 2.6f, 0.0f, ATOM_C);       // C4
     addAtom(mol, -0.4f, 2.3f, 0.0f, ATOM_C);      // C5
     addAtom(mol, -0.8f, 1.0f, 0.0f, ATOM_C);      // C6
-    
+
     // Imidazole ring
     addAtom(mol, 1.2f, 3.9f, 0.0f, ATOM_N);       // N7
     addAtom(mol, 0.0f, 4.5f, 0.0f, ATOM_C);       // C8
     addAtom(mol, -1.0f, 3.5f, 0.0f, ATOM_N);      // N9
-    
+
     // Amino group
     addAtom(mol, -2.1f, 0.7f, 0.0f, ATOM_N);      // NH2
-    
+
     // Hydrogens
     addAtom(mol, 2.0f, -0.4f, 0.0f, ATOM_H);      // H on C2
     addAtom(mol, -0.2f, 5.5f, 0.0f, ATOM_H);      // H on C8
     addAtom(mol, -1.9f, 3.8f, 0.0f, ATOM_H);      // H on N9
     addAtom(mol, -2.6f, 1.5f, 0.0f, ATOM_H);      // H on NH2
     addAtom(mol, -2.6f, -0.1f, 0.0f, ATOM_H);     // H on NH2
-    
+
     // Bonds
     addBond(mol, 0, 1, 2);
     addBond(mol, 1, 2, 1);
@@ -622,7 +775,7 @@ void buildAdenine(Molecule* mol) {
     addBond(mol, 8, 12, 1);
     addBond(mol, 9, 13, 1);
     addBond(mol, 9, 14, 1);
-    
+
     centerMolecule(mol);
 }
 
@@ -631,10 +784,10 @@ void buildGlucose(Molecule* mol) {
     mol->numAtoms = 0;
     mol->numBonds = 0;
     strcpy(mol->name, "Glucose (C6H12O6)");
-    
+
     // Pyranose ring (chair conformation, simplified)
     float r = 1.4f;
-    
+
     // Ring carbons and oxygen
     addAtom(mol, r, 0.0f, 0.3f, ATOM_C);          // C1
     addAtom(mol, r * 0.5f, r * 0.866f, -0.3f, ATOM_C);   // C2
@@ -642,17 +795,17 @@ void buildGlucose(Molecule* mol) {
     addAtom(mol, -r, 0.0f, -0.3f, ATOM_C);        // C4
     addAtom(mol, -r * 0.5f, -r * 0.866f, 0.3f, ATOM_C);  // C5
     addAtom(mol, r * 0.5f, -r * 0.866f, -0.3f, ATOM_O);  // Ring O
-    
+
     // C6 (CH2OH group)
     addAtom(mol, -r * 0.9f, -r * 1.5f, 0.0f, ATOM_C);    // C6
-    
+
     // OH groups
     addAtom(mol, r * 1.5f, 0.3f, 1.0f, ATOM_O);          // O on C1
     addAtom(mol, r * 0.9f, r * 1.4f, -1.0f, ATOM_O);     // O on C2
     addAtom(mol, -r * 0.9f, r * 1.4f, 1.0f, ATOM_O);     // O on C3
     addAtom(mol, -r * 1.5f, 0.0f, -1.0f, ATOM_O);        // O on C4
     addAtom(mol, -r * 0.5f, -r * 2.3f, 0.0f, ATOM_O);    // O on C6
-    
+
     // Hydrogens (simplified - one per carbon/oxygen)
     addAtom(mol, r * 1.3f, -0.5f, -0.5f, ATOM_H);        // H on C1
     addAtom(mol, r * 0.8f, r * 0.5f, 0.5f, ATOM_H);      // H on C2
@@ -661,14 +814,14 @@ void buildGlucose(Molecule* mol) {
     addAtom(mol, -r * 0.8f, -r * 0.6f, -0.5f, ATOM_H);   // H on C5
     addAtom(mol, -r * 1.5f, -r * 1.3f, 0.7f, ATOM_H);    // H on C6
     addAtom(mol, -r * 1.3f, -r * 1.5f, -0.8f, ATOM_H);   // H on C6
-    
+
     // OH hydrogens
     addAtom(mol, r * 2.2f, 0.0f, 1.3f, ATOM_H);
     addAtom(mol, r * 1.5f, r * 1.2f, -1.5f, ATOM_H);
     addAtom(mol, -r * 1.5f, r * 1.2f, 1.5f, ATOM_H);
     addAtom(mol, -r * 2.2f, 0.0f, -1.3f, ATOM_H);
     addAtom(mol, -r * 0.9f, -r * 2.8f, 0.5f, ATOM_H);
-    
+
     // Ring bonds
     addBond(mol, 0, 1, 1);
     addBond(mol, 1, 2, 1);
@@ -676,17 +829,17 @@ void buildGlucose(Molecule* mol) {
     addBond(mol, 3, 4, 1);
     addBond(mol, 4, 5, 1);
     addBond(mol, 5, 0, 1);
-    
+
     // C6 bond
     addBond(mol, 4, 6, 1);
-    
+
     // C-O bonds
     addBond(mol, 0, 7, 1);
     addBond(mol, 1, 8, 1);
     addBond(mol, 2, 9, 1);
     addBond(mol, 3, 10, 1);
     addBond(mol, 6, 11, 1);
-    
+
     // C-H bonds
     addBond(mol, 0, 12, 1);
     addBond(mol, 1, 13, 1);
@@ -695,14 +848,14 @@ void buildGlucose(Molecule* mol) {
     addBond(mol, 4, 16, 1);
     addBond(mol, 6, 17, 1);
     addBond(mol, 6, 18, 1);
-    
+
     // O-H bonds
     addBond(mol, 7, 19, 1);
     addBond(mol, 8, 20, 1);
     addBond(mol, 9, 21, 1);
     addBond(mol, 10, 22, 1);
     addBond(mol, 11, 23, 1);
-    
+
     centerMolecule(mol);
 }
 
@@ -711,57 +864,57 @@ void buildAspirin(Molecule* mol) {
     mol->numAtoms = 0;
     mol->numBonds = 0;
     strcpy(mol->name, "Aspirin (C9H8O4)");
-    
+
     float r = 1.4f;
-    
+
     // Benzene ring
     for (int i = 0; i < 6; i++) {
         float angle = i * PI / 3.0f;
         addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);
     }
-    
+
     // Carboxylic acid group (COOH)
     addAtom(mol, 2.5f, 0.5f, 0.0f, ATOM_C);       // C7
     addAtom(mol, 3.2f, 1.5f, 0.0f, ATOM_O);       // O1 (=O)
     addAtom(mol, 3.0f, -0.6f, 0.0f, ATOM_O);      // O2 (OH)
-    
+
     // Acetyl group (OCOCH3)
     addAtom(mol, r * cosf(PI/3.0f) - 0.8f, r * sinf(PI/3.0f) + 0.8f, 0.0f, ATOM_O);  // O3
     addAtom(mol, r * cosf(PI/3.0f) - 1.0f, r * sinf(PI/3.0f) + 2.2f, 0.0f, ATOM_C);  // C8
     addAtom(mol, r * cosf(PI/3.0f) - 2.3f, r * sinf(PI/3.0f) + 2.8f, 0.0f, ATOM_O);  // O4 (=O)
     addAtom(mol, r * cosf(PI/3.0f) + 0.2f, r * sinf(PI/3.0f) + 3.2f, 0.0f, ATOM_C);  // C9 (CH3)
-    
+
     // Hydrogens on benzene (4 of them, positions 2,3,4,5)
     float rH = 2.4f;
     addAtom(mol, rH * cosf(2*PI/3.0f), rH * sinf(2*PI/3.0f), 0.0f, ATOM_H);
     addAtom(mol, rH * cosf(PI), rH * sinf(PI), 0.0f, ATOM_H);
     addAtom(mol, rH * cosf(4*PI/3.0f), rH * sinf(4*PI/3.0f), 0.0f, ATOM_H);
     addAtom(mol, rH * cosf(5*PI/3.0f), rH * sinf(5*PI/3.0f), 0.0f, ATOM_H);
-    
+
     // H on COOH
     addAtom(mol, 3.8f, -0.5f, 0.0f, ATOM_H);
-    
+
     // H on CH3
     addAtom(mol, r * cosf(PI/3.0f) + 0.0f, r * sinf(PI/3.0f) + 4.1f, 0.0f, ATOM_H);
     addAtom(mol, r * cosf(PI/3.0f) + 0.9f, r * sinf(PI/3.0f) + 2.8f, 0.7f, ATOM_H);
     addAtom(mol, r * cosf(PI/3.0f) + 0.9f, r * sinf(PI/3.0f) + 2.8f, -0.7f, ATOM_H);
-    
+
     // Benzene bonds
     for (int i = 0; i < 6; i++) {
         addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
     }
-    
+
     // COOH bonds
     addBond(mol, 0, 6, 1);    // C1-C7
     addBond(mol, 6, 7, 2);    // C7=O1
     addBond(mol, 6, 8, 1);    // C7-O2
-    
+
     // Acetyl bonds
     addBond(mol, 1, 9, 1);    // C2-O3
     addBond(mol, 9, 10, 1);   // O3-C8
     addBond(mol, 10, 11, 2);  // C8=O4
     addBond(mol, 10, 12, 1);  // C8-C9
-    
+
     // C-H bonds
     addBond(mol, 2, 13, 1);
     addBond(mol, 3, 14, 1);
@@ -771,7 +924,929 @@ void buildAspirin(Molecule* mol) {
     addBond(mol, 12, 18, 1);
     addBond(mol, 12, 19, 1);
     addBond(mol, 12, 20, 1);
-    
+
+    centerMolecule(mol);
+}
+
+// Build Ammonia (NH3)
+void buildAmmonia(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Ammonia (NH3)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);
+    addAtom(mol, 0.94f, 0.0f, 0.34f, ATOM_H);
+    addAtom(mol, -0.47f, 0.81f, 0.34f, ATOM_H);
+    addAtom(mol, -0.47f, -0.81f, 0.34f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 0, 3, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Carbon Dioxide (CO2)
+void buildCarbonDioxide(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Carbon Dioxide (CO2)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -1.16f, 0.0f, 0.0f, ATOM_O);
+    addAtom(mol, 1.16f, 0.0f, 0.0f, ATOM_O);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 2);
+
+    centerMolecule(mol);
+}
+
+// Build Formaldehyde (CH2O)
+void buildFormaldehyde(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Formaldehyde (CH2O)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, 1.2f, 0.0f, ATOM_O);
+    addAtom(mol, 0.93f, -0.54f, 0.0f, ATOM_H);
+    addAtom(mol, -0.93f, -0.54f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 0, 3, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Acetone (C3H6O)
+void buildAcetone(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Acetone (C3H6O)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // Central C
+    addAtom(mol, 0.0f, 1.2f, 0.0f, ATOM_O);      // =O
+    addAtom(mol, -1.4f, -0.5f, 0.0f, ATOM_C);    // CH3
+    addAtom(mol, 1.4f, -0.5f, 0.0f, ATOM_C);     // CH3
+
+    // Hydrogens on CH3 groups
+    addAtom(mol, -1.4f, -1.6f, 0.0f, ATOM_H);
+    addAtom(mol, -2.1f, -0.1f, 0.8f, ATOM_H);
+    addAtom(mol, -2.1f, -0.1f, -0.8f, ATOM_H);
+    addAtom(mol, 1.4f, -1.6f, 0.0f, ATOM_H);
+    addAtom(mol, 2.1f, -0.1f, 0.8f, ATOM_H);
+    addAtom(mol, 2.1f, -0.1f, -0.8f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 0, 3, 1);
+    addBond(mol, 2, 4, 1);
+    addBond(mol, 2, 5, 1);
+    addBond(mol, 2, 6, 1);
+    addBond(mol, 3, 7, 1);
+    addBond(mol, 3, 8, 1);
+    addBond(mol, 3, 9, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Acetic Acid (CH3COOH)
+void buildAceticAcid(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Acetic Acid (CH3COOH)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // CH3
+    addAtom(mol, 1.5f, 0.0f, 0.0f, ATOM_C);      // C=O
+    addAtom(mol, 2.1f, 1.1f, 0.0f, ATOM_O);      // =O
+    addAtom(mol, 2.1f, -1.1f, 0.0f, ATOM_O);     // OH
+    addAtom(mol, 3.0f, -1.1f, 0.0f, ATOM_H);     // H on OH
+    addAtom(mol, -0.5f, 1.0f, 0.0f, ATOM_H);
+    addAtom(mol, -0.5f, -0.5f, 0.87f, ATOM_H);
+    addAtom(mol, -0.5f, -0.5f, -0.87f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 2);
+    addBond(mol, 1, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 0, 5, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 0, 7, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Propane (C3H8)
+void buildPropane(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Propane (C3H8)");
+
+    addAtom(mol, -1.5f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 1.5f, 0.0f, 0.0f, ATOM_C);
+
+    // H on C1
+    addAtom(mol, -2.0f, 1.0f, 0.0f, ATOM_H);
+    addAtom(mol, -2.0f, -0.5f, 0.87f, ATOM_H);
+    addAtom(mol, -2.0f, -0.5f, -0.87f, ATOM_H);
+    // H on C2
+    addAtom(mol, 0.0f, 0.6f, 0.9f, ATOM_H);
+    addAtom(mol, 0.0f, 0.6f, -0.9f, ATOM_H);
+    // H on C3
+    addAtom(mol, 2.0f, 1.0f, 0.0f, ATOM_H);
+    addAtom(mol, 2.0f, -0.5f, 0.87f, ATOM_H);
+    addAtom(mol, 2.0f, -0.5f, -0.87f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 0, 3, 1);
+    addBond(mol, 0, 4, 1);
+    addBond(mol, 0, 5, 1);
+    addBond(mol, 1, 6, 1);
+    addBond(mol, 1, 7, 1);
+    addBond(mol, 2, 8, 1);
+    addBond(mol, 2, 9, 1);
+    addBond(mol, 2, 10, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Butane (C4H10)
+void buildButane(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Butane (C4H10)");
+
+    addAtom(mol, -2.25f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -0.75f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 0.75f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 2.25f, 0.0f, 0.0f, ATOM_C);
+
+    // Hydrogens
+    addAtom(mol, -2.75f, 1.0f, 0.0f, ATOM_H);
+    addAtom(mol, -2.75f, -0.5f, 0.87f, ATOM_H);
+    addAtom(mol, -2.75f, -0.5f, -0.87f, ATOM_H);
+    addAtom(mol, -0.75f, 0.6f, 0.9f, ATOM_H);
+    addAtom(mol, -0.75f, 0.6f, -0.9f, ATOM_H);
+    addAtom(mol, 0.75f, 0.6f, 0.9f, ATOM_H);
+    addAtom(mol, 0.75f, 0.6f, -0.9f, ATOM_H);
+    addAtom(mol, 2.75f, 1.0f, 0.0f, ATOM_H);
+    addAtom(mol, 2.75f, -0.5f, 0.87f, ATOM_H);
+    addAtom(mol, 2.75f, -0.5f, -0.87f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 0, 4, 1);
+    addBond(mol, 0, 5, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 1, 7, 1);
+    addBond(mol, 1, 8, 1);
+    addBond(mol, 2, 9, 1);
+    addBond(mol, 2, 10, 1);
+    addBond(mol, 3, 11, 1);
+    addBond(mol, 3, 12, 1);
+    addBond(mol, 3, 13, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Cyclohexane (C6H12)
+void buildCyclohexane(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Cyclohexane (C6H12)");
+
+    float r = 1.4f;
+    // Chair conformation
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        float z = (i % 2 == 0) ? 0.3f : -0.3f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), z, ATOM_C);
+    }
+
+    // Axial and equatorial hydrogens
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        float z = (i % 2 == 0) ? 0.3f : -0.3f;
+        // Axial H
+        addAtom(mol, r * cosf(angle) * 0.6f, r * sinf(angle) * 0.6f, z + ((i % 2 == 0) ? 1.0f : -1.0f), ATOM_H);
+        // Equatorial H
+        addAtom(mol, (r + 0.9f) * cosf(angle), (r + 0.9f) * sinf(angle), z, ATOM_H);
+    }
+
+    // C-C bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, 1);
+    }
+    // C-H bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, 6 + i * 2, 1);
+        addBond(mol, i, 6 + i * 2 + 1, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+// Build Naphthalene (C10H8)
+void buildNaphthalene(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Naphthalene (C10H8)");
+
+    // Two fused benzene rings
+    float dx = 1.2f;
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C1
+    addAtom(mol, dx, 0.7f, 0.0f, ATOM_C);        // C2
+    addAtom(mol, 2*dx, 0.0f, 0.0f, ATOM_C);      // C3
+    addAtom(mol, 2*dx, -1.4f, 0.0f, ATOM_C);     // C4
+    addAtom(mol, dx, -2.1f, 0.0f, ATOM_C);       // C5
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);     // C6
+    // Second ring
+    addAtom(mol, 3*dx, 0.7f, 0.0f, ATOM_C);      // C7
+    addAtom(mol, 4*dx, 0.0f, 0.0f, ATOM_C);      // C8
+    addAtom(mol, 4*dx, -1.4f, 0.0f, ATOM_C);     // C9
+    addAtom(mol, 3*dx, -2.1f, 0.0f, ATOM_C);     // C10
+
+    // Hydrogens
+    addAtom(mol, -0.9f, 0.5f, 0.0f, ATOM_H);
+    addAtom(mol, dx, 1.7f, 0.0f, ATOM_H);
+    addAtom(mol, dx, -3.1f, 0.0f, ATOM_H);
+    addAtom(mol, -0.9f, -1.9f, 0.0f, ATOM_H);
+    addAtom(mol, 3*dx, 1.7f, 0.0f, ATOM_H);
+    addAtom(mol, 4*dx + 0.9f, 0.5f, 0.0f, ATOM_H);
+    addAtom(mol, 4*dx + 0.9f, -1.9f, 0.0f, ATOM_H);
+    addAtom(mol, 3*dx, -3.1f, 0.0f, ATOM_H);
+
+    // Bonds - first ring
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    // Second ring
+    addBond(mol, 2, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 2);
+    addBond(mol, 9, 3, 1);
+    // C-H bonds
+    addBond(mol, 0, 10, 1);
+    addBond(mol, 1, 11, 1);
+    addBond(mol, 4, 12, 1);
+    addBond(mol, 5, 13, 1);
+    addBond(mol, 6, 14, 1);
+    addBond(mol, 7, 15, 1);
+    addBond(mol, 8, 16, 1);
+    addBond(mol, 9, 17, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Urea (CH4N2O)
+void buildUrea(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Urea (CH4N2O)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, 1.25f, 0.0f, ATOM_O);
+    addAtom(mol, -1.2f, -0.6f, 0.0f, ATOM_N);
+    addAtom(mol, 1.2f, -0.6f, 0.0f, ATOM_N);
+    addAtom(mol, -1.3f, -1.6f, 0.0f, ATOM_H);
+    addAtom(mol, -2.0f, -0.1f, 0.0f, ATOM_H);
+    addAtom(mol, 1.3f, -1.6f, 0.0f, ATOM_H);
+    addAtom(mol, 2.0f, -0.1f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 0, 3, 1);
+    addBond(mol, 2, 4, 1);
+    addBond(mol, 2, 5, 1);
+    addBond(mol, 3, 6, 1);
+    addBond(mol, 3, 7, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Glycine (C2H5NO2) - simplest amino acid
+void buildGlycine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Glycine (C2H5NO2)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // Alpha carbon
+    addAtom(mol, -1.3f, 0.5f, 0.0f, ATOM_N);     // Amino
+    addAtom(mol, 1.3f, 0.7f, 0.0f, ATOM_C);      // Carboxyl C
+    addAtom(mol, 1.3f, 2.0f, 0.0f, ATOM_O);      // =O
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_O);      // OH
+    addAtom(mol, 0.0f, -0.6f, 0.9f, ATOM_H);
+    addAtom(mol, 0.0f, -0.6f, -0.9f, ATOM_H);
+    addAtom(mol, -1.4f, 1.5f, 0.0f, ATOM_H);
+    addAtom(mol, -2.1f, 0.0f, 0.0f, ATOM_H);
+    addAtom(mol, 3.2f, 0.5f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 2, 4, 1);
+    addBond(mol, 0, 5, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 1, 7, 1);
+    addBond(mol, 1, 8, 1);
+    addBond(mol, 4, 9, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Alanine (C3H7NO2)
+void buildAlanine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Alanine (C3H7NO2)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // Alpha carbon
+    addAtom(mol, -1.3f, 0.5f, 0.0f, ATOM_N);     // Amino
+    addAtom(mol, 1.3f, 0.7f, 0.0f, ATOM_C);      // Carboxyl C
+    addAtom(mol, 1.3f, 2.0f, 0.0f, ATOM_O);      // =O
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_O);      // OH
+    addAtom(mol, 0.0f, -1.5f, 0.0f, ATOM_C);     // CH3
+    addAtom(mol, 0.0f, 0.5f, 0.9f, ATOM_H);
+    addAtom(mol, -1.4f, 1.5f, 0.0f, ATOM_H);
+    addAtom(mol, -2.1f, 0.0f, 0.0f, ATOM_H);
+    addAtom(mol, 3.2f, 0.5f, 0.0f, ATOM_H);
+    addAtom(mol, 0.0f, -2.1f, 0.9f, ATOM_H);
+    addAtom(mol, 0.87f, -2.1f, -0.45f, ATOM_H);
+    addAtom(mol, -0.87f, -2.1f, -0.45f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 2, 4, 1);
+    addBond(mol, 0, 5, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 1, 7, 1);
+    addBond(mol, 1, 8, 1);
+    addBond(mol, 4, 9, 1);
+    addBond(mol, 5, 10, 1);
+    addBond(mol, 5, 11, 1);
+    addBond(mol, 5, 12, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Thymine (DNA base)
+void buildThymine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Thymine (DNA base)");
+
+    // Pyrimidine ring
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);      // N1
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 1.2f, 2.1f, 0.0f, ATOM_N);      // N3
+    addAtom(mol, 0.0f, 2.8f, 0.0f, ATOM_C);      // C4
+    addAtom(mol, -1.2f, 2.1f, 0.0f, ATOM_C);     // C5
+    addAtom(mol, -1.2f, 0.7f, 0.0f, ATOM_C);     // C6
+
+    // Carbonyls
+    addAtom(mol, 2.3f, 0.1f, 0.0f, ATOM_O);      // O on C2
+    addAtom(mol, 0.0f, 4.1f, 0.0f, ATOM_O);      // O on C4
+
+    // Methyl on C5
+    addAtom(mol, -2.4f, 2.8f, 0.0f, ATOM_C);     // CH3
+
+    // Hydrogens
+    addAtom(mol, 0.0f, -1.0f, 0.0f, ATOM_H);     // H on N1
+    addAtom(mol, 2.1f, 2.5f, 0.0f, ATOM_H);      // H on N3
+    addAtom(mol, -2.1f, 0.1f, 0.0f, ATOM_H);     // H on C6
+    addAtom(mol, -2.4f, 3.9f, 0.0f, ATOM_H);
+    addAtom(mol, -3.1f, 2.4f, 0.8f, ATOM_H);
+    addAtom(mol, -3.1f, 2.4f, -0.8f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 1, 6, 2);
+    addBond(mol, 3, 7, 2);
+    addBond(mol, 4, 8, 1);
+    addBond(mol, 0, 9, 1);
+    addBond(mol, 2, 10, 1);
+    addBond(mol, 5, 11, 1);
+    addBond(mol, 8, 12, 1);
+    addBond(mol, 8, 13, 1);
+    addBond(mol, 8, 14, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Cytosine (DNA base)
+void buildCytosine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Cytosine (DNA base)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);      // N1
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 1.2f, 2.1f, 0.0f, ATOM_N);      // N3
+    addAtom(mol, 0.0f, 2.8f, 0.0f, ATOM_C);      // C4
+    addAtom(mol, -1.2f, 2.1f, 0.0f, ATOM_C);     // C5
+    addAtom(mol, -1.2f, 0.7f, 0.0f, ATOM_C);     // C6
+
+    addAtom(mol, 2.3f, 0.1f, 0.0f, ATOM_O);      // O on C2
+    addAtom(mol, 0.0f, 4.1f, 0.0f, ATOM_N);      // NH2 on C4
+
+    addAtom(mol, 0.0f, -1.0f, 0.0f, ATOM_H);
+    addAtom(mol, -2.1f, 2.5f, 0.0f, ATOM_H);
+    addAtom(mol, -2.1f, 0.1f, 0.0f, ATOM_H);
+    addAtom(mol, -0.8f, 4.6f, 0.0f, ATOM_H);
+    addAtom(mol, 0.8f, 4.6f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 2);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 2);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 1, 6, 2);
+    addBond(mol, 3, 7, 1);
+    addBond(mol, 0, 8, 1);
+    addBond(mol, 4, 9, 1);
+    addBond(mol, 5, 10, 1);
+    addBond(mol, 7, 11, 1);
+    addBond(mol, 7, 12, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Guanine (DNA base)
+void buildGuanine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Guanine (DNA base)");
+
+    // Purine ring system
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);      // N1
+    addAtom(mol, 1.3f, 0.3f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 1.8f, 1.6f, 0.0f, ATOM_N);      // N3
+    addAtom(mol, 0.9f, 2.6f, 0.0f, ATOM_C);      // C4
+    addAtom(mol, -0.4f, 2.3f, 0.0f, ATOM_C);     // C5
+    addAtom(mol, -0.8f, 1.0f, 0.0f, ATOM_C);     // C6
+
+    addAtom(mol, 1.2f, 3.9f, 0.0f, ATOM_N);      // N7
+    addAtom(mol, 0.0f, 4.5f, 0.0f, ATOM_C);      // C8
+    addAtom(mol, -1.0f, 3.5f, 0.0f, ATOM_N);     // N9
+
+    addAtom(mol, 2.0f, -0.6f, 0.0f, ATOM_N);     // NH2 on C2
+    addAtom(mol, -2.0f, 0.6f, 0.0f, ATOM_O);     // O on C6
+
+    addAtom(mol, -0.3f, -0.9f, 0.0f, ATOM_H);
+    addAtom(mol, -0.2f, 5.5f, 0.0f, ATOM_H);
+    addAtom(mol, -1.9f, 3.8f, 0.0f, ATOM_H);
+    addAtom(mol, 1.6f, -1.5f, 0.0f, ATOM_H);
+    addAtom(mol, 2.9f, -0.4f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 2);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 3, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 4, 1);
+    addBond(mol, 1, 9, 1);
+    addBond(mol, 5, 10, 2);
+    addBond(mol, 0, 11, 1);
+    addBond(mol, 7, 12, 1);
+    addBond(mol, 8, 13, 1);
+    addBond(mol, 9, 14, 1);
+    addBond(mol, 9, 15, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Dopamine (C8H11NO2)
+void buildDopamine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Dopamine (C8H11NO2)");
+
+    float r = 1.4f;
+    // Catechol ring (benzene with 2 OH)
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);
+    }
+
+    // OH groups on C3 and C4
+    addAtom(mol, r * cosf(PI) - 0.8f, r * sinf(PI) + 0.6f, 0.0f, ATOM_O);
+    addAtom(mol, r * cosf(4*PI/3) - 0.6f, r * sinf(4*PI/3) - 0.8f, 0.0f, ATOM_O);
+
+    // Ethylamine chain from C1
+    addAtom(mol, 2.5f, 0.5f, 0.0f, ATOM_C);      // CH2
+    addAtom(mol, 3.8f, -0.2f, 0.0f, ATOM_C);     // CH2
+    addAtom(mol, 5.0f, 0.5f, 0.0f, ATOM_N);      // NH2
+
+    // Hydrogens
+    float rH = 2.4f;
+    addAtom(mol, rH * cosf(PI/3), rH * sinf(PI/3), 0.0f, ATOM_H);   // H on C2
+    addAtom(mol, rH * cosf(5*PI/3), rH * sinf(5*PI/3), 0.0f, ATOM_H);// H on C6
+    addAtom(mol, r * cosf(PI) - 1.6f, r * sinf(PI) + 0.3f, 0.0f, ATOM_H);  // H on OH
+    addAtom(mol, r * cosf(4*PI/3) - 0.3f, r * sinf(4*PI/3) - 1.6f, 0.0f, ATOM_H);  // H on OH
+    addAtom(mol, 2.5f, 1.1f, 0.9f, ATOM_H);
+    addAtom(mol, 2.5f, 1.1f, -0.9f, ATOM_H);
+    addAtom(mol, 3.8f, -0.8f, 0.9f, ATOM_H);
+    addAtom(mol, 3.8f, -0.8f, -0.9f, ATOM_H);
+    addAtom(mol, 5.0f, 1.1f, 0.8f, ATOM_H);
+    addAtom(mol, 5.8f, 0.0f, 0.0f, ATOM_H);
+
+    // Ring bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+    // OH bonds
+    addBond(mol, 3, 6, 1);
+    addBond(mol, 4, 7, 1);
+    // Chain bonds
+    addBond(mol, 0, 8, 1);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 9, 10, 1);
+    // H bonds
+    addBond(mol, 1, 11, 1);
+    addBond(mol, 5, 12, 1);
+    addBond(mol, 6, 13, 1);
+    addBond(mol, 7, 14, 1);
+    addBond(mol, 8, 15, 1);
+    addBond(mol, 8, 16, 1);
+    addBond(mol, 9, 17, 1);
+    addBond(mol, 9, 18, 1);
+    addBond(mol, 10, 19, 1);
+    addBond(mol, 10, 20, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Serotonin (C10H12N2O)
+void buildSerotonin(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Serotonin (C10H12N2O)");
+
+    // Indole ring system
+    float r = 1.3f;
+    // Benzene ring
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f + PI/6;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);
+    }
+    // Pyrrole ring (fused)
+    addAtom(mol, 2.3f, 0.7f, 0.0f, ATOM_C);      // C7
+    addAtom(mol, 2.8f, -0.5f, 0.0f, ATOM_C);     // C8
+    addAtom(mol, 1.9f, -1.3f, 0.0f, ATOM_N);     // N
+
+    // OH on C5 position
+    addAtom(mol, r * cosf(5*PI/3 + PI/6) + 0.9f, r * sinf(5*PI/3 + PI/6) - 0.5f, 0.0f, ATOM_O);
+
+    // Ethylamine chain
+    addAtom(mol, 4.1f, -0.8f, 0.0f, ATOM_C);     // CH2
+    addAtom(mol, 5.0f, 0.3f, 0.0f, ATOM_C);      // CH2
+    addAtom(mol, 6.3f, 0.0f, 0.0f, ATOM_N);      // NH2
+
+    // Hydrogens (simplified)
+    addAtom(mol, r * cosf(PI/3 + PI/6) * 1.7f, r * sinf(PI/3 + PI/6) * 1.7f, 0.0f, ATOM_H);
+    addAtom(mol, r * cosf(2*PI/3 + PI/6) * 1.7f, r * sinf(2*PI/3 + PI/6) * 1.7f, 0.0f, ATOM_H);
+    addAtom(mol, r * cosf(PI + PI/6) * 1.7f, r * sinf(PI + PI/6) * 1.7f, 0.0f, ATOM_H);
+    addAtom(mol, 2.5f, 1.7f, 0.0f, ATOM_H);
+    addAtom(mol, 1.9f, -2.3f, 0.0f, ATOM_H);
+    addAtom(mol, r * cosf(5*PI/3 + PI/6) + 1.7f, r * sinf(5*PI/3 + PI/6) - 0.2f, 0.0f, ATOM_H);
+    addAtom(mol, 4.3f, -1.4f, 0.9f, ATOM_H);
+    addAtom(mol, 4.3f, -1.4f, -0.9f, ATOM_H);
+    addAtom(mol, 4.8f, 0.9f, 0.9f, ATOM_H);
+    addAtom(mol, 4.8f, 0.9f, -0.9f, ATOM_H);
+    addAtom(mol, 6.5f, -0.5f, 0.8f, ATOM_H);
+    addAtom(mol, 7.0f, 0.7f, 0.0f, ATOM_H);
+
+    // Ring bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 5, 1);
+    addBond(mol, 4, 9, 1);
+    addBond(mol, 7, 10, 1);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 11, 12, 1);
+    // H bonds
+    addBond(mol, 1, 13, 1);
+    addBond(mol, 2, 14, 1);
+    addBond(mol, 3, 15, 1);
+    addBond(mol, 6, 16, 1);
+    addBond(mol, 8, 17, 1);
+    addBond(mol, 9, 18, 1);
+    addBond(mol, 10, 19, 1);
+    addBond(mol, 10, 20, 1);
+    addBond(mol, 11, 21, 1);
+    addBond(mol, 11, 22, 1);
+    addBond(mol, 12, 23, 1);
+    addBond(mol, 12, 24, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Nitric Oxide (NO)
+void buildNitricOxide(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Nitric Oxide (NO)");
+
+    addAtom(mol, -0.58f, 0.0f, 0.0f, ATOM_N);
+    addAtom(mol, 0.58f, 0.0f, 0.0f, ATOM_O);
+
+    addBond(mol, 0, 1, 2);
+
+    centerMolecule(mol);
+}
+
+// Build Hydrogen Peroxide (H2O2)
+void buildHydrogenPeroxide(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Hydrogen Peroxide (H2O2)");
+
+    addAtom(mol, -0.7f, 0.0f, 0.0f, ATOM_O);
+    addAtom(mol, 0.7f, 0.0f, 0.0f, ATOM_O);
+    addAtom(mol, -1.2f, 0.8f, 0.3f, ATOM_H);
+    addAtom(mol, 1.2f, -0.8f, -0.3f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 1, 3, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Sulfuric Acid (H2SO4)
+void buildSulfuricAcid(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Sulfuric Acid (H2SO4)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_S);
+    addAtom(mol, 0.0f, 1.4f, 0.0f, ATOM_O);      // =O
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, 1.4f, 0.0f, 0.0f, ATOM_O);      // OH
+    addAtom(mol, -1.4f, 0.0f, 0.0f, ATOM_O);     // OH
+    addAtom(mol, 2.1f, 0.7f, 0.0f, ATOM_H);
+    addAtom(mol, -2.1f, -0.7f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 2);
+    addBond(mol, 0, 3, 1);
+    addBond(mol, 0, 4, 1);
+    addBond(mol, 3, 5, 1);
+    addBond(mol, 4, 6, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Phosphoric Acid (H3PO4)
+void buildPhosphoricAcid(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Phosphoric Acid (H3PO4)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_P);
+    addAtom(mol, 0.0f, 1.5f, 0.0f, ATOM_O);      // =O
+    addAtom(mol, 1.3f, -0.75f, 0.0f, ATOM_O);    // OH
+    addAtom(mol, -1.3f, -0.75f, 0.0f, ATOM_O);   // OH
+    addAtom(mol, 0.0f, -0.5f, 1.4f, ATOM_O);     // OH
+    addAtom(mol, 2.0f, -0.3f, 0.0f, ATOM_H);
+    addAtom(mol, -2.0f, -0.3f, 0.0f, ATOM_H);
+    addAtom(mol, 0.0f, 0.0f, 2.1f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 0, 3, 1);
+    addBond(mol, 0, 4, 1);
+    addBond(mol, 2, 5, 1);
+    addBond(mol, 3, 6, 1);
+    addBond(mol, 4, 7, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Toluene (C7H8) - methylbenzene
+void buildToluene(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Toluene (C7H8)");
+
+    float r = 1.4f;
+    // Benzene ring
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);
+    }
+
+    // Methyl group on C1
+    addAtom(mol, 2.6f, 0.0f, 0.0f, ATOM_C);
+
+    // H on benzene (5 positions)
+    float rH = 2.4f;
+    for (int i = 1; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, rH * cosf(angle), rH * sinf(angle), 0.0f, ATOM_H);
+    }
+
+    // H on methyl
+    addAtom(mol, 3.2f, 0.9f, 0.0f, ATOM_H);
+    addAtom(mol, 3.2f, -0.45f, 0.8f, ATOM_H);
+    addAtom(mol, 3.2f, -0.45f, -0.8f, ATOM_H);
+
+    // Ring bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+    addBond(mol, 0, 6, 1);
+    // C-H on ring
+    for (int i = 1; i < 6; i++) {
+        addBond(mol, i, 6 + i, 1);
+    }
+    // Methyl H
+    addBond(mol, 6, 12, 1);
+    addBond(mol, 6, 13, 1);
+    addBond(mol, 6, 14, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Phenol (C6H5OH)
+void buildPhenol(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Phenol (C6H5OH)");
+
+    float r = 1.4f;
+    // Benzene ring
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);
+    }
+
+    // OH group on C1
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_O);
+    addAtom(mol, 3.1f, 0.7f, 0.0f, ATOM_H);
+
+    // H on benzene (5 positions)
+    float rH = 2.4f;
+    for (int i = 1; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, rH * cosf(angle), rH * sinf(angle), 0.0f, ATOM_H);
+    }
+
+    // Ring bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 1);
+    for (int i = 1; i < 6; i++) {
+        addBond(mol, i, 7 + i, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+// Build Acetylene (C2H2)
+void buildAcetylene(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Acetylene (C2H2)");
+
+    addAtom(mol, -0.6f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 0.6f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -1.65f, 0.0f, 0.0f, ATOM_H);
+    addAtom(mol, 1.65f, 0.0f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 3);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 1, 3, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Ethylene (C2H4)
+void buildEthylene(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Ethylene (C2H4)");
+
+    addAtom(mol, -0.67f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 0.67f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -1.23f, 0.92f, 0.0f, ATOM_H);
+    addAtom(mol, -1.23f, -0.92f, 0.0f, ATOM_H);
+    addAtom(mol, 1.23f, 0.92f, 0.0f, ATOM_H);
+    addAtom(mol, 1.23f, -0.92f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 0, 3, 1);
+    addBond(mol, 1, 4, 1);
+    addBond(mol, 1, 5, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Hydrogen Cyanide (HCN)
+void buildHydrogenCyanide(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Hydrogen Cyanide (HCN)");
+
+    addAtom(mol, -1.15f, 0.0f, 0.0f, ATOM_H);
+    addAtom(mol, -0.08f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 1.08f, 0.0f, 0.0f, ATOM_N);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 3);
+
+    centerMolecule(mol);
+}
+
+// Build Hydrogen Sulfide (H2S)
+void buildHydrogenSulfide(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Hydrogen Sulfide (H2S)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_S);
+    addAtom(mol, 0.96f, 0.62f, 0.0f, ATOM_H);
+    addAtom(mol, -0.96f, 0.62f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 0, 2, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Chloroform (CHCl3)
+void buildChloroform(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Chloroform (CHCl3)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, 1.07f, 0.0f, ATOM_H);
+    addAtom(mol, 1.45f, -0.53f, 0.0f, ATOM_CL);
+    addAtom(mol, -0.73f, -0.53f, 1.26f, ATOM_CL);
+    addAtom(mol, -0.73f, -0.53f, -1.26f, ATOM_CL);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 0, 3, 1);
+    addBond(mol, 0, 4, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Iodine (I2)
+void buildIodine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Iodine (I2)");
+
+    addAtom(mol, -1.33f, 0.0f, 0.0f, ATOM_I);
+    addAtom(mol, 1.33f, 0.0f, 0.0f, ATOM_I);
+
+    addBond(mol, 0, 1, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Ozone (O3)
+void buildOzone(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Ozone (O3)");
+
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_O);
+    addAtom(mol, 1.1f, 0.6f, 0.0f, ATOM_O);
+    addAtom(mol, -1.1f, 0.6f, 0.0f, ATOM_O);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 1);
+
     centerMolecule(mol);
 }
 
@@ -782,10 +1857,10 @@ void buildRandomMolecule(Molecule* mol) {
     mol->numAtoms = 0;
     mol->numBonds = 0;
     strcpy(mol->name, "Random Molecule");
-    
+
     // Start with a carbon backbone
     int backboneLength = 4 + rand() % 6;
-    
+
     // Add backbone carbons
     for (int i = 0; i < backboneLength; i++) {
         float angle = randf() * 0.5f - 0.25f;
@@ -794,22 +1869,22 @@ void buildRandomMolecule(Molecule* mol) {
         float z = cosf(i * 0.5f) * 0.5f + randf() * 0.3f;
         addAtom(mol, x, y, z, ATOM_C);
     }
-    
+
     // Connect backbone
     for (int i = 0; i < backboneLength - 1; i++) {
         int order = (rand() % 4 == 0) ? 2 : 1;
         addBond(mol, i, i + 1, order);
     }
-    
+
     // Maybe add a ring
     if (backboneLength >= 5 && rand() % 2 == 0) {
         addBond(mol, 0, backboneLength - 1, 1);
     }
-    
+
     // Add functional groups
     for (int i = 0; i < backboneLength; i++) {
         int numH = 2 + rand() % 2;
-        
+
         // Random chance of heteroatom
         if (rand() % 4 == 0) {
             int hetero = (rand() % 3 == 0) ? ATOM_N : ATOM_O;
@@ -820,7 +1895,7 @@ void buildRandomMolecule(Molecule* mol) {
             int heteroIdx = mol->numAtoms;
             addAtom(mol, x, y, z, hetero);
             addBond(mol, i, heteroIdx, (rand() % 2 == 0) ? 2 : 1);
-            
+
             // Add H to O or N
             if (rand() % 2 == 0) {
                 float hx = x + (randf() - 0.5f) * 1.0f;
@@ -832,7 +1907,7 @@ void buildRandomMolecule(Molecule* mol) {
             }
             numH--;
         }
-        
+
         // Add hydrogens
         for (int h = 0; h < numH && mol->numAtoms < MAX_ATOMS - 1; h++) {
             float angle = h * PI + randf() * 0.5f;
@@ -844,82 +1919,107 @@ void buildRandomMolecule(Molecule* mol) {
             addBond(mol, i, hIdx, 1);
         }
     }
-    
+
     centerMolecule(mol);
 }
 
 // ============== MAIN ==============
 
+// Molecule builder function pointers
+typedef void (*MoleculeBuilder)(Molecule*);
+
+MoleculeBuilder moleculeBuilders[32] = {
+    buildWater, buildMethane, buildBenzene, buildEthanol,
+    buildCaffeine, buildAdenine, buildGlucose, buildAspirin,
+    buildAmmonia, buildCarbonDioxide, buildFormaldehyde, buildAcetone,
+    buildAceticAcid, buildPropane, buildButane, buildCyclohexane,
+    buildNaphthalene, buildUrea, buildGlycine, buildAlanine,
+    buildThymine, buildCytosine, buildGuanine, buildDopamine,
+    buildSerotonin, buildNitricOxide, buildHydrogenPeroxide, buildSulfuricAcid,
+    buildPhosphoricAcid, buildToluene, buildPhenol, buildAcetylene
+};
+
+const char* moleculeNames[32] = {
+    "Water", "Methane", "Benzene", "Ethanol",
+    "Caffeine", "Adenine", "Glucose", "Aspirin",
+    "Ammonia", "CO2", "Formaldehyde", "Acetone",
+    "Acetic Acid", "Propane", "Butane", "Cyclohexane",
+    "Naphthalene", "Urea", "Glycine", "Alanine",
+    "Thymine", "Cytosine", "Guanine", "Dopamine",
+    "Serotonin", "NO", "H2O2", "H2SO4",
+    "H3PO4", "Toluene", "Phenol", "Acetylene"
+};
+
 int main() {
     printf("=== Windows CUDA Molecule Visualization ===\n\n");
     printf("Controls:\n");
-    printf("  1-8     - Select molecule preset\n");
+    printf("  A/D     - Previous/Next molecule\n");
     printf("  R       - Random molecule\n");
     printf("  Arrows  - Rotate view\n");
     printf("  W/S     - Zoom in/out\n");
-    printf("  A       - Toggle auto-rotate\n");
-    printf("  Space   - Pause rotation\n");
+    printf("  Space   - Pause/resume rotation\n");
     printf("  Q/Esc   - Quit\n\n");
-    printf("Molecules:\n");
-    printf("  1: Water    2: Methane   3: Benzene  4: Ethanol\n");
-    printf("  5: Caffeine 6: Adenine   7: Glucose  8: Aspirin\n\n");
-    
+    printf("32 Molecules available - use A/D to cycle through\n\n");
+
     cudaDeviceProp prop;
     cudaGetDeviceProperties(&prop, 0);
     printf("GPU: %s\n\n", prop.name);
-    
+
     Win32Display* display = win32_create_window("CUDA Molecule Visualization", WIDTH, HEIGHT);
     if (!display) {
         fprintf(stderr, "Cannot create window\n");
         return 1;
     }
-    
+
     // Allocate molecule
     Molecule* h_mol = (Molecule*)malloc(sizeof(Molecule));
     Atom* d_atoms;
     Bond* d_bonds;
     cudaMalloc(&d_atoms, MAX_ATOMS * sizeof(Atom));
     cudaMalloc(&d_bonds, MAX_BONDS * sizeof(Bond));
-    
+
     // Allocate display buffer
     unsigned char *h_pixels, *d_pixels;
     cudaMallocHost(&h_pixels, WIDTH * HEIGHT * 4);
     cudaMalloc(&d_pixels, WIDTH * HEIGHT * 4);
-    
+
     srand((unsigned int)time(NULL));
-    
-    // Start with caffeine
-    buildCaffeine(h_mol);
+
+    // Current molecule index
+    int currentMolecule = 0;
+
+    // Start with water
+    moleculeBuilders[currentMolecule](h_mol);
     cudaMemcpy(d_atoms, h_mol->atoms, h_mol->numAtoms * sizeof(Atom), cudaMemcpyHostToDevice);
     cudaMemcpy(d_bonds, h_mol->bonds, h_mol->numBonds * sizeof(Bond), cudaMemcpyHostToDevice);
-    
-    printf("Molecule: %s (%d atoms, %d bonds)\n", h_mol->name, h_mol->numAtoms, h_mol->numBonds);
-    
+
+    printf("[%d/32] %s (%d atoms, %d bonds)\n", currentMolecule + 1, h_mol->name, h_mol->numAtoms, h_mol->numBonds);
+
     // View state
     float rotX = 0.3f, rotY = 0.0f;
     float zoom = 12.0f;
     int autoRotate = 1;
     int paused = 0;
-    
+
     dim3 blockSize(16, 16);
     dim3 gridSize((WIDTH + 15) / 16, (HEIGHT + 15) / 16);
-    
+
     const double TARGET_FRAME_TIME = 1.0 / 60.0;
     double lastFpsTime = win32_get_time(display);
     int frameCount = 0;
-    
+
     while (!win32_should_close(display)) {
         double frameStart = win32_get_time(display);
-        
+
         win32_process_events(display);
-        
+
         Win32Event event;
         while (win32_pop_event(display, &event)) {
             if (event.type == WIN32_EVENT_KEY_PRESS) {
                 int key = event.key;
-                
+
                 if (key == XK_Escape || key == XK_q) goto cleanup;
-                
+
                 if (key == XK_Left) rotY -= 0.15f;
                 if (key == XK_Right) rotY += 0.15f;
                 if (key == XK_Up) rotX -= 0.15f;
@@ -927,56 +2027,74 @@ int main() {
                 if (key == XK_w) zoom -= 1.0f;
                 if (key == XK_s) zoom += 1.0f;
                 zoom = fmaxf(5.0f, fminf(30.0f, zoom));
-                
-                if (key == XK_a) {
-                    autoRotate = !autoRotate;
-                    printf("Auto-rotate: %s\n", autoRotate ? "ON" : "OFF");
-                }
+
                 if (key == XK_space) {
                     paused = !paused;
                 }
-                
-                // Molecule presets
+
+                // Molecule cycling with A/D keys
                 int newMol = 0;
-                if (key == XK_1) { buildWater(h_mol); newMol = 1; }
-                if (key == XK_2) { buildMethane(h_mol); newMol = 1; }
-                if (key == XK_3) { buildBenzene(h_mol); newMol = 1; }
-                if (key == XK_4) { buildEthanol(h_mol); newMol = 1; }
-                if (key == XK_5) { buildCaffeine(h_mol); newMol = 1; }
-                if (key == XK_6) { buildAdenine(h_mol); newMol = 1; }
-                if (key == XK_7) { buildGlucose(h_mol); newMol = 1; }
-                if (key == XK_8) { buildAspirin(h_mol); newMol = 1; }
-                if (key == XK_r) { buildRandomMolecule(h_mol); newMol = 1; }
-                
+                if (key == XK_a) {
+                    currentMolecule = (currentMolecule - 1 + 32) % 32;
+                    moleculeBuilders[currentMolecule](h_mol);
+                    newMol = 1;
+                }
+                if (key == XK_d) {
+                    currentMolecule = (currentMolecule + 1) % 32;
+                    moleculeBuilders[currentMolecule](h_mol);
+                    newMol = 1;
+                }
+                if (key == XK_r) {
+                    currentMolecule = rand() % 32;
+                    moleculeBuilders[currentMolecule](h_mol);
+                    newMol = 1;
+                }
+
                 if (newMol) {
                     cudaMemcpy(d_atoms, h_mol->atoms, h_mol->numAtoms * sizeof(Atom), cudaMemcpyHostToDevice);
                     cudaMemcpy(d_bonds, h_mol->bonds, h_mol->numBonds * sizeof(Bond), cudaMemcpyHostToDevice);
-                    printf("Molecule: %s (%d atoms, %d bonds)\n", h_mol->name, h_mol->numAtoms, h_mol->numBonds);
+                    printf("[%d/32] %s (%d atoms, %d bonds)\n", currentMolecule + 1, h_mol->name, h_mol->numAtoms, h_mol->numBonds);
                 }
             }
-            
+
             if (event.type == WIN32_EVENT_CLOSE) goto cleanup;
         }
-        
+
         // Auto-rotate
         if (autoRotate && !paused) {
             rotY += 0.01f;
         }
-        
+
         // Render
         clearKernel<<<gridSize, blockSize>>>(d_pixels, WIDTH, HEIGHT);
-        
+
         renderMoleculeKernel<<<gridSize, blockSize>>>(
             d_pixels, WIDTH, HEIGHT,
             d_atoms, h_mol->numAtoms,
             d_bonds, h_mol->numBonds,
             rotX, rotY, zoom);
-        
+
+        // Render molecule name as text overlay (72pt = 6x scale of 12px font)
+        {
+            static char* d_text = nullptr;
+            static int d_textLen = 0;
+            int textLen = (int)strlen(h_mol->name);
+            if (d_text == nullptr || textLen > d_textLen) {
+                if (d_text) cudaFree(d_text);
+                cudaMalloc(&d_text, 128);
+                d_textLen = 128;
+            }
+            cudaMemcpy(d_text, h_mol->name, textLen + 1, cudaMemcpyHostToDevice);
+            renderTextKernel<<<gridSize, blockSize>>>(
+                d_pixels, WIDTH, HEIGHT,
+                d_text, textLen, 20, 20, 3);  // 3x scale = ~24pt
+        }
+
         cudaDeviceSynchronize();
-        
+
         cudaMemcpy(h_pixels, d_pixels, WIDTH * HEIGHT * 4, cudaMemcpyDeviceToHost);
         win32_blit_pixels(display, h_pixels);
-        
+
         frameCount++;
         double now = win32_get_time(display);
         if (now - lastFpsTime >= 1.0) {
@@ -984,24 +2102,24 @@ int main() {
             frameCount = 0;
             lastFpsTime = now;
         }
-        
+
         // Frame limiting
         double frameEnd = win32_get_time(display);
         if (frameEnd - frameStart < TARGET_FRAME_TIME) {
             Sleep((DWORD)((TARGET_FRAME_TIME - (frameEnd - frameStart)) * 1000.0));
         }
     }
-    
+
 cleanup:
     printf("\nCleaning up...\n");
-    
+
     win32_destroy_window(display);
     cudaFree(d_atoms);
     cudaFree(d_bonds);
     cudaFree(d_pixels);
     free(h_mol);
     cudaFreeHost(h_pixels);
-    
+
     printf("Done!\n");
     return 0;
 }
