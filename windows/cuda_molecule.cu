@@ -51,6 +51,7 @@
 #define ATOM_BR 7   // Bromine - dark red
 #define ATOM_F  8   // Fluorine - light green
 #define ATOM_I  9   // Iodine - purple
+#define ATOM_NA 10  // Sodium - metallic silver/purple
 
 // Atom structure
 struct Atom {
@@ -75,7 +76,7 @@ struct Molecule {
 };
 
 // CPK colors for atoms (R, G, B)
-__device__ __constant__ float3 atomColors[10] = {
+__device__ __constant__ float3 atomColors[11] = {
     {0.95f, 0.95f, 0.95f},  // H - white
     {0.2f,  0.2f,  0.2f},   // C - dark gray
     {0.2f,  0.3f,  0.9f},   // N - blue
@@ -86,10 +87,11 @@ __device__ __constant__ float3 atomColors[10] = {
     {0.6f,  0.1f,  0.1f},   // Br - dark red
     {0.5f,  0.9f,  0.5f},   // F - light green
     {0.5f,  0.1f,  0.5f},   // I - purple
+    {0.7f,  0.5f,  0.9f},   // Na - metallic purple/silver
 };
 
 // Atomic radii (van der Waals, scaled for visualization)
-__device__ __constant__ float atomRadii[10] = {
+__device__ __constant__ float atomRadii[11] = {
     0.25f,  // H
     0.40f,  // C
     0.38f,  // N
@@ -100,6 +102,7 @@ __device__ __constant__ float atomRadii[10] = {
     0.50f,  // Br
     0.35f,  // F
     0.55f,  // I
+    0.55f,  // Na - large alkali metal
 };
 
 // ============== 3D MATH HELPERS ==============
@@ -1003,6 +1006,44 @@ void buildAmmonia(Molecule* mol) {
     addBond(mol, 0, 1, 1);
     addBond(mol, 0, 2, 1);
     addBond(mol, 0, 3, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Sodium Hypochlorite / Bleach (NaOCl)
+void buildBleach(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Bleach/NaOCl");
+
+    // Ionic compound: Na+ and OCl-
+    addAtom(mol, -1.5f, 0.0f, 0.0f, ATOM_NA);   // Na+
+    addAtom(mol, 0.5f, 0.0f, 0.0f, ATOM_O);     // O
+    addAtom(mol, 2.0f, 0.0f, 0.0f, ATOM_CL);    // Cl
+
+    // O-Cl bond (hypochlorite ion)
+    addBond(mol, 1, 2, 1);
+    // Na-O ionic interaction (shown as single bond for visualization)
+    addBond(mol, 0, 1, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Sodium Hydroxide / Lye (NaOH)
+void buildLye(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Lye/NaOH");
+
+    // Ionic compound: Na+ and OH-
+    addAtom(mol, -1.2f, 0.0f, 0.0f, ATOM_NA);   // Na+
+    addAtom(mol, 0.5f, 0.0f, 0.0f, ATOM_O);     // O
+    addAtom(mol, 1.5f, 0.0f, 0.0f, ATOM_H);     // H
+
+    // O-H bond (hydroxide ion)
+    addBond(mol, 1, 2, 1);
+    // Na-O ionic interaction (shown as single bond for visualization)
+    addBond(mol, 0, 1, 1);
 
     centerMolecule(mol);
 }
@@ -4211,6 +4252,112 @@ void buildArginine(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// Build Asparagine (C4H8N2O3) - 17 atoms
+void buildAsparagine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Asparagine (C4H8N2O3)");
+
+    // Backbone
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C0: Alpha carbon
+    addAtom(mol, -1.3f, 0.5f, 0.0f, ATOM_N);     // N1: Amino group
+    addAtom(mol, 1.3f, 0.7f, 0.0f, ATOM_C);      // C2: Carboxyl carbon
+    addAtom(mol, 1.3f, 2.0f, 0.0f, ATOM_O);      // O3: Carboxyl =O
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_O);      // O4: Carboxyl -OH
+
+    // Side chain: -CH2-C(=O)-NH2
+    addAtom(mol, 0.0f, -1.5f, 0.0f, ATOM_C);     // C5: Beta carbon (CH2)
+    addAtom(mol, 0.0f, -3.0f, 0.0f, ATOM_C);     // C6: Amide carbon
+    addAtom(mol, 1.1f, -3.7f, 0.0f, ATOM_O);     // O7: Amide =O
+    addAtom(mol, -1.1f, -3.7f, 0.0f, ATOM_N);    // N8: Amide -NH2
+
+    // Hydrogens
+    addAtom(mol, 0.0f, 0.5f, 0.9f, ATOM_H);      // H9: on alpha C
+    addAtom(mol, -1.4f, 1.5f, 0.0f, ATOM_H);     // H10: on NH2
+    addAtom(mol, -2.1f, 0.0f, 0.0f, ATOM_H);     // H11: on NH2
+    addAtom(mol, 3.2f, 0.5f, 0.0f, ATOM_H);      // H12: on COOH
+    addAtom(mol, 0.9f, -1.5f, 0.5f, ATOM_H);     // H13: on CH2
+    addAtom(mol, -0.9f, -1.5f, 0.5f, ATOM_H);    // H14: on CH2
+    addAtom(mol, -1.1f, -4.7f, 0.0f, ATOM_H);    // H15: on amide NH2
+    addAtom(mol, -1.9f, -3.2f, 0.0f, ATOM_H);    // H16: on amide NH2
+
+    // Bonds
+    addBond(mol, 0, 1, 1);   // Alpha C - NH2
+    addBond(mol, 0, 2, 1);   // Alpha C - COOH
+    addBond(mol, 2, 3, 2);   // C=O (carboxyl)
+    addBond(mol, 2, 4, 1);   // C-OH (carboxyl)
+    addBond(mol, 0, 5, 1);   // Alpha C - CH2
+    addBond(mol, 5, 6, 1);   // CH2 - amide C
+    addBond(mol, 6, 7, 2);   // C=O (amide)
+    addBond(mol, 6, 8, 1);   // C-NH2 (amide)
+    addBond(mol, 0, 9, 1);   // Alpha C - H
+    addBond(mol, 1, 10, 1);  // NH2 - H
+    addBond(mol, 1, 11, 1);  // NH2 - H
+    addBond(mol, 4, 12, 1);  // OH - H
+    addBond(mol, 5, 13, 1);  // CH2 - H
+    addBond(mol, 5, 14, 1);  // CH2 - H
+    addBond(mol, 8, 15, 1);  // Amide NH2 - H
+    addBond(mol, 8, 16, 1);  // Amide NH2 - H
+
+    centerMolecule(mol);
+}
+
+// Build Glutamine (C5H10N2O3) - 20 atoms
+void buildGlutamine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Glutamine (C5H10N2O3)");
+
+    // Backbone
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C0: Alpha carbon
+    addAtom(mol, -1.3f, 0.5f, 0.0f, ATOM_N);     // N1: Amino group
+    addAtom(mol, 1.3f, 0.7f, 0.0f, ATOM_C);      // C2: Carboxyl carbon
+    addAtom(mol, 1.3f, 2.0f, 0.0f, ATOM_O);      // O3: Carboxyl =O
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_O);      // O4: Carboxyl -OH
+
+    // Side chain: -CH2-CH2-C(=O)-NH2
+    addAtom(mol, 0.0f, -1.5f, 0.0f, ATOM_C);     // C5: Beta carbon (CH2)
+    addAtom(mol, 0.0f, -3.0f, 0.0f, ATOM_C);     // C6: Gamma carbon (CH2)
+    addAtom(mol, 0.0f, -4.5f, 0.0f, ATOM_C);     // C7: Amide carbon
+    addAtom(mol, 1.1f, -5.2f, 0.0f, ATOM_O);     // O8: Amide =O
+    addAtom(mol, -1.1f, -5.2f, 0.0f, ATOM_N);    // N9: Amide -NH2
+
+    // Hydrogens
+    addAtom(mol, 0.0f, 0.5f, 0.9f, ATOM_H);      // H10: on alpha C
+    addAtom(mol, -1.4f, 1.5f, 0.0f, ATOM_H);     // H11: on NH2
+    addAtom(mol, -2.1f, 0.0f, 0.0f, ATOM_H);     // H12: on NH2
+    addAtom(mol, 3.2f, 0.5f, 0.0f, ATOM_H);      // H13: on COOH
+    addAtom(mol, 0.9f, -1.5f, 0.5f, ATOM_H);     // H14: on beta CH2
+    addAtom(mol, -0.9f, -1.5f, 0.5f, ATOM_H);    // H15: on beta CH2
+    addAtom(mol, 0.9f, -3.0f, 0.5f, ATOM_H);     // H16: on gamma CH2
+    addAtom(mol, -0.9f, -3.0f, 0.5f, ATOM_H);    // H17: on gamma CH2
+    addAtom(mol, -1.1f, -6.2f, 0.0f, ATOM_H);    // H18: on amide NH2
+    addAtom(mol, -1.9f, -4.7f, 0.0f, ATOM_H);    // H19: on amide NH2
+
+    // Bonds
+    addBond(mol, 0, 1, 1);   // Alpha C - NH2
+    addBond(mol, 0, 2, 1);   // Alpha C - COOH
+    addBond(mol, 2, 3, 2);   // C=O (carboxyl)
+    addBond(mol, 2, 4, 1);   // C-OH (carboxyl)
+    addBond(mol, 0, 5, 1);   // Alpha C - beta CH2
+    addBond(mol, 5, 6, 1);   // Beta CH2 - gamma CH2
+    addBond(mol, 6, 7, 1);   // Gamma CH2 - amide C
+    addBond(mol, 7, 8, 2);   // C=O (amide)
+    addBond(mol, 7, 9, 1);   // C-NH2 (amide)
+    addBond(mol, 0, 10, 1);  // Alpha C - H
+    addBond(mol, 1, 11, 1);  // NH2 - H
+    addBond(mol, 1, 12, 1);  // NH2 - H
+    addBond(mol, 4, 13, 1);  // OH - H
+    addBond(mol, 5, 14, 1);  // Beta CH2 - H
+    addBond(mol, 5, 15, 1);  // Beta CH2 - H
+    addBond(mol, 6, 16, 1);  // Gamma CH2 - H
+    addBond(mol, 6, 17, 1);  // Gamma CH2 - H
+    addBond(mol, 9, 18, 1);  // Amide NH2 - H
+    addBond(mol, 9, 19, 1);  // Amide NH2 - H
+
+    centerMolecule(mol);
+}
+
 // ============== VITAMINS ==============
 
 // Build Vitamin C - L-Ascorbic Acid (C6H8O6)
@@ -6717,7 +6864,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
-#define NUM_MOLECULES 140
+#define NUM_MOLECULES 144
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildWater, buildMethane, buildBenzene, buildEthanol,
@@ -6747,6 +6894,7 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildAsparticAcid, buildGlutamicAcid, buildLysine, buildHistidine,
     buildPhenylalanine, buildTyrosine, buildTryptophan, buildProline,
     buildCysteine, buildMethionine, buildPyruvate, buildArginine,
+    buildAsparagine, buildGlutamine,
     // Vitamins
     buildAscorbicAcid, buildThiamine, buildRiboflavin, buildNiacin,
     buildPanthothenicAcid, buildPyridoxine, buildBiotin, buildFolicAcid,
@@ -6762,6 +6910,8 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildTestosterone, buildDHT, buildAndrostenedione, buildEstradiol,
     buildEstrone, buildEstriol, buildProgesterone, buildCortisol,
     buildCortisone, buildAldosterone,
+    // Household chemicals
+    buildBleach, buildLye,
     buildRandomMolecule
 };
 
@@ -6793,6 +6943,7 @@ const char* moleculeNames[NUM_MOLECULES] = {
     "Aspartic Acid", "Glutamic Acid", "Lysine", "Histidine",
     "Phenylalanine", "Tyrosine", "Tryptophan", "Proline",
     "Cysteine", "Methionine", "Pyruvate", "Arginine",
+    "Asparagine", "Glutamine",
     // Vitamins
     "Vitamin C", "Vitamin B1", "Vitamin B2", "Vitamin B3",
     "Vitamin B5", "Vitamin B6", "Vitamin B7", "Vitamin B9",
@@ -6808,6 +6959,8 @@ const char* moleculeNames[NUM_MOLECULES] = {
     "Testosterone", "DHT", "Androstenedione", "Estradiol/E2",
     "Estrone/E1", "Estriol/E3", "Progesterone", "Cortisol",
     "Cortisone", "Aldosterone",
+    // Household chemicals
+    "Bleach/NaOCl", "Lye/NaOH",
     "Random"
 };
 
