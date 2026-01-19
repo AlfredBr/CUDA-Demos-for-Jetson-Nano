@@ -5973,6 +5973,672 @@ void buildAcetaminophen(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// ============== STEROID HORMONES ==============
+
+// Helper: Build the steroid core (gonane skeleton) - 4 fused rings (A, B, C, D)
+// Returns indices: 0-5 = ring A, 6-9 shared with A = ring B, 10-12 shared = ring C, 13-16 = ring D
+void buildSteroidCore(Molecule* mol) {
+    // Ring A (cyclohexane) - carbons 0-5
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C0 (C1)
+    addAtom(mol, 1.4f, 0.0f, 0.5f, ATOM_C);      // C1 (C2)
+    addAtom(mol, 2.5f, 0.0f, -0.4f, ATOM_C);     // C2 (C3)
+    addAtom(mol, 2.5f, 1.3f, -1.0f, ATOM_C);     // C3 (C4)
+    addAtom(mol, 1.4f, 2.0f, -0.5f, ATOM_C);     // C4 (C5)
+    addAtom(mol, 0.0f, 1.5f, 0.0f, ATOM_C);      // C5 (C10)
+
+    // Ring B (cyclohexane) shares C4, C5 - carbons 6-9
+    addAtom(mol, -1.2f, 2.2f, 0.5f, ATOM_C);     // C6 (C6)
+    addAtom(mol, -2.4f, 1.5f, 0.0f, ATOM_C);     // C7 (C7)
+    addAtom(mol, -2.4f, 0.0f, 0.5f, ATOM_C);     // C8 (C8)
+    addAtom(mol, -1.2f, -0.5f, 0.0f, ATOM_C);    // C9 (C9)
+
+    // Ring C (cyclohexane) shares C7, C8 - carbons 10-13
+    addAtom(mol, -3.6f, -0.5f, 0.0f, ATOM_C);    // C10 (C11)
+    addAtom(mol, -4.8f, 0.2f, 0.5f, ATOM_C);     // C11 (C12)
+    addAtom(mol, -4.8f, 1.5f, 0.0f, ATOM_C);     // C12 (C13)
+    addAtom(mol, -3.6f, 2.2f, 0.5f, ATOM_C);     // C13 (C14)
+
+    // Ring D (cyclopentane) shares C12, C13 - carbons 14-16
+    addAtom(mol, -5.2f, 2.8f, -0.5f, ATOM_C);    // C14 (C15)
+    addAtom(mol, -6.0f, 2.0f, -1.2f, ATOM_C);    // C15 (C16)
+    addAtom(mol, -5.8f, 0.6f, -0.7f, ATOM_C);    // C16 (C17)
+
+    // Angular methyl at C10 (C18)
+    addAtom(mol, -1.2f, 1.5f, 1.5f, ATOM_C);     // C17 (C19 - angular methyl)
+
+    // Angular methyl at C13 (C19)
+    addAtom(mol, -3.6f, 2.0f, 2.0f, ATOM_C);     // C18 (C18 - angular methyl)
+
+    // Ring A bonds
+    addBond(mol, 0, 1, 1); addBond(mol, 1, 2, 1); addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1); addBond(mol, 4, 5, 1); addBond(mol, 5, 0, 1);
+
+    // Ring B bonds (shares 5-9 edge conceptually, connects to ring A)
+    addBond(mol, 5, 6, 1); addBond(mol, 6, 7, 1); addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 1); addBond(mol, 9, 0, 1);
+
+    // Ring C bonds (shares 8-13 with ring B)
+    addBond(mol, 8, 10, 1); addBond(mol, 10, 11, 1); addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 13, 1); addBond(mol, 13, 7, 1);
+
+    // Ring D bonds (5-membered, shares 12-13 with ring C)
+    addBond(mol, 12, 14, 1); addBond(mol, 14, 15, 1); addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 11, 1);
+
+    // Angular methyl bonds
+    addBond(mol, 9, 17, 1);  // C19 methyl at junction
+    addBond(mol, 13, 18, 1); // C18 methyl at junction
+}
+
+void buildTestosterone(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Testosterone (C19H28O2)");
+
+    buildSteroidCore(mol);  // 19 carbons (0-18)
+
+    // C3 ketone (=O on C2, index 2)
+    addAtom(mol, 2.5f, -1.0f, -1.0f, ATOM_O);   // O at C3 (index 19)
+    addBond(mol, 2, 19, 2);  // C=O double bond
+
+    // C4-C5 double bond (indices 3-4)
+    // Change bond 3-4 to double
+    mol->bonds[3].order = 2;
+
+    // C17 hydroxyl (on C16, index 16)
+    addAtom(mol, -6.8f, 0.0f, -1.2f, ATOM_O);   // OH at C17 (index 20)
+    addBond(mol, 16, 20, 1);
+
+    // Add hydrogens to reach C19H28O2 (need 28 H)
+    // Simplified - add key hydrogens
+    int hStart = mol->numAtoms;
+    addAtom(mol, -7.5f, 0.3f, -0.8f, ATOM_H);   // H on OH
+    addBond(mol, 20, hStart, 1);
+
+    // Add more H atoms at various positions
+    float hPositions[][3] = {
+        {0.0f, -0.8f, 0.7f}, {1.4f, -0.8f, 1.2f}, {3.3f, -0.5f, 0.0f},
+        {1.4f, 3.0f, -0.8f}, {-1.2f, 3.2f, 0.8f}, {-0.8f, 2.2f, 1.3f},
+        {-3.0f, -0.5f, -0.8f}, {-4.0f, -1.5f, 0.3f}, {-5.5f, -0.3f, 1.2f},
+        {-5.5f, 2.0f, 0.7f}, {-4.8f, 3.5f, -1.0f}, {-6.8f, 2.5f, -1.8f},
+        {-1.0f, 0.8f, 2.2f}, {-1.8f, 2.2f, 1.8f}, {-0.5f, 1.8f, 1.8f},
+        {-3.2f, 1.3f, 2.7f}, {-4.3f, 2.7f, 2.3f}, {-3.0f, 2.8f, 2.3f},
+        {-1.8f, -1.3f, -0.5f}, {0.3f, 2.0f, -0.8f}, {-2.8f, 1.8f, -0.8f},
+        {-5.0f, 3.3f, 0.2f}, {-4.2f, -0.8f, 0.8f}, {-6.5f, 0.3f, 0.0f},
+        {3.2f, 1.8f, -1.5f}, {2.0f, 1.0f, 1.0f}, {-0.7f, -0.3f, -0.7f}
+    };
+    for (int i = 0; i < 27 && mol->numAtoms < MAX_ATOMS; i++) {
+        int idx = mol->numAtoms;
+        addAtom(mol, hPositions[i][0], hPositions[i][1], hPositions[i][2], ATOM_H);
+        addBond(mol, i % 19, idx, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+void buildDHT(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "DHT (C19H30O2)");
+
+    buildSteroidCore(mol);  // 19 carbons
+
+    // C3 ketone
+    addAtom(mol, 2.5f, -1.0f, -1.0f, ATOM_O);
+    addBond(mol, 2, 19, 2);
+
+    // C17 hydroxyl (no C4-C5 double bond in DHT, unlike testosterone)
+    addAtom(mol, -6.8f, 0.0f, -1.2f, ATOM_O);
+    addBond(mol, 16, 20, 1);
+
+    // Add hydroxyl H
+    addAtom(mol, -7.5f, 0.3f, -0.8f, ATOM_H);
+    addBond(mol, 20, 21, 1);
+
+    // Add remaining hydrogens (30 total - 1 on OH = 29 more needed, simplified)
+    float hPos[][3] = {
+        {0.0f, -0.8f, 0.7f}, {1.4f, -0.8f, 1.2f}, {3.3f, -0.5f, 0.0f},
+        {3.2f, 1.8f, -1.5f}, {1.4f, 3.0f, -0.8f}, {-1.2f, 3.2f, 0.8f},
+        {-3.0f, -0.5f, -0.8f}, {-4.0f, -1.5f, 0.3f}, {-5.5f, 2.0f, 0.7f},
+        {-4.8f, 3.5f, -1.0f}, {-6.8f, 2.5f, -1.8f}, {-1.0f, 0.8f, 2.2f},
+        {-3.2f, 1.3f, 2.7f}, {-4.3f, 2.7f, 2.3f}, {-1.8f, -1.3f, -0.5f},
+        {0.3f, 2.0f, -0.8f}, {-2.8f, 1.8f, -0.8f}, {-5.0f, 3.3f, 0.2f},
+        {1.8f, 1.5f, 0.2f}, {2.8f, 0.8f, -1.2f}, {-0.7f, 0.8f, -0.7f},
+        {-1.8f, 2.8f, 0.0f}, {-2.0f, 0.5f, 0.8f}, {-4.2f, 0.5f, -0.7f},
+        {-5.5f, 1.0f, 1.2f}, {-6.2f, 1.5f, -0.2f}, {-5.2f, 2.2f, -1.2f},
+        {0.8f, 0.5f, 0.5f}, {-0.5f, -0.5f, 0.5f}
+    };
+    for (int i = 0; i < 29 && mol->numAtoms < MAX_ATOMS; i++) {
+        int idx = mol->numAtoms;
+        addAtom(mol, hPos[i][0], hPos[i][1], hPos[i][2], ATOM_H);
+        addBond(mol, i % 19, idx, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+void buildAndrostenedione(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Androstenedione (C19H26O2)");
+
+    buildSteroidCore(mol);
+
+    // C3 ketone
+    addAtom(mol, 2.5f, -1.0f, -1.0f, ATOM_O);
+    addBond(mol, 2, 19, 2);
+
+    // C4-C5 double bond
+    mol->bonds[3].order = 2;
+
+    // C17 ketone (instead of hydroxyl)
+    addAtom(mol, -6.8f, 0.0f, -1.2f, ATOM_O);
+    addBond(mol, 16, 20, 2);  // Double bond for ketone
+
+    // Add hydrogens (26 total)
+    float hPos[][3] = {
+        {0.0f, -0.8f, 0.7f}, {1.4f, -0.8f, 1.2f}, {3.3f, -0.5f, 0.0f},
+        {1.4f, 3.0f, -0.8f}, {-1.2f, 3.2f, 0.8f}, {-3.0f, -0.5f, -0.8f},
+        {-4.0f, -1.5f, 0.3f}, {-5.5f, 2.0f, 0.7f}, {-4.8f, 3.5f, -1.0f},
+        {-6.8f, 2.5f, -1.8f}, {-1.0f, 0.8f, 2.2f}, {-3.2f, 1.3f, 2.7f},
+        {-4.3f, 2.7f, 2.3f}, {-1.8f, -1.3f, -0.5f}, {0.3f, 2.0f, -0.8f},
+        {-2.8f, 1.8f, -0.8f}, {-5.0f, 3.3f, 0.2f}, {-0.7f, 0.8f, -0.7f},
+        {-1.8f, 2.8f, 0.0f}, {-2.0f, 0.5f, 0.8f}, {-4.2f, 0.5f, -0.7f},
+        {-5.5f, 1.0f, 1.2f}, {-5.2f, 2.2f, -1.2f}, {0.8f, 0.5f, 0.5f},
+        {3.2f, 1.8f, -1.5f}, {-0.5f, -0.5f, 0.5f}
+    };
+    for (int i = 0; i < 26 && mol->numAtoms < MAX_ATOMS; i++) {
+        int idx = mol->numAtoms;
+        addAtom(mol, hPos[i][0], hPos[i][1], hPos[i][2], ATOM_H);
+        addBond(mol, i % 19, idx, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+void buildEstradiol(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Estradiol/E2 (C18H24O2)");
+
+    // Estrogens have aromatic A ring and no C19 methyl
+    // Ring A (aromatic benzene-like) - carbons 0-5
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 1.4f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 2.1f, 1.2f, 0.0f, ATOM_C);
+    addAtom(mol, 1.4f, 2.4f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, 2.4f, 0.0f, ATOM_C);
+    addAtom(mol, -0.7f, 1.2f, 0.0f, ATOM_C);
+
+    // Ring B - carbons 6-9
+    addAtom(mol, -2.1f, 1.2f, 0.5f, ATOM_C);
+    addAtom(mol, -2.8f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -2.1f, -1.2f, 0.5f, ATOM_C);
+    addAtom(mol, -0.7f, -1.2f, 0.0f, ATOM_C);
+
+    // Ring C - carbons 10-13
+    addAtom(mol, -2.8f, -2.4f, 0.0f, ATOM_C);
+    addAtom(mol, -4.2f, -2.4f, 0.5f, ATOM_C);
+    addAtom(mol, -4.9f, -1.2f, 0.0f, ATOM_C);
+    addAtom(mol, -4.2f, 0.0f, 0.5f, ATOM_C);
+
+    // Ring D (5-membered) - carbons 14-16
+    addAtom(mol, -5.6f, 0.0f, -0.5f, ATOM_C);
+    addAtom(mol, -6.3f, -1.2f, 0.0f, ATOM_C);
+    addAtom(mol, -5.6f, -2.4f, -0.5f, ATOM_C);
+
+    // C18 angular methyl (only one in estrogens)
+    addAtom(mol, -4.2f, 0.0f, 2.0f, ATOM_C);
+
+    // Ring A bonds (aromatic)
+    addBond(mol, 0, 1, 2); addBond(mol, 1, 2, 1); addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1); addBond(mol, 4, 5, 2); addBond(mol, 5, 0, 1);
+
+    // Ring B bonds
+    addBond(mol, 5, 6, 1); addBond(mol, 6, 7, 1); addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 1); addBond(mol, 9, 0, 1);
+
+    // Ring C bonds
+    addBond(mol, 8, 10, 1); addBond(mol, 10, 11, 1); addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 13, 1); addBond(mol, 13, 7, 1);
+
+    // Ring D bonds
+    addBond(mol, 12, 14, 1); addBond(mol, 14, 15, 1); addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 11, 1);
+
+    // Angular methyl bond
+    addBond(mol, 13, 17, 1);
+
+    // C3 hydroxyl (phenolic OH on aromatic ring)
+    addAtom(mol, 1.4f, 3.6f, 0.0f, ATOM_O);
+    addBond(mol, 3, 18, 1);
+
+    // C17 hydroxyl
+    addAtom(mol, -5.6f, 1.2f, -1.0f, ATOM_O);
+    addBond(mol, 14, 19, 1);
+
+    // Hydroxyl hydrogens
+    addAtom(mol, 2.2f, 3.9f, 0.0f, ATOM_H);
+    addBond(mol, 18, 20, 1);
+    addAtom(mol, -6.3f, 1.5f, -0.5f, ATOM_H);
+    addBond(mol, 19, 21, 1);
+
+    // Add remaining hydrogens
+    float hPos[][3] = {
+        {2.0f, -0.9f, 0.0f}, {3.2f, 1.2f, 0.0f}, {-0.5f, 3.3f, 0.0f},
+        {-2.1f, 1.2f, 1.6f}, {-2.6f, 2.1f, 0.2f}, {-2.1f, -1.2f, 1.6f},
+        {-0.7f, -1.2f, -1.1f}, {-0.2f, -2.1f, 0.3f}, {-2.3f, -3.3f, 0.3f},
+        {-4.2f, -2.4f, 1.6f}, {-4.7f, -3.3f, 0.2f}, {-6.0f, -0.5f, -1.3f},
+        {-7.0f, -0.9f, 0.7f}, {-7.0f, -1.5f, -0.7f}, {-5.2f, -3.0f, 0.2f},
+        {-6.2f, -2.9f, -1.0f}, {-3.5f, -0.5f, 2.5f}, {-5.0f, 0.5f, 2.3f},
+        {-4.0f, 0.9f, 2.3f}, {-3.5f, -0.9f, -0.5f}, {-2.8f, -0.5f, -1.0f}
+    };
+    for (int i = 0; i < 21 && mol->numAtoms < MAX_ATOMS; i++) {
+        int idx = mol->numAtoms;
+        addAtom(mol, hPos[i][0], hPos[i][1], hPos[i][2], ATOM_H);
+        addBond(mol, i % 18, idx, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+void buildEstrone(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Estrone/E1 (C18H22O2)");
+
+    // Similar to estradiol but C17 is ketone
+    // Ring A (aromatic)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 1.4f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 2.1f, 1.2f, 0.0f, ATOM_C);
+    addAtom(mol, 1.4f, 2.4f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, 2.4f, 0.0f, ATOM_C);
+    addAtom(mol, -0.7f, 1.2f, 0.0f, ATOM_C);
+
+    // Rings B, C, D
+    addAtom(mol, -2.1f, 1.2f, 0.5f, ATOM_C);
+    addAtom(mol, -2.8f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -2.1f, -1.2f, 0.5f, ATOM_C);
+    addAtom(mol, -0.7f, -1.2f, 0.0f, ATOM_C);
+    addAtom(mol, -2.8f, -2.4f, 0.0f, ATOM_C);
+    addAtom(mol, -4.2f, -2.4f, 0.5f, ATOM_C);
+    addAtom(mol, -4.9f, -1.2f, 0.0f, ATOM_C);
+    addAtom(mol, -4.2f, 0.0f, 0.5f, ATOM_C);
+    addAtom(mol, -5.6f, 0.0f, -0.5f, ATOM_C);
+    addAtom(mol, -6.3f, -1.2f, 0.0f, ATOM_C);
+    addAtom(mol, -5.6f, -2.4f, -0.5f, ATOM_C);
+    addAtom(mol, -4.2f, 0.0f, 2.0f, ATOM_C);  // Angular methyl
+
+    // Aromatic ring A bonds
+    addBond(mol, 0, 1, 2); addBond(mol, 1, 2, 1); addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1); addBond(mol, 4, 5, 2); addBond(mol, 5, 0, 1);
+
+    // Other ring bonds
+    addBond(mol, 5, 6, 1); addBond(mol, 6, 7, 1); addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 1); addBond(mol, 9, 0, 1);
+    addBond(mol, 8, 10, 1); addBond(mol, 10, 11, 1); addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 13, 1); addBond(mol, 13, 7, 1);
+    addBond(mol, 12, 14, 1); addBond(mol, 14, 15, 1); addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 11, 1);
+    addBond(mol, 13, 17, 1);
+
+    // C3 hydroxyl
+    addAtom(mol, 1.4f, 3.6f, 0.0f, ATOM_O);
+    addBond(mol, 3, 18, 1);
+
+    // C17 ketone (double bond O)
+    addAtom(mol, -5.6f, 1.2f, -1.0f, ATOM_O);
+    addBond(mol, 14, 19, 2);
+
+    // Hydroxyl hydrogen
+    addAtom(mol, 2.2f, 3.9f, 0.0f, ATOM_H);
+    addBond(mol, 18, 20, 1);
+
+    // Add remaining hydrogens (22 - 1 on phenol = 21)
+    float hPos[][3] = {
+        {2.0f, -0.9f, 0.0f}, {3.2f, 1.2f, 0.0f}, {-0.5f, 3.3f, 0.0f},
+        {-2.1f, 1.2f, 1.6f}, {-2.6f, 2.1f, 0.2f}, {-2.1f, -1.2f, 1.6f},
+        {-0.7f, -1.2f, -1.1f}, {-0.2f, -2.1f, 0.3f}, {-2.3f, -3.3f, 0.3f},
+        {-4.2f, -2.4f, 1.6f}, {-4.7f, -3.3f, 0.2f}, {-7.0f, -0.9f, 0.7f},
+        {-7.0f, -1.5f, -0.7f}, {-5.2f, -3.0f, 0.2f}, {-6.2f, -2.9f, -1.0f},
+        {-3.5f, -0.5f, 2.5f}, {-5.0f, 0.5f, 2.3f}, {-4.0f, 0.9f, 2.3f},
+        {-3.5f, -0.9f, -0.5f}, {-2.8f, -0.5f, -1.0f}, {-6.0f, -0.5f, -1.3f}
+    };
+    for (int i = 0; i < 21 && mol->numAtoms < MAX_ATOMS; i++) {
+        int idx = mol->numAtoms;
+        addAtom(mol, hPos[i][0], hPos[i][1], hPos[i][2], ATOM_H);
+        addBond(mol, i % 18, idx, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+void buildEstriol(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Estriol/E3 (C18H24O3)");
+
+    // Same base as estradiol but with extra OH at C16
+    // Ring A (aromatic)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 1.4f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 2.1f, 1.2f, 0.0f, ATOM_C);
+    addAtom(mol, 1.4f, 2.4f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, 2.4f, 0.0f, ATOM_C);
+    addAtom(mol, -0.7f, 1.2f, 0.0f, ATOM_C);
+
+    // Rings B, C, D
+    addAtom(mol, -2.1f, 1.2f, 0.5f, ATOM_C);
+    addAtom(mol, -2.8f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -2.1f, -1.2f, 0.5f, ATOM_C);
+    addAtom(mol, -0.7f, -1.2f, 0.0f, ATOM_C);
+    addAtom(mol, -2.8f, -2.4f, 0.0f, ATOM_C);
+    addAtom(mol, -4.2f, -2.4f, 0.5f, ATOM_C);
+    addAtom(mol, -4.9f, -1.2f, 0.0f, ATOM_C);
+    addAtom(mol, -4.2f, 0.0f, 0.5f, ATOM_C);
+    addAtom(mol, -5.6f, 0.0f, -0.5f, ATOM_C);
+    addAtom(mol, -6.3f, -1.2f, 0.0f, ATOM_C);
+    addAtom(mol, -5.6f, -2.4f, -0.5f, ATOM_C);
+    addAtom(mol, -4.2f, 0.0f, 2.0f, ATOM_C);  // Angular methyl
+
+    // Ring bonds
+    addBond(mol, 0, 1, 2); addBond(mol, 1, 2, 1); addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1); addBond(mol, 4, 5, 2); addBond(mol, 5, 0, 1);
+    addBond(mol, 5, 6, 1); addBond(mol, 6, 7, 1); addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 1); addBond(mol, 9, 0, 1);
+    addBond(mol, 8, 10, 1); addBond(mol, 10, 11, 1); addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 13, 1); addBond(mol, 13, 7, 1);
+    addBond(mol, 12, 14, 1); addBond(mol, 14, 15, 1); addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 11, 1);
+    addBond(mol, 13, 17, 1);
+
+    // C3 hydroxyl (phenolic)
+    addAtom(mol, 1.4f, 3.6f, 0.0f, ATOM_O);
+    addBond(mol, 3, 18, 1);
+
+    // C16 hydroxyl
+    addAtom(mol, -7.0f, -1.2f, 1.0f, ATOM_O);
+    addBond(mol, 15, 19, 1);
+
+    // C17 hydroxyl
+    addAtom(mol, -5.6f, 1.2f, -1.0f, ATOM_O);
+    addBond(mol, 14, 20, 1);
+
+    // Hydroxyl hydrogens
+    addAtom(mol, 2.2f, 3.9f, 0.0f, ATOM_H);
+    addBond(mol, 18, 21, 1);
+    addAtom(mol, -7.7f, -0.8f, 0.6f, ATOM_H);
+    addBond(mol, 19, 22, 1);
+    addAtom(mol, -6.3f, 1.5f, -0.5f, ATOM_H);
+    addBond(mol, 20, 23, 1);
+
+    // Add remaining hydrogens
+    float hPos[][3] = {
+        {2.0f, -0.9f, 0.0f}, {3.2f, 1.2f, 0.0f}, {-0.5f, 3.3f, 0.0f},
+        {-2.1f, 1.2f, 1.6f}, {-2.6f, 2.1f, 0.2f}, {-2.1f, -1.2f, 1.6f},
+        {-0.7f, -1.2f, -1.1f}, {-0.2f, -2.1f, 0.3f}, {-2.3f, -3.3f, 0.3f},
+        {-4.2f, -2.4f, 1.6f}, {-4.7f, -3.3f, 0.2f}, {-6.0f, -0.5f, -1.3f},
+        {-5.2f, -3.0f, 0.2f}, {-6.2f, -2.9f, -1.0f}, {-3.5f, -0.5f, 2.5f},
+        {-5.0f, 0.5f, 2.3f}, {-4.0f, 0.9f, 2.3f}, {-3.5f, -0.9f, -0.5f},
+        {-2.8f, -0.5f, -1.0f}, {-6.5f, -1.8f, -0.7f}, {-5.8f, -2.8f, 0.3f}
+    };
+    for (int i = 0; i < 21 && mol->numAtoms < MAX_ATOMS; i++) {
+        int idx = mol->numAtoms;
+        addAtom(mol, hPos[i][0], hPos[i][1], hPos[i][2], ATOM_H);
+        addBond(mol, i % 18, idx, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+void buildProgesterone(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Progesterone (C21H30O2)");
+
+    buildSteroidCore(mol);  // 19 carbons (0-18)
+
+    // C3 ketone
+    addAtom(mol, 2.5f, -1.0f, -1.0f, ATOM_O);
+    addBond(mol, 2, 19, 2);
+
+    // C4-C5 double bond
+    mol->bonds[3].order = 2;
+
+    // C17 acetyl group (-COCH3)
+    addAtom(mol, -6.8f, 0.0f, -1.2f, ATOM_C);   // Carbonyl carbon (C20)
+    addBond(mol, 16, 20, 1);
+    addAtom(mol, -7.5f, 0.5f, -2.0f, ATOM_O);   // Carbonyl oxygen
+    addBond(mol, 20, 21, 2);
+    addAtom(mol, -7.5f, -1.0f, -0.5f, ATOM_C);  // Methyl (C21)
+    addBond(mol, 20, 22, 1);
+
+    // Methyl hydrogens on C21
+    addAtom(mol, -8.3f, -0.5f, 0.0f, ATOM_H);
+    addAtom(mol, -7.9f, -1.6f, -1.2f, ATOM_H);
+    addAtom(mol, -6.9f, -1.6f, 0.1f, ATOM_H);
+    addBond(mol, 22, 23, 1);
+    addBond(mol, 22, 24, 1);
+    addBond(mol, 22, 25, 1);
+
+    // Add remaining hydrogens
+    float hPos[][3] = {
+        {0.0f, -0.8f, 0.7f}, {1.4f, -0.8f, 1.2f}, {3.3f, -0.5f, 0.0f},
+        {1.4f, 3.0f, -0.8f}, {-1.2f, 3.2f, 0.8f}, {-3.0f, -0.5f, -0.8f},
+        {-4.0f, -1.5f, 0.3f}, {-5.5f, 2.0f, 0.7f}, {-4.8f, 3.5f, -1.0f},
+        {-6.8f, 2.5f, -1.8f}, {-1.0f, 0.8f, 2.2f}, {-3.2f, 1.3f, 2.7f},
+        {-4.3f, 2.7f, 2.3f}, {-1.8f, -1.3f, -0.5f}, {0.3f, 2.0f, -0.8f},
+        {-2.8f, 1.8f, -0.8f}, {-5.0f, 3.3f, 0.2f}, {-0.7f, 0.8f, -0.7f},
+        {-1.8f, 2.8f, 0.0f}, {-2.0f, 0.5f, 0.8f}, {-4.2f, 0.5f, -0.7f},
+        {-5.5f, 1.0f, 1.2f}, {0.8f, 0.5f, 0.5f}, {3.2f, 1.8f, -1.5f}
+    };
+    for (int i = 0; i < 24 && mol->numAtoms < MAX_ATOMS; i++) {
+        int idx = mol->numAtoms;
+        addAtom(mol, hPos[i][0], hPos[i][1], hPos[i][2], ATOM_H);
+        addBond(mol, i % 19, idx, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+void buildCortisol(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Cortisol (C21H30O5)");
+
+    buildSteroidCore(mol);  // 19 carbons (0-18)
+
+    // C3 ketone
+    addAtom(mol, 2.5f, -1.0f, -1.0f, ATOM_O);
+    addBond(mol, 2, 19, 2);
+
+    // C4-C5 double bond
+    mol->bonds[3].order = 2;
+
+    // C11 hydroxyl
+    addAtom(mol, -4.8f, -0.5f, 1.5f, ATOM_O);
+    addBond(mol, 10, 20, 1);
+
+    // C17 hydroxyl
+    addAtom(mol, -5.8f, 1.0f, -1.5f, ATOM_O);
+    addBond(mol, 16, 21, 1);
+
+    // C17 side chain: -COCH2OH
+    addAtom(mol, -6.8f, 0.0f, -0.5f, ATOM_C);   // Carbonyl carbon (C20)
+    addBond(mol, 16, 22, 1);
+    addAtom(mol, -7.5f, 0.5f, 0.3f, ATOM_O);    // Carbonyl oxygen
+    addBond(mol, 22, 23, 2);
+    addAtom(mol, -7.2f, -1.2f, -1.0f, ATOM_C);  // CH2 (C21)
+    addBond(mol, 22, 24, 1);
+    addAtom(mol, -8.3f, -1.5f, -0.3f, ATOM_O);  // Primary OH
+    addBond(mol, 24, 25, 1);
+
+    // Hydroxyl hydrogens
+    addAtom(mol, -5.5f, 0.0f, 2.0f, ATOM_H);
+    addBond(mol, 20, 26, 1);
+    addAtom(mol, -5.3f, 1.5f, -2.0f, ATOM_H);
+    addBond(mol, 21, 27, 1);
+    addAtom(mol, -8.8f, -0.8f, 0.0f, ATOM_H);
+    addBond(mol, 25, 28, 1);
+
+    // CH2 hydrogens
+    addAtom(mol, -6.5f, -1.8f, -1.5f, ATOM_H);
+    addAtom(mol, -7.5f, -1.0f, -1.9f, ATOM_H);
+    addBond(mol, 24, 29, 1);
+    addBond(mol, 24, 30, 1);
+
+    // Add remaining hydrogens
+    float hPos[][3] = {
+        {0.0f, -0.8f, 0.7f}, {1.4f, -0.8f, 1.2f}, {3.3f, -0.5f, 0.0f},
+        {1.4f, 3.0f, -0.8f}, {-1.2f, 3.2f, 0.8f}, {-3.0f, -0.5f, -0.8f},
+        {-5.5f, 2.0f, 0.7f}, {-4.8f, 3.5f, -1.0f}, {-6.8f, 2.5f, -1.8f},
+        {-1.0f, 0.8f, 2.2f}, {-3.2f, 1.3f, 2.7f}, {-4.3f, 2.7f, 2.3f},
+        {-1.8f, -1.3f, -0.5f}, {0.3f, 2.0f, -0.8f}, {-2.8f, 1.8f, -0.8f},
+        {-5.0f, 3.3f, 0.2f}, {0.8f, 0.5f, 0.5f}, {3.2f, 1.8f, -1.5f},
+        {-4.0f, -1.5f, 0.3f}
+    };
+    for (int i = 0; i < 19 && mol->numAtoms < MAX_ATOMS; i++) {
+        int idx = mol->numAtoms;
+        addAtom(mol, hPos[i][0], hPos[i][1], hPos[i][2], ATOM_H);
+        addBond(mol, i % 19, idx, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+void buildCortisone(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Cortisone (C21H28O5)");
+
+    buildSteroidCore(mol);
+
+    // C3 ketone
+    addAtom(mol, 2.5f, -1.0f, -1.0f, ATOM_O);
+    addBond(mol, 2, 19, 2);
+
+    // C4-C5 double bond
+    mol->bonds[3].order = 2;
+
+    // C11 ketone (not hydroxyl like cortisol)
+    addAtom(mol, -4.8f, -0.5f, 1.5f, ATOM_O);
+    addBond(mol, 10, 20, 2);
+
+    // C17 hydroxyl
+    addAtom(mol, -5.8f, 1.0f, -1.5f, ATOM_O);
+    addBond(mol, 16, 21, 1);
+
+    // C17 side chain
+    addAtom(mol, -6.8f, 0.0f, -0.5f, ATOM_C);
+    addBond(mol, 16, 22, 1);
+    addAtom(mol, -7.5f, 0.5f, 0.3f, ATOM_O);
+    addBond(mol, 22, 23, 2);
+    addAtom(mol, -7.2f, -1.2f, -1.0f, ATOM_C);
+    addBond(mol, 22, 24, 1);
+    addAtom(mol, -8.3f, -1.5f, -0.3f, ATOM_O);
+    addBond(mol, 24, 25, 1);
+
+    // Hydroxyl hydrogens
+    addAtom(mol, -5.3f, 1.5f, -2.0f, ATOM_H);
+    addBond(mol, 21, 26, 1);
+    addAtom(mol, -8.8f, -0.8f, 0.0f, ATOM_H);
+    addBond(mol, 25, 27, 1);
+
+    // CH2 hydrogens
+    addAtom(mol, -6.5f, -1.8f, -1.5f, ATOM_H);
+    addAtom(mol, -7.5f, -1.0f, -1.9f, ATOM_H);
+    addBond(mol, 24, 28, 1);
+    addBond(mol, 24, 29, 1);
+
+    // Add remaining hydrogens (28 - 2 OH H - 2 CH2 H = 24 more)
+    float hPos[][3] = {
+        {0.0f, -0.8f, 0.7f}, {1.4f, -0.8f, 1.2f}, {3.3f, -0.5f, 0.0f},
+        {1.4f, 3.0f, -0.8f}, {-1.2f, 3.2f, 0.8f}, {-3.0f, -0.5f, -0.8f},
+        {-5.5f, 2.0f, 0.7f}, {-4.8f, 3.5f, -1.0f}, {-6.8f, 2.5f, -1.8f},
+        {-1.0f, 0.8f, 2.2f}, {-3.2f, 1.3f, 2.7f}, {-4.3f, 2.7f, 2.3f},
+        {-1.8f, -1.3f, -0.5f}, {0.3f, 2.0f, -0.8f}, {-2.8f, 1.8f, -0.8f},
+        {-5.0f, 3.3f, 0.2f}, {0.8f, 0.5f, 0.5f}, {3.2f, 1.8f, -1.5f},
+        {-4.0f, -1.5f, 0.3f}, {-2.5f, -0.8f, 0.5f}, {-0.5f, 0.5f, -0.8f},
+        {-3.8f, 0.5f, 0.0f}, {-5.2f, -0.3f, -0.5f}, {-6.2f, 1.8f, 0.0f}
+    };
+    for (int i = 0; i < 24 && mol->numAtoms < MAX_ATOMS; i++) {
+        int idx = mol->numAtoms;
+        addAtom(mol, hPos[i][0], hPos[i][1], hPos[i][2], ATOM_H);
+        addBond(mol, i % 19, idx, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+void buildAldosterone(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Aldosterone (C21H28O5)");
+
+    buildSteroidCore(mol);
+
+    // C3 ketone
+    addAtom(mol, 2.5f, -1.0f, -1.0f, ATOM_O);
+    addBond(mol, 2, 19, 2);
+
+    // C4-C5 double bond
+    mol->bonds[3].order = 2;
+
+    // C11 hydroxyl
+    addAtom(mol, -4.8f, -0.5f, 1.5f, ATOM_O);
+    addBond(mol, 10, 20, 1);
+
+    // C18 aldehyde (CHO replaces angular methyl at C13)
+    // Remove the existing methyl hydrogen assumption, add aldehyde
+    addAtom(mol, -3.6f, 3.0f, 2.5f, ATOM_O);  // Aldehyde oxygen
+    addBond(mol, 18, 21, 2);
+
+    // C17 side chain
+    addAtom(mol, -6.8f, 0.0f, -0.5f, ATOM_C);
+    addBond(mol, 16, 22, 1);
+    addAtom(mol, -7.5f, 0.5f, 0.3f, ATOM_O);
+    addBond(mol, 22, 23, 2);
+    addAtom(mol, -7.2f, -1.2f, -1.0f, ATOM_C);
+    addBond(mol, 22, 24, 1);
+    addAtom(mol, -8.3f, -1.5f, -0.3f, ATOM_O);
+    addBond(mol, 24, 25, 1);
+
+    // Hydroxyl hydrogens
+    addAtom(mol, -5.5f, 0.0f, 2.0f, ATOM_H);
+    addBond(mol, 20, 26, 1);
+    addAtom(mol, -8.8f, -0.8f, 0.0f, ATOM_H);
+    addBond(mol, 25, 27, 1);
+
+    // Aldehyde H
+    addAtom(mol, -3.0f, 3.5f, 1.8f, ATOM_H);
+    addBond(mol, 18, 28, 1);
+
+    // CH2 hydrogens
+    addAtom(mol, -6.5f, -1.8f, -1.5f, ATOM_H);
+    addAtom(mol, -7.5f, -1.0f, -1.9f, ATOM_H);
+    addBond(mol, 24, 29, 1);
+    addBond(mol, 24, 30, 1);
+
+    // Add remaining hydrogens
+    float hPos[][3] = {
+        {0.0f, -0.8f, 0.7f}, {1.4f, -0.8f, 1.2f}, {3.3f, -0.5f, 0.0f},
+        {1.4f, 3.0f, -0.8f}, {-1.2f, 3.2f, 0.8f}, {-3.0f, -0.5f, -0.8f},
+        {-5.5f, 2.0f, 0.7f}, {-4.8f, 3.5f, -1.0f}, {-6.8f, 2.5f, -1.8f},
+        {-1.0f, 0.8f, 2.2f}, {-1.8f, -1.3f, -0.5f}, {0.3f, 2.0f, -0.8f},
+        {-2.8f, 1.8f, -0.8f}, {-5.0f, 3.3f, 0.2f}, {0.8f, 0.5f, 0.5f},
+        {3.2f, 1.8f, -1.5f}, {-4.0f, -1.5f, 0.3f}, {-2.5f, -0.8f, 0.5f},
+        {-0.5f, 0.5f, -0.8f}, {-3.8f, 0.5f, 0.0f}, {-5.2f, -0.3f, -0.5f}
+    };
+    for (int i = 0; i < 21 && mol->numAtoms < MAX_ATOMS; i++) {
+        int idx = mol->numAtoms;
+        addAtom(mol, hPos[i][0], hPos[i][1], hPos[i][2], ATOM_H);
+        addBond(mol, i % 19, idx, 1);
+    }
+
+    centerMolecule(mol);
+}
+
 // Random molecule generator
 float randf() { return (float)rand() / RAND_MAX; }
 
@@ -6051,7 +6717,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
-#define NUM_MOLECULES 130
+#define NUM_MOLECULES 140
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildWater, buildMethane, buildBenzene, buildEthanol,
@@ -6092,6 +6758,10 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     // Statins & NSAIDs
     buildSimvastatin, buildIbuprofen, buildNaproxen, buildDiclofenac,
     buildIndomethacin, buildCelecoxib, buildMeloxicam, buildAcetaminophen,
+    // Steroid hormones
+    buildTestosterone, buildDHT, buildAndrostenedione, buildEstradiol,
+    buildEstrone, buildEstriol, buildProgesterone, buildCortisol,
+    buildCortisone, buildAldosterone,
     buildRandomMolecule
 };
 
@@ -6134,6 +6804,10 @@ const char* moleculeNames[NUM_MOLECULES] = {
     // Statins & NSAIDs
     "Simvastatin/Zocor", "Ibuprofen/Advil", "Naproxen/Aleve", "Diclofenac/Voltaren",
     "Indomethacin/Indocin", "Celecoxib/Celebrex", "Meloxicam/Mobic", "Tylenol",
+    // Steroid hormones
+    "Testosterone", "DHT", "Androstenedione", "Estradiol/E2",
+    "Estrone/E1", "Estriol/E3", "Progesterone", "Cortisol",
+    "Cortisone", "Aldosterone",
     "Random"
 };
 
