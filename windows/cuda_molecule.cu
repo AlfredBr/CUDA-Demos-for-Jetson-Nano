@@ -11040,6 +11040,248 @@ void buildSevoflurane(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// ============== PSYCHEDELICS ==============
+
+// Build LSD (C20H25N3O) - Lysergic acid diethylamide
+void buildLSD(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "LSD (C20H25N3O)");
+
+    // Ergoline core - tetracyclic structure (simplified representation)
+    // Ring A: Benzene ring
+    float r = 1.4f;
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);  // 0-5
+    }
+
+    // Ring B: Pyrrole (5-membered with N)
+    addAtom(mol, r * cosf(0) + 1.2f, r * sinf(0) + 0.7f, 0.3f, ATOM_C);     // 6
+    addAtom(mol, r * cosf(0) + 2.0f, r * sinf(0) - 0.3f, 0.5f, ATOM_C);     // 7
+    addAtom(mol, r * cosf(5*PI/3) + 1.0f, r * sinf(5*PI/3) - 0.3f, 0.3f, ATOM_N); // 8: indole N
+
+    // Ring C: Cyclohexene
+    addAtom(mol, r * cosf(0) + 2.8f, r * sinf(0) + 0.5f, 0.2f, ATOM_C);     // 9
+    addAtom(mol, r * cosf(0) + 3.5f, r * sinf(0) - 0.5f, -0.3f, ATOM_C);    // 10
+    addAtom(mol, r * cosf(0) + 3.0f, r * sinf(0) - 1.5f, -0.5f, ATOM_C);    // 11
+
+    // Ring D: Piperidine with N
+    addAtom(mol, r * cosf(0) + 2.0f, r * sinf(0) - 1.8f, -0.2f, ATOM_N);    // 12: piperidine N
+    addAtom(mol, r * cosf(0) + 1.5f, r * sinf(0) - 2.8f, 0.0f, ATOM_C);     // 13: N-CH3 methyl
+
+    // Diethylamide group: -C(=O)-N(C2H5)2
+    addAtom(mol, r * cosf(0) + 4.5f, r * sinf(0) + 1.0f, 0.0f, ATOM_C);     // 14: C=O
+    addAtom(mol, r * cosf(0) + 4.8f, r * sinf(0) + 2.2f, 0.3f, ATOM_O);     // 15: =O
+    addAtom(mol, r * cosf(0) + 5.5f, r * sinf(0) + 0.2f, -0.3f, ATOM_N);    // 16: N (amide)
+    addAtom(mol, r * cosf(0) + 6.5f, r * sinf(0) + 0.8f, 0.3f, ATOM_C);     // 17: CH2
+    addAtom(mol, r * cosf(0) + 7.5f, r * sinf(0) + 0.2f, 0.0f, ATOM_C);     // 18: CH3
+    addAtom(mol, r * cosf(0) + 5.8f, r * sinf(0) - 1.0f, -0.8f, ATOM_C);    // 19: CH2
+    addAtom(mol, r * cosf(0) + 6.8f, r * sinf(0) - 1.5f, -0.5f, ATOM_C);    // 20: CH3
+
+    // Key hydrogens
+    addAtom(mol, r * cosf(5*PI/3) + 1.3f, r * sinf(5*PI/3) - 1.0f, 0.5f, ATOM_H); // 21: H on indole N
+    float rH = 2.4f;
+    addAtom(mol, rH * cosf(2*PI/3), rH * sinf(2*PI/3), 0.0f, ATOM_H);       // 22
+    addAtom(mol, rH * cosf(PI), rH * sinf(PI), 0.0f, ATOM_H);               // 23
+    addAtom(mol, rH * cosf(4*PI/3), rH * sinf(4*PI/3), 0.0f, ATOM_H);       // 24
+
+    // Ring A bonds (benzene)
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+
+    // Ring B bonds (pyrrole fusion)
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 5, 1);
+
+    // Ring C bonds
+    addBond(mol, 6, 9, 1);
+    addBond(mol, 9, 10, 1);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 11, 7, 1);
+
+    // Ring D bonds
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 8, 1);
+    addBond(mol, 12, 13, 1);  // N-CH3
+
+    // Amide bonds
+    addBond(mol, 9, 14, 1);
+    addBond(mol, 14, 15, 2);  // C=O
+    addBond(mol, 14, 16, 1);  // C-N
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 17, 18, 1);
+    addBond(mol, 16, 19, 1);
+    addBond(mol, 19, 20, 1);
+
+    // Hydrogen bonds
+    addBond(mol, 8, 21, 1);
+    addBond(mol, 2, 22, 1);
+    addBond(mol, 3, 23, 1);
+    addBond(mol, 4, 24, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Psilocybin (C12H17N2O4P) - Magic mushroom compound
+void buildPsilocybin(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Psilocybin (C12H17N2O4P)");
+
+    // Indole core (benzene fused with pyrrole)
+    // Benzene ring
+    float r = 1.4f;
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);  // 0-5
+    }
+
+    // Pyrrole ring (5-membered, fused at C0-C5)
+    addAtom(mol, r * cosf(0) + 1.0f, r * sinf(0) + 0.8f, 0.0f, ATOM_C);     // 6: C3
+    addAtom(mol, r * cosf(0) + 1.8f, r * sinf(0) - 0.2f, 0.0f, ATOM_C);     // 7: C2
+    addAtom(mol, r * cosf(5*PI/3) + 0.8f, r * sinf(5*PI/3) - 0.3f, 0.0f, ATOM_N); // 8: N1 (indole)
+
+    // Phosphate ester at position 4 (on C6)
+    addAtom(mol, r * cosf(0) + 0.8f, r * sinf(0) + 2.0f, 0.0f, ATOM_O);     // 9: O (ether to P)
+    addAtom(mol, r * cosf(0) + 1.5f, r * sinf(0) + 3.2f, 0.0f, ATOM_P);     // 10: P
+    addAtom(mol, r * cosf(0) + 0.5f, r * sinf(0) + 4.2f, 0.0f, ATOM_O);     // 11: =O
+    addAtom(mol, r * cosf(0) + 2.5f, r * sinf(0) + 3.8f, 0.8f, ATOM_O);     // 12: OH
+    addAtom(mol, r * cosf(0) + 2.2f, r * sinf(0) + 3.0f, -1.0f, ATOM_O);    // 13: OH
+
+    // Ethylamine side chain with dimethylamino: -CH2-CH2-N(CH3)2
+    addAtom(mol, r * cosf(0) + 2.8f, r * sinf(0) + 0.3f, 0.0f, ATOM_C);     // 14: CH2
+    addAtom(mol, r * cosf(0) + 4.0f, r * sinf(0) - 0.3f, 0.0f, ATOM_C);     // 15: CH2
+    addAtom(mol, r * cosf(0) + 5.2f, r * sinf(0) + 0.3f, 0.0f, ATOM_N);     // 16: N (dimethyl)
+    addAtom(mol, r * cosf(0) + 5.8f, r * sinf(0) + 1.5f, 0.0f, ATOM_C);     // 17: CH3
+    addAtom(mol, r * cosf(0) + 6.2f, r * sinf(0) - 0.5f, 0.0f, ATOM_C);     // 18: CH3
+
+    // Key hydrogens
+    addAtom(mol, r * cosf(5*PI/3) + 1.0f, r * sinf(5*PI/3) - 1.2f, 0.0f, ATOM_H); // 19: H on indole N
+    addAtom(mol, r * cosf(0) + 3.0f, r * sinf(0) + 4.5f, 1.0f, ATOM_H);     // 20: H on P-OH
+    addAtom(mol, r * cosf(0) + 2.8f, r * sinf(0) + 2.5f, -1.5f, ATOM_H);    // 21: H on P-OH
+    float rH = 2.4f;
+    addAtom(mol, rH * cosf(PI/3), rH * sinf(PI/3), 0.0f, ATOM_H);           // 22
+    addAtom(mol, rH * cosf(2*PI/3), rH * sinf(2*PI/3), 0.0f, ATOM_H);       // 23
+    addAtom(mol, rH * cosf(PI), rH * sinf(PI), 0.0f, ATOM_H);               // 24
+    addAtom(mol, rH * cosf(4*PI/3), rH * sinf(4*PI/3), 0.0f, ATOM_H);       // 25
+
+    // Benzene ring bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+
+    // Pyrrole fusion bonds
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 5, 1);
+
+    // Phosphate ester bonds
+    addBond(mol, 6, 9, 1);   // C-O
+    addBond(mol, 9, 10, 1);  // O-P
+    addBond(mol, 10, 11, 2); // P=O
+    addBond(mol, 10, 12, 1); // P-OH
+    addBond(mol, 10, 13, 1); // P-OH
+
+    // Side chain bonds
+    addBond(mol, 7, 14, 1);  // C-CH2
+    addBond(mol, 14, 15, 1); // CH2-CH2
+    addBond(mol, 15, 16, 1); // CH2-N
+    addBond(mol, 16, 17, 1); // N-CH3
+    addBond(mol, 16, 18, 1); // N-CH3
+
+    // Hydrogen bonds
+    addBond(mol, 8, 19, 1);
+    addBond(mol, 12, 20, 1);
+    addBond(mol, 13, 21, 1);
+    addBond(mol, 1, 22, 1);
+    addBond(mol, 2, 23, 1);
+    addBond(mol, 3, 24, 1);
+    addBond(mol, 4, 25, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Mescaline (C11H17NO3) - Peyote cactus alkaloid
+void buildMescaline(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Mescaline (C11H17NO3)");
+
+    // 3,4,5-trimethoxyphenethylamine
+    // Benzene ring
+    float r = 1.4f;
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);  // 0-5
+    }
+
+    // Three methoxy groups at positions 3, 4, 5 (C2, C3, C4)
+    // Methoxy at C2 (position 3)
+    addAtom(mol, r * cosf(2*PI/3) - 1.0f, r * sinf(2*PI/3) + 0.5f, 0.0f, ATOM_O);   // 6: O
+    addAtom(mol, r * cosf(2*PI/3) - 2.2f, r * sinf(2*PI/3) + 0.3f, 0.0f, ATOM_C);   // 7: CH3
+
+    // Methoxy at C3 (position 4)
+    addAtom(mol, r * cosf(PI) - 1.2f, 0.0f, 0.0f, ATOM_O);                          // 8: O
+    addAtom(mol, r * cosf(PI) - 2.4f, 0.0f, 0.0f, ATOM_C);                          // 9: CH3
+
+    // Methoxy at C4 (position 5)
+    addAtom(mol, r * cosf(4*PI/3) - 1.0f, r * sinf(4*PI/3) - 0.5f, 0.0f, ATOM_O);   // 10: O
+    addAtom(mol, r * cosf(4*PI/3) - 2.2f, r * sinf(4*PI/3) - 0.3f, 0.0f, ATOM_C);   // 11: CH3
+
+    // Ethylamine side chain at C0: -CH2-CH2-NH2
+    addAtom(mol, r + 1.3f, 0.0f, 0.0f, ATOM_C);         // 12: CH2
+    addAtom(mol, r + 2.6f, 0.5f, 0.0f, ATOM_C);         // 13: CH2
+    addAtom(mol, r + 3.8f, 0.0f, 0.0f, ATOM_N);         // 14: NH2
+
+    // Hydrogens on benzene (positions 2 and 6)
+    float rH = 2.4f;
+    addAtom(mol, rH * cosf(PI/3), rH * sinf(PI/3), 0.0f, ATOM_H);           // 15: H on C1
+    addAtom(mol, rH * cosf(5*PI/3), rH * sinf(5*PI/3), 0.0f, ATOM_H);       // 16: H on C5
+
+    // Hydrogens on amine
+    addAtom(mol, r + 4.3f, 0.5f, 0.7f, ATOM_H);         // 17: H on NH2
+    addAtom(mol, r + 4.3f, 0.3f, -0.8f, ATOM_H);        // 18: H on NH2
+
+    // Methyl hydrogens (simplified - one per CH3)
+    addAtom(mol, r * cosf(2*PI/3) - 2.6f, r * sinf(2*PI/3) + 1.2f, 0.0f, ATOM_H);   // 19
+    addAtom(mol, r * cosf(PI) - 2.8f, 0.9f, 0.0f, ATOM_H);                          // 20
+    addAtom(mol, r * cosf(4*PI/3) - 2.6f, r * sinf(4*PI/3) - 1.2f, 0.0f, ATOM_H);   // 21
+
+    // Benzene ring bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+
+    // Methoxy bonds
+    addBond(mol, 2, 6, 1);   // C-O
+    addBond(mol, 6, 7, 1);   // O-CH3
+    addBond(mol, 3, 8, 1);   // C-O
+    addBond(mol, 8, 9, 1);   // O-CH3
+    addBond(mol, 4, 10, 1);  // C-O
+    addBond(mol, 10, 11, 1); // O-CH3
+
+    // Ethylamine bonds
+    addBond(mol, 0, 12, 1);  // C(ring)-CH2
+    addBond(mol, 12, 13, 1); // CH2-CH2
+    addBond(mol, 13, 14, 1); // CH2-NH2
+
+    // Hydrogen bonds
+    addBond(mol, 1, 15, 1);
+    addBond(mol, 5, 16, 1);
+    addBond(mol, 14, 17, 1);
+    addBond(mol, 14, 18, 1);
+    addBond(mol, 7, 19, 1);
+    addBond(mol, 9, 20, 1);
+    addBond(mol, 11, 21, 1);
+
+    centerMolecule(mol);
+}
+
 // Random molecule generator
 float randf() { return (float)rand() / RAND_MAX; }
 
@@ -11118,7 +11360,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
-#define NUM_MOLECULES 230
+#define NUM_MOLECULES 233
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildWater, buildMethane, buildBenzene, buildEthanol,
@@ -11206,6 +11448,8 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildCFC12, buildSF6,
     // Anesthetics
     buildLidocaine, buildKetamine, buildSevoflurane,
+    // Psychedelics
+    buildLSD, buildPsilocybin, buildMescaline,
     buildRandomMolecule
 };
 
@@ -11295,6 +11539,8 @@ const char* moleculeNames[NUM_MOLECULES] = {
     "CFC-12/Freon", "SF6/Greenhouse",
     // Anesthetics
     "Lidocaine/Xylocaine", "Ketamine", "Sevoflurane",
+    // Psychedelics
+    "LSD", "Psilocybin/Shrooms", "Mescaline/Peyote",
     "Random"
 };
 
