@@ -98,7 +98,6 @@ cuda_molecule: cuda_molecule.cu win32_display.h
 
 clean:
 	@if exist *.exe del /Q *.exe
-	@if exist *.obj del /Q *.obj
 	@if exist *.exp del /Q *.exp
 	@if exist *.lib del /Q *.lib
 
