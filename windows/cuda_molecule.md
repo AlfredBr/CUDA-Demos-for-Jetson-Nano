@@ -5,7 +5,7 @@ A real-time 3D molecular visualization program using CUDA ray tracing. Renders b
 ## Features
 
 - **Real-time ray tracing** on NVIDIA GPUs
-- **115 molecules** covering organic chemistry, biochemistry, vitamins, and common compounds
+- **233 molecules** covering organic chemistry, biochemistry, vitamins, pharmaceuticals, and more
 - **Ball-and-stick representation** with proper atomic radii
 - **CPK coloring scheme**:
   - Hydrogen (H) - White
@@ -18,6 +18,14 @@ A real-time 3D molecular visualization program using CUDA ray tracing. Renders b
   - Bromine (Br) - Dark Red
   - Fluorine (F) - Light Green
   - Iodine (I) - Purple
+  - Sodium (Na) - Metallic Purple
+  - Silicon (Si) - Tan/Beige
+  - Boron (B) - Salmon/Pink
+  - Iron (Fe) - Orange/Brown
+  - Copper (Cu) - Copper Orange
+  - Aluminum (Al) - Silver
+  - Titanium (Ti) - Silver/Gray
+  - Platinum (Pt) - Silver/White
 - **Bond visualization** with single, double, and triple bond rendering
 - **Auto-rotation** with manual control
 
@@ -35,7 +43,7 @@ A real-time 3D molecular visualization program using CUDA ray tracing. Renders b
 
 ---
 
-## Molecule Library (115 Molecules)
+## Molecule Library (233 Molecules)
 
 ### Simple Inorganic Molecules
 
@@ -273,11 +281,49 @@ A real-time 3D molecular visualization program using CUDA ray tracing. Renders b
 | 112 | Vitamin E | C₂₉H₅₀O₂ | α-Tocopherol, membrane antioxidant |
 | 113 | Vitamin K₁ | C₃₁H₄₆O₂ | Phylloquinone, blood clotting |
 
+### Fragrances & Flavors
+
+| # | Name | Formula | Description |
+|---|------|---------|-------------|
+| 220 | Vanillin | C₈H₈O₃ | Vanilla flavor, benzaldehyde derivative |
+| 221 | Limonene | C₁₀H₁₆ | Citrus scent, cyclic terpene |
+| 222 | Menthol | C₁₀H₂₀O | Mint/cooling sensation |
+| 223 | Cinnamaldehyde | C₉H₈O | Cinnamon flavor/fragrance |
+
+### Lachrymatory Compounds
+
+| # | Name | Formula | Description |
+|---|------|---------|-------------|
+| 224 | syn-Propanethial-S-oxide | C₃H₆OS | Onion lachrymatory factor (makes you cry) |
+
+### Environmental/Climate Molecules
+
+| # | Name | Formula | Description |
+|---|------|---------|-------------|
+| 225 | CFC-12 (Freon-12) | CCl₂F₂ | Ozone-depleting refrigerant |
+| 226 | Sulfur Hexafluoride | SF₆ | Most potent greenhouse gas (~24,000× CO₂) |
+
+### Anesthetics
+
+| # | Name | Formula | Description |
+|---|------|---------|-------------|
+| 227 | Lidocaine | C₁₄H₂₂N₂O | Local anesthetic (Xylocaine) |
+| 228 | Ketamine | C₁₃H₁₆ClNO | Dissociative anesthetic |
+| 229 | Sevoflurane | C₄H₃F₇O | Inhaled general anesthetic |
+
+### Psychedelics
+
+| # | Name | Formula | Description |
+|---|------|---------|-------------|
+| 230 | LSD | C₂₀H₂₅N₃O | Lysergic acid diethylamide |
+| 231 | Psilocybin | C₁₂H₁₇N₂O₄P | Magic mushroom compound |
+| 232 | Mescaline | C₁₁H₁₇NO₃ | Peyote cactus alkaloid |
+
 ### Random Generator
 
 | # | Name | Description |
 |---|------|-------------|
-| 115 | Random | Procedurally generated molecule |
+| 233 | Random | Procedurally generated molecule |
 
 ---
 
