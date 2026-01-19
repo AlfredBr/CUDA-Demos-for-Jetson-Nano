@@ -9991,7 +9991,7 @@ void buildAspartame(Molecule* mol) {
     // Phenylalanine part
     addAtom(mol, 3.5f, 0.5f, -1.2f, ATOM_C);        // 9: C alpha
     addAtom(mol, 4.3f, -0.8f, -1.5f, ATOM_C);       // 10: C beta
-    
+
     // Phenyl ring
     float r = 1.4f;
     float baseX = 5.5f;
@@ -10048,6 +10048,8 @@ void buildAspartame(Molecule* mol) {
     addBond(mol, 8, 23, 1);
     addBond(mol, 0, 24, 1);
     addBond(mol, 9, 25, 1);
+}
+
 // Build DDT (C14H9Cl5) - Dichlorodiphenyltrichloroethane - Historic insecticide
 void buildDDT(Molecule* mol) {
     mol->numAtoms = 0;
@@ -10184,6 +10186,8 @@ void buildSaccharin(Molecule* mol) {
     addBond(mol, 4, 14, 1);
     addBond(mol, 5, 15, 1);
     addBond(mol, 9, 16, 1);
+}
+
 // Build Glyphosate (C3H8NO5P) - World's most used herbicide (Roundup)
 void buildGlyphosate(Molecule* mol) {
     mol->numAtoms = 0;
@@ -10330,6 +10334,8 @@ void buildSucralose(Molecule* mol) {
     addBond(mol, 2, 25, 1);
     addBond(mol, 3, 26, 1);
     addBond(mol, 4, 27, 1);
+}
+
 // Build Malathion (C10H19O6PS2) - Common organophosphate insecticide
 void buildMalathion(Molecule* mol) {
     mol->numAtoms = 0;
@@ -10485,8 +10491,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
-#define NUM_MOLECULES 217
-#define NUM_MOLECULES 216
+#define NUM_MOLECULES 220
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildWater, buildMethane, buildBenzene, buildEthanol,
