@@ -1243,13 +1243,14 @@ void buildMSG(Molecule* mol) {
     addAtom(mol, 3.5f, 0.0f, 0.0f, ATOM_NA);     // Na+
 
     // Hydrogens
-    addAtom(mol, 0.0f, 0.5f, 0.9f, ATOM_H);      // H on alpha C
-    addAtom(mol, -1.4f, 1.5f, 0.0f, ATOM_H);     // H on NH2
-    addAtom(mol, -2.1f, 0.0f, 0.0f, ATOM_H);     // H on NH2
-    addAtom(mol, 0.9f, -1.5f, 0.5f, ATOM_H);     // H on CH2
-    addAtom(mol, -0.9f, -1.5f, 0.5f, ATOM_H);    // H on CH2
-    addAtom(mol, 0.9f, -3.0f, 0.5f, ATOM_H);     // H on CH2
-    addAtom(mol, -0.9f, -3.0f, 0.5f, ATOM_H);    // H on CH2
+    addAtom(mol, 0.0f, 0.5f, 0.9f, ATOM_H);      // 11: H on alpha C
+    addAtom(mol, -1.4f, 1.5f, 0.0f, ATOM_H);     // 12: H on NH2
+    addAtom(mol, -2.1f, 0.0f, 0.0f, ATOM_H);     // 13: H on NH2
+    addAtom(mol, 0.9f, -1.5f, 0.5f, ATOM_H);     // 14: H on CH2
+    addAtom(mol, -0.9f, -1.5f, 0.5f, ATOM_H);    // 15: H on CH2
+    addAtom(mol, 0.9f, -3.0f, 0.5f, ATOM_H);     // 16: H on CH2
+    addAtom(mol, -0.9f, -3.0f, 0.5f, ATOM_H);    // 17: H on CH2
+    addAtom(mol, -1.8f, -5.8f, 0.0f, ATOM_H);    // 18: H on terminal COOH
 
     addBond(mol, 0, 1, 1);   // C-NH2
     addBond(mol, 0, 2, 1);   // C-COOH
@@ -1259,7 +1260,7 @@ void buildMSG(Molecule* mol) {
     addBond(mol, 5, 6, 1);   // CH2-CH2
     addBond(mol, 6, 7, 1);   // CH2-COOH
     addBond(mol, 7, 8, 2);   // C=O
-    addBond(mol, 7, 9, 1);   // C-O-
+    addBond(mol, 7, 9, 1);   // C-OH (protonated end)
     addBond(mol, 4, 10, 1);  // O-Na+ ionic
     addBond(mol, 0, 11, 1);
     addBond(mol, 1, 12, 1);
@@ -1268,6 +1269,7 @@ void buildMSG(Molecule* mol) {
     addBond(mol, 5, 15, 1);
     addBond(mol, 6, 16, 1);
     addBond(mol, 6, 17, 1);
+    addBond(mol, 9, 18, 1);  // O-H on terminal COOH
 
     centerMolecule(mol);
 }
