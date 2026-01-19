@@ -31,6 +31,148 @@
 #include <math.h>
 #include "win32_display.h"
 
+// Simple 5x7 bitmap font for labels (ASCII 32-127)
+static const unsigned char font5x7[96][7] = {
+    {0x00,0x00,0x00,0x00,0x00,0x00,0x00}, // Space
+    {0x04,0x04,0x04,0x04,0x00,0x04,0x00}, // !
+    {0x0A,0x0A,0x00,0x00,0x00,0x00,0x00}, // "
+    {0x0A,0x1F,0x0A,0x1F,0x0A,0x00,0x00}, // #
+    {0x04,0x0F,0x14,0x0E,0x05,0x1E,0x04}, // $
+    {0x18,0x19,0x02,0x04,0x08,0x13,0x03}, // %
+    {0x08,0x14,0x14,0x08,0x15,0x12,0x0D}, // &
+    {0x04,0x04,0x00,0x00,0x00,0x00,0x00}, // '
+    {0x02,0x04,0x08,0x08,0x08,0x04,0x02}, // (
+    {0x08,0x04,0x02,0x02,0x02,0x04,0x08}, // )
+    {0x00,0x04,0x15,0x0E,0x15,0x04,0x00}, // *
+    {0x00,0x04,0x04,0x1F,0x04,0x04,0x00}, // +
+    {0x00,0x00,0x00,0x00,0x00,0x04,0x08}, // ,
+    {0x00,0x00,0x00,0x1F,0x00,0x00,0x00}, // -
+    {0x00,0x00,0x00,0x00,0x00,0x04,0x00}, // .
+    {0x00,0x01,0x02,0x04,0x08,0x10,0x00}, // /
+    {0x0E,0x11,0x13,0x15,0x19,0x11,0x0E}, // 0
+    {0x04,0x0C,0x04,0x04,0x04,0x04,0x0E}, // 1
+    {0x0E,0x11,0x01,0x06,0x08,0x10,0x1F}, // 2
+    {0x0E,0x11,0x01,0x06,0x01,0x11,0x0E}, // 3
+    {0x02,0x06,0x0A,0x12,0x1F,0x02,0x02}, // 4
+    {0x1F,0x10,0x1E,0x01,0x01,0x11,0x0E}, // 5
+    {0x06,0x08,0x10,0x1E,0x11,0x11,0x0E}, // 6
+    {0x1F,0x01,0x02,0x04,0x08,0x08,0x08}, // 7
+    {0x0E,0x11,0x11,0x0E,0x11,0x11,0x0E}, // 8
+    {0x0E,0x11,0x11,0x0F,0x01,0x02,0x0C}, // 9
+    {0x00,0x00,0x04,0x00,0x00,0x04,0x00}, // :
+    {0x00,0x00,0x04,0x00,0x00,0x04,0x08}, // ;
+    {0x02,0x04,0x08,0x10,0x08,0x04,0x02}, // <
+    {0x00,0x00,0x1F,0x00,0x1F,0x00,0x00}, // =
+    {0x08,0x04,0x02,0x01,0x02,0x04,0x08}, // >
+    {0x0E,0x11,0x01,0x02,0x04,0x00,0x04}, // ?
+    {0x0E,0x11,0x17,0x15,0x17,0x10,0x0E}, // @
+    {0x0E,0x11,0x11,0x1F,0x11,0x11,0x11}, // A
+    {0x1E,0x11,0x11,0x1E,0x11,0x11,0x1E}, // B
+    {0x0E,0x11,0x10,0x10,0x10,0x11,0x0E}, // C
+    {0x1E,0x11,0x11,0x11,0x11,0x11,0x1E}, // D
+    {0x1F,0x10,0x10,0x1E,0x10,0x10,0x1F}, // E
+    {0x1F,0x10,0x10,0x1E,0x10,0x10,0x10}, // F
+    {0x0E,0x11,0x10,0x17,0x11,0x11,0x0F}, // G
+    {0x11,0x11,0x11,0x1F,0x11,0x11,0x11}, // H
+    {0x0E,0x04,0x04,0x04,0x04,0x04,0x0E}, // I
+    {0x07,0x02,0x02,0x02,0x02,0x12,0x0C}, // J
+    {0x11,0x12,0x14,0x18,0x14,0x12,0x11}, // K
+    {0x10,0x10,0x10,0x10,0x10,0x10,0x1F}, // L
+    {0x11,0x1B,0x15,0x15,0x11,0x11,0x11}, // M
+    {0x11,0x19,0x15,0x13,0x11,0x11,0x11}, // N
+    {0x0E,0x11,0x11,0x11,0x11,0x11,0x0E}, // O
+    {0x1E,0x11,0x11,0x1E,0x10,0x10,0x10}, // P
+    {0x0E,0x11,0x11,0x11,0x15,0x12,0x0D}, // Q
+    {0x1E,0x11,0x11,0x1E,0x14,0x12,0x11}, // R
+    {0x0E,0x11,0x10,0x0E,0x01,0x11,0x0E}, // S
+    {0x1F,0x04,0x04,0x04,0x04,0x04,0x04}, // T
+    {0x11,0x11,0x11,0x11,0x11,0x11,0x0E}, // U
+    {0x11,0x11,0x11,0x11,0x0A,0x0A,0x04}, // V
+    {0x11,0x11,0x11,0x15,0x15,0x1B,0x11}, // W
+    {0x11,0x11,0x0A,0x04,0x0A,0x11,0x11}, // X
+    {0x11,0x11,0x0A,0x04,0x04,0x04,0x04}, // Y
+    {0x1F,0x01,0x02,0x04,0x08,0x10,0x1F}, // Z
+    {0x0E,0x08,0x08,0x08,0x08,0x08,0x0E}, // [
+    {0x00,0x10,0x08,0x04,0x02,0x01,0x00}, // backslash
+    {0x0E,0x02,0x02,0x02,0x02,0x02,0x0E}, // ]
+    {0x04,0x0A,0x11,0x00,0x00,0x00,0x00}, // ^
+    {0x00,0x00,0x00,0x00,0x00,0x00,0x1F}, // _
+    {0x08,0x04,0x00,0x00,0x00,0x00,0x00}, // `
+    {0x00,0x00,0x0E,0x01,0x0F,0x11,0x0F}, // a
+    {0x10,0x10,0x1E,0x11,0x11,0x11,0x1E}, // b
+    {0x00,0x00,0x0E,0x11,0x10,0x11,0x0E}, // c
+    {0x01,0x01,0x0F,0x11,0x11,0x11,0x0F}, // d
+    {0x00,0x00,0x0E,0x11,0x1F,0x10,0x0E}, // e
+    {0x06,0x08,0x1C,0x08,0x08,0x08,0x08}, // f
+    {0x00,0x00,0x0F,0x11,0x0F,0x01,0x0E}, // g
+    {0x10,0x10,0x1E,0x11,0x11,0x11,0x11}, // h
+    {0x04,0x00,0x0C,0x04,0x04,0x04,0x0E}, // i
+    {0x02,0x00,0x06,0x02,0x02,0x12,0x0C}, // j
+    {0x10,0x10,0x12,0x14,0x18,0x14,0x12}, // k
+    {0x0C,0x04,0x04,0x04,0x04,0x04,0x0E}, // l
+    {0x00,0x00,0x1A,0x15,0x15,0x11,0x11}, // m
+    {0x00,0x00,0x1E,0x11,0x11,0x11,0x11}, // n
+    {0x00,0x00,0x0E,0x11,0x11,0x11,0x0E}, // o
+    {0x00,0x00,0x1E,0x11,0x1E,0x10,0x10}, // p
+    {0x00,0x00,0x0F,0x11,0x0F,0x01,0x01}, // q
+    {0x00,0x00,0x16,0x19,0x10,0x10,0x10}, // r
+    {0x00,0x00,0x0E,0x10,0x0E,0x01,0x1E}, // s
+    {0x08,0x08,0x1C,0x08,0x08,0x09,0x06}, // t
+    {0x00,0x00,0x11,0x11,0x11,0x13,0x0D}, // u
+    {0x00,0x00,0x11,0x11,0x11,0x0A,0x04}, // v
+    {0x00,0x00,0x11,0x11,0x15,0x15,0x0A}, // w
+    {0x00,0x00,0x11,0x0A,0x04,0x0A,0x11}, // x
+    {0x00,0x00,0x11,0x11,0x0F,0x01,0x0E}, // y
+    {0x00,0x00,0x1F,0x02,0x04,0x08,0x1F}, // z
+    {0x02,0x04,0x04,0x08,0x04,0x04,0x02}, // {
+    {0x04,0x04,0x04,0x04,0x04,0x04,0x04}, // |
+    {0x08,0x04,0x04,0x02,0x04,0x04,0x08}, // }
+    {0x00,0x00,0x08,0x15,0x02,0x00,0x00}, // ~
+    {0x1F,0x1F,0x1F,0x1F,0x1F,0x1F,0x1F}, // DEL (block)
+};
+
+// Draw a character on pixel buffer
+void drawChar(unsigned char* pixels, int width, int height, int x, int y, char c, int r, int g, int b) {
+    if (c < 32 || c > 127) c = '?';
+    const unsigned char* glyph = font5x7[c - 32];
+    for (int row = 0; row < 7; row++) {
+        for (int col = 0; col < 5; col++) {
+            if (glyph[row] & (0x10 >> col)) {
+                int px = x + col;
+                int py = y + row;
+                if (px >= 0 && px < width && py >= 0 && py < height) {
+                    int idx = (py * width + px) * 4;
+                    pixels[idx + 0] = (unsigned char)b;
+                    pixels[idx + 1] = (unsigned char)g;
+                    pixels[idx + 2] = (unsigned char)r;
+                }
+            }
+        }
+    }
+}
+
+// Draw a string on pixel buffer
+void drawString(unsigned char* pixels, int width, int height, int x, int y, const char* str, int r, int g, int b) {
+    int startX = x;
+    while (*str) {
+        if (*str == '\n') {
+            x = startX;
+            y += 9;
+        } else {
+            drawChar(pixels, width, height, x, y, *str, r, g, b);
+            x += 6;
+        }
+        str++;
+    }
+}
+
+// Structure to hold screen position for labels
+struct ScreenPos {
+    int x, y;
+    int visible;
+    int bodyIdx;
+};
+
 #define WIDTH 1200
 #define HEIGHT 900
 
@@ -206,13 +348,31 @@ __device__ void drawRings(
     float innerRadius, float outerRadius,
     float r, float g, float b)
 {
-    // Draw Saturn-like rings
+    // Draw Saturn-like rings with proper ellipse perspective
     float cosX = cosf(rotX);
+    float tilt = 0.4f;  // Ring tilt factor
 
-    for (float angle = 0; angle < TWO_PI; angle += 0.02f) {
-        for (float rad = innerRadius; rad < outerRadius; rad += 0.3f) {
-            float rx = rad * cosf(angle);
-            float ry = rad * sinf(angle) * cosX * 0.3f;  // Flatten based on view angle
+    // Draw rings with finer detail
+    float angleStep = 0.005f;  // Finer angle stepping
+    float radStep = 0.15f;      // Finer radial stepping
+
+    for (float rad = innerRadius; rad < outerRadius; rad += radStep) {
+        // Ring brightness varies with radius (gaps and density variations)
+        float ringDensity = 0.6f + 0.4f * sinf(rad * 1.5f);
+
+        // Cassini division (gap in rings)
+        float cassiniPos = innerRadius + (outerRadius - innerRadius) * 0.6f;
+        if (fabsf(rad - cassiniPos) < 0.3f) {
+            ringDensity *= 0.2f;  // Darker in the gap
+        }
+
+        for (float angle = 0; angle < TWO_PI; angle += angleStep) {
+            float cosA = cosf(angle);
+            float sinA = sinf(angle);
+
+            // Ellipse with tilt based on view angle
+            float rx = rad * cosA;
+            float ry = rad * sinA * tilt * cosX;
 
             int px = cx + (int)(rx * scale);
             int py = cy - (int)(ry * scale);
@@ -220,12 +380,12 @@ __device__ void drawRings(
             if (px >= 0 && px < width && py >= 0 && py < height) {
                 int idx = (py * width + px) * 4;
 
-                // Ring brightness varies
-                float brightness = 0.4f + 0.2f * sinf(rad * 2.0f);
+                // Vary brightness around the ring
+                float brightness = ringDensity * (0.7f + 0.3f * fabsf(cosA));
 
-                pixels[idx + 0] = (unsigned char)min(255, pixels[idx + 0] + (int)(b * brightness * 180));
-                pixels[idx + 1] = (unsigned char)min(255, pixels[idx + 1] + (int)(g * brightness * 180));
-                pixels[idx + 2] = (unsigned char)min(255, pixels[idx + 2] + (int)(r * brightness * 180));
+                pixels[idx + 0] = (unsigned char)min(255, pixels[idx + 0] + (int)(b * brightness * 200));
+                pixels[idx + 1] = (unsigned char)min(255, pixels[idx + 1] + (int)(g * brightness * 200));
+                pixels[idx + 2] = (unsigned char)min(255, pixels[idx + 2] + (int)(r * brightness * 200));
             }
         }
     }
@@ -236,7 +396,7 @@ __global__ void renderBodiesKernel(
     CelestialBody* bodies, int numBodies,
     float camX, float camY, float camZ,
     float rotX, float rotY, float zoom,
-    int focusIdx)
+    int focusIdx, int showRings)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= numBodies) return;
@@ -289,11 +449,11 @@ __global__ void renderBodiesKernel(
     drawFilledCircle(pixels, width, height, screenX, screenY, displayRadius,
                     b->r, b->g, b->b, brightness);
 
-    // Draw Saturn's rings (body index 6 is Saturn)
-    if (i == 6) {
+    // Draw Saturn's rings (body index 13 is Saturn)
+    if (i == 13 && showRings) {
         drawRings(pixels, width, height, screenX, screenY, scale, rotX,
-                 b->radius * 1.5f, b->radius * 2.5f,
-                 0.85f, 0.75f, 0.55f);
+                 b->radius * 1.4f, b->radius * 2.8f,
+                 0.9f, 0.8f, 0.6f);
     }
 
     // Draw glow for the Sun
@@ -782,6 +942,8 @@ int main() {
     float timeScale = 5.0f;  // Days per frame
     int paused = 0;
     int showTrails = 0;
+    int showLabels = 1;  // Labels on by default
+    int showRings = 1;   // Saturn rings on by default
     float rotX = 0.5f, rotY = 0.0f;
     float zoom = 250.0f;
     float camX = 0, camY = 0, camZ = 0;
@@ -800,9 +962,15 @@ int main() {
     int frameCount = 0;
     float simTime = 0;  // Simulation time in days
 
+    // Frame rate limiting (60 FPS target)
+    const double TARGET_FRAME_TIME = 1.0 / 60.0;  // ~16.67ms per frame
+    double frameStartTime = lastTime;
+
     printf("Focus: %s | Time scale: %.1f days/frame\n", getPlanetName(focusKey), timeScale);
 
     while (!win32_should_close(display)) {
+        frameStartTime = win32_get_time(display);
+
         // Handle events
         win32_process_events(display);
 
@@ -837,6 +1005,14 @@ int main() {
                     if (!showTrails) cudaMemset(d_pixels, 0, WIDTH * HEIGHT * 4);
                     printf("Trails: %s\n", showTrails ? "ON" : "OFF");
                 }
+                if (key == XK_l) {
+                    showLabels = !showLabels;
+                    printf("Labels: %s\n", showLabels ? "ON" : "OFF");
+                }
+                if (key == XK_g) {
+                    showRings = !showRings;
+                    printf("Saturn rings: %s\n", showRings ? "ON" : "OFF");
+                }
 
                 // Focus controls
                 int newFocus = -1;
@@ -860,6 +1036,14 @@ int main() {
                     else zoom = 100.0f;  // Outer planets
 
                     printf("Focus: %s\n", getPlanetName(focusKey));
+                }
+
+                // Special: M key focuses on Earth's Moon (body index 4)
+                if (key == XK_m) {
+                    focusKey = -1;  // Special value for Moon
+                    focusIdx = 4;   // Earth's Moon is at index 4
+                    zoom = 30.0f;   // Close zoom for small body
+                    printf("Focus: Earth's Moon\n");
                 }
 
                 // Reset
@@ -894,12 +1078,74 @@ int main() {
             d_bodies, numBodies,
             camX, camY, camZ,
             rotX, rotY, zoom,
-            focusIdx);
+            focusIdx, showRings);
 
         cudaDeviceSynchronize();
 
         // Display
         cudaMemcpy(h_pixels, d_pixels, WIDTH * HEIGHT * 4, cudaMemcpyDeviceToHost);
+
+        // Draw labels on CPU (after copying from GPU)
+        if (showLabels) {
+            // Get focus body position
+            float focusX = 0, focusY = 0, focusZ = 0;
+            if (focusIdx >= 0 && focusIdx < numBodies) {
+                focusX = h_bodies[focusIdx].x;
+                focusY = h_bodies[focusIdx].y;
+                focusZ = h_bodies[focusIdx].z;
+            }
+
+            for (int i = 0; i < numBodies; i++) {
+                CelestialBody* b = &h_bodies[i];
+
+                // Skip moons when zoomed out (unless focused on their parent)
+                if (b->type == BODY_MOON && focusKey == 0 && zoom > 150.0f) continue;
+
+                // Transform position
+                float x = b->x - focusX - camX;
+                float y = b->y - focusY - camY;
+                float z = b->z - focusZ - camZ;
+
+                // Rotate around Y axis
+                float cosYr = cosf(rotY), sinYr = sinf(rotY);
+                float rx = x * cosYr + z * sinYr;
+                float rz = -x * sinYr + z * cosYr;
+
+                // Rotate around X axis
+                float cosXr = cosf(rotX), sinXr = sinf(rotX);
+                float ry = y * cosXr - rz * sinXr;
+                float rzFinal = y * sinXr + rz * cosXr;
+
+                // Perspective projection
+                float depth = rzFinal + zoom;
+                if (depth < 1.0f) continue;
+
+                float scale = 500.0f / depth;
+                int screenX = (int)(WIDTH / 2 + rx * scale);
+                int screenY = (int)(HEIGHT / 2 - ry * scale);
+
+                // Skip if off screen
+                if (screenX < 0 || screenX >= WIDTH - 50 || screenY < 10 || screenY >= HEIGHT - 10) continue;
+
+                // Calculate display radius to offset label
+                int displayRadius = (int)(b->radius * scale);
+                if (displayRadius < 1) displayRadius = 1;
+                if (displayRadius > 100) displayRadius = 100;
+
+                // Draw label to the right of the body
+                int labelX = screenX + displayRadius + 3;
+                int labelY = screenY - 3;
+
+                // Color based on body type
+                int lr = 200, lg = 200, lb = 200;  // Default white
+                if (b->type == BODY_STAR) { lr = 255; lg = 255; lb = 100; }  // Yellow for Sun
+                else if (b->type == BODY_PLANET) { lr = 100; lg = 200; lb = 255; }  // Cyan for planets
+                else if (b->type == BODY_MOON) { lr = 180; lg = 180; lb = 180; }  // Gray for moons
+
+                drawString(h_pixels, WIDTH, HEIGHT, labelX, labelY, b->name, lr, lg, lb);
+            }
+        }
+
         win32_blit_pixels(display, h_pixels);
 
         frameCount++;
@@ -912,6 +1158,14 @@ int main() {
             lastFpsTime = now;
         }
         lastTime = now;
+
+        // Frame rate limiting - sleep until target frame time
+        double frameEndTime = win32_get_time(display);
+        double frameElapsed = frameEndTime - frameStartTime;
+        if (frameElapsed < TARGET_FRAME_TIME) {
+            double sleepTime = TARGET_FRAME_TIME - frameElapsed;
+            Sleep((DWORD)(sleepTime * 1000.0));  // Sleep in milliseconds
+        }
     }
 
 cleanup:

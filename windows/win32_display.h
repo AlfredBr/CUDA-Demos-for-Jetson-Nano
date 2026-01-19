@@ -52,6 +52,8 @@
 #define XK_t        'T'
 #define XK_f        'F'
 #define XK_h        'H'
+#define XK_l        'L'
+#define XK_m        'M'
 
 // Mouse buttons
 #define Button1     1  // Left
