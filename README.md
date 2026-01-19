@@ -1,6 +1,6 @@
 # Jetson Nano Native CUDA Graphics Demos
 
-A collection of **18 high-performance, hardware-accelerated graphics demonstrations** for the NVIDIA Jetson Nano. These demos bypass traditional OpenGL pipelines and use CUDA kernels directly for rendering, achieving smooth framerates on the Tegra X1 GPU.
+A collection of **18 high-performance, hardware-accelerated graphics demonstrations** for the NVIDIA Jetson Nano. These demos bypass traditional OpenGL pipelines and use CUDA kernels directly for rendering, achieving smooth framerates on the Tegra X1 GPU.  Fun fact: The ShaderToy demos were ported by Clause Opus 4.5 with no human intervention.
 
 ![CUDA Graphics](https://img.shields.io/badge/CUDA-10.2-green) ![Platform](https://img.shields.io/badge/Platform-Jetson%20Nano-blue) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
@@ -13,6 +13,10 @@ The Jetson Nano's Tegra X1 has excellent CUDA support but limited OpenGL ES capa
 - **Full Hardware Acceleration**: All 128 CUDA cores working on graphics
 - **No Driver Issues**: Works on any X11 display without GPU-accelerated GL
 
+## ⁉️ Why did I do this?
+
+I could not get RayLib to use the GPU on the Jetson (but RayLib's software rendering worked fine on the Jetson at 45fps), and I wanted a little more performance, so I began down this path...
+ 
 ## 📋 Requirements
 
 - NVIDIA Jetson Nano (or other Tegra device with CUDA)
