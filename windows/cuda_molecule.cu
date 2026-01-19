@@ -9879,6 +9879,308 @@ void buildRDX(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// Build DDT (C14H9Cl5) - Historic insecticide
+void buildDDT(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "DDT (C14H9Cl5)");
+
+    // Central carbon (trichloromethyl group)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);         // 0: CCl3
+
+    // Three chlorines on central carbon
+    addAtom(mol, 0.0f, 1.8f, 0.0f, ATOM_CL);        // 1: Cl
+    addAtom(mol, 1.56f, -0.9f, 0.0f, ATOM_CL);      // 2: Cl
+    addAtom(mol, -1.56f, -0.9f, 0.0f, ATOM_CL);     // 3: Cl
+
+    // Methine carbon
+    addAtom(mol, 0.0f, -0.8f, 1.5f, ATOM_C);        // 4: CH
+
+    // First phenyl ring (para-chlorophenyl)
+    float r1 = 1.4f;
+    float offsetX1 = -1.5f;
+    float offsetY1 = -2.3f;
+    addAtom(mol, offsetX1, offsetY1, 0.0f, ATOM_C);                          // 5
+    addAtom(mol, offsetX1 + r1, offsetY1, 0.0f, ATOM_C);                     // 6
+    addAtom(mol, offsetX1 + r1 * 1.5f, offsetY1 - r1 * 0.866f, 0.0f, ATOM_C); // 7
+    addAtom(mol, offsetX1 + r1, offsetY1 - r1 * 1.732f, 0.0f, ATOM_C);       // 8
+    addAtom(mol, offsetX1, offsetY1 - r1 * 1.732f, 0.0f, ATOM_C);            // 9
+    addAtom(mol, offsetX1 - r1 * 0.5f, offsetY1 - r1 * 0.866f, 0.0f, ATOM_C); // 10
+
+    // Chlorine on first ring (para position)
+    addAtom(mol, offsetX1 + r1, offsetY1 - r1 * 2.6f, 0.0f, ATOM_CL);       // 11: Cl
+
+    // Second phenyl ring (para-chlorophenyl)
+    float offsetX2 = 1.5f;
+    float offsetY2 = -2.3f;
+    addAtom(mol, offsetX2, offsetY2, 0.0f, ATOM_C);                          // 12
+    addAtom(mol, offsetX2 + r1, offsetY2, 0.0f, ATOM_C);                     // 13
+    addAtom(mol, offsetX2 + r1 * 1.5f, offsetY2 - r1 * 0.866f, 0.0f, ATOM_C); // 14
+    addAtom(mol, offsetX2 + r1, offsetY2 - r1 * 1.732f, 0.0f, ATOM_C);       // 15
+    addAtom(mol, offsetX2, offsetY2 - r1 * 1.732f, 0.0f, ATOM_C);            // 16
+    addAtom(mol, offsetX2 - r1 * 0.5f, offsetY2 - r1 * 0.866f, 0.0f, ATOM_C); // 17
+
+    // Chlorine on second ring (para position)
+    addAtom(mol, offsetX2 + r1, offsetY2 - r1 * 2.6f, 0.0f, ATOM_CL);       // 18: Cl
+
+    // Hydrogen on methine carbon
+    addAtom(mol, 0.0f, -0.8f, 2.5f, ATOM_H);        // 19: H
+
+    // Hydrogens on first ring
+    addAtom(mol, offsetX1 + r1 * 1.8f, offsetY1, 0.3f, ATOM_H);              // 20
+    addAtom(mol, offsetX1 + r1 * 2.1f, offsetY1 - r1 * 0.866f, 0.3f, ATOM_H); // 21
+    addAtom(mol, offsetX1, offsetY1 - r1 * 2.3f, 0.3f, ATOM_H);              // 22
+    addAtom(mol, offsetX1 - r1 * 1.1f, offsetY1 - r1 * 0.866f, 0.3f, ATOM_H); // 23
+
+    // Hydrogens on second ring
+    addAtom(mol, offsetX2 + r1 * 1.8f, offsetY2, 0.3f, ATOM_H);              // 24
+    addAtom(mol, offsetX2 + r1 * 2.1f, offsetY2 - r1 * 0.866f, 0.3f, ATOM_H); // 25
+    addAtom(mol, offsetX2, offsetY2 - r1 * 2.3f, 0.3f, ATOM_H);              // 26
+    addAtom(mol, offsetX2 - r1 * 1.1f, offsetY2 - r1 * 0.866f, 0.3f, ATOM_H); // 27
+
+    // Central CCl3 bonds
+    addBond(mol, 0, 1, 1);  // C-Cl
+    addBond(mol, 0, 2, 1);  // C-Cl
+    addBond(mol, 0, 3, 1);  // C-Cl
+    addBond(mol, 0, 4, 1);  // C-CH
+
+    // Connect methine to rings
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 4, 12, 1);
+
+    // First ring bonds (alternating for aromatic)
+    addBond(mol, 5, 6, 2);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 7, 8, 2);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 9, 10, 2);
+    addBond(mol, 10, 5, 1);
+    addBond(mol, 8, 11, 1);  // Cl para
+
+    // Second ring bonds (alternating for aromatic)
+    addBond(mol, 12, 13, 2);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 2);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 2);
+    addBond(mol, 17, 12, 1);
+    addBond(mol, 15, 18, 1);  // Cl para
+
+    // Hydrogen bonds
+    addBond(mol, 4, 19, 1);
+    addBond(mol, 6, 20, 1);
+    addBond(mol, 7, 21, 1);
+    addBond(mol, 9, 22, 1);
+    addBond(mol, 10, 23, 1);
+    addBond(mol, 13, 24, 1);
+    addBond(mol, 14, 25, 1);
+    addBond(mol, 16, 26, 1);
+    addBond(mol, 17, 27, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Glyphosate/Roundup (C3H8NO5P) - World's most used herbicide
+void buildGlyphosate(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Glyphosate/Roundup (C3H8NO5P)");
+
+    // Glycine backbone: NH-CH2-COOH
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);         // 0: N
+    addAtom(mol, 1.5f, 0.0f, 0.0f, ATOM_C);         // 1: CH2
+    addAtom(mol, 2.5f, 1.2f, 0.0f, ATOM_C);         // 2: COOH
+    addAtom(mol, 2.3f, 2.4f, 0.0f, ATOM_O);         // 3: =O
+    addAtom(mol, 3.7f, 0.8f, 0.0f, ATOM_O);         // 4: OH
+
+    // Phosphonomethyl group: N-CH2-P(=O)(OH)2
+    addAtom(mol, -0.8f, -1.2f, 0.0f, ATOM_C);       // 5: CH2
+    addAtom(mol, -2.3f, -1.0f, 0.0f, ATOM_P);       // 6: P
+
+    // Phosphonate oxygens
+    addAtom(mol, -2.8f, -2.3f, 0.0f, ATOM_O);       // 7: =O
+    addAtom(mol, -3.3f, 0.0f, 0.5f, ATOM_O);        // 8: OH
+    addAtom(mol, -2.5f, -0.5f, -1.5f, ATOM_O);      // 9: OH
+
+    // Hydrogens on nitrogen
+    addAtom(mol, -0.3f, 0.9f, 0.3f, ATOM_H);        // 10: H on N
+
+    // Hydrogens on first CH2
+    addAtom(mol, 1.5f, -0.5f, 1.0f, ATOM_H);        // 11
+    addAtom(mol, 1.5f, -0.7f, -0.8f, ATOM_H);       // 12
+
+    // Hydrogen on carboxyl OH
+    addAtom(mol, 4.3f, 1.5f, 0.0f, ATOM_H);         // 13: H on COOH
+
+    // Hydrogens on second CH2
+    addAtom(mol, -0.5f, -1.8f, 0.9f, ATOM_H);       // 14
+    addAtom(mol, -0.5f, -1.8f, -0.8f, ATOM_H);      // 15
+
+    // Hydrogens on phosphonate OHs
+    addAtom(mol, -4.2f, 0.2f, 0.5f, ATOM_H);        // 16: H on P-OH
+    addAtom(mol, -2.8f, -0.2f, -2.3f, ATOM_H);      // 17: H on P-OH
+
+    // Glycine backbone bonds
+    addBond(mol, 0, 1, 1);   // N-CH2
+    addBond(mol, 1, 2, 1);   // CH2-C
+    addBond(mol, 2, 3, 2);   // C=O
+    addBond(mol, 2, 4, 1);   // C-OH
+
+    // Phosphonomethyl bonds
+    addBond(mol, 0, 5, 1);   // N-CH2
+    addBond(mol, 5, 6, 1);   // CH2-P
+    addBond(mol, 6, 7, 2);   // P=O
+    addBond(mol, 6, 8, 1);   // P-OH
+    addBond(mol, 6, 9, 1);   // P-OH
+
+    // Hydrogen bonds
+    addBond(mol, 0, 10, 1);
+    addBond(mol, 1, 11, 1);
+    addBond(mol, 1, 12, 1);
+    addBond(mol, 4, 13, 1);
+    addBond(mol, 5, 14, 1);
+    addBond(mol, 5, 15, 1);
+    addBond(mol, 8, 16, 1);
+    addBond(mol, 9, 17, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Malathion (C10H19O6PS2) - Common insecticide
+void buildMalathion(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Malathion (C10H19O6PS2)");
+
+    // Central phosphorus
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_P);         // 0: P
+
+    // P=S (thiophosphate)
+    addAtom(mol, 0.0f, 1.8f, 0.0f, ATOM_S);         // 1: =S
+
+    // O-CH2CH3 groups (two ethoxy groups)
+    addAtom(mol, 1.5f, -0.5f, 0.3f, ATOM_O);        // 2: O
+    addAtom(mol, 2.7f, 0.0f, 0.0f, ATOM_C);         // 3: CH2
+    addAtom(mol, 3.8f, -0.8f, 0.5f, ATOM_C);        // 4: CH3
+
+    addAtom(mol, -1.3f, -0.5f, -0.8f, ATOM_O);      // 5: O
+    addAtom(mol, -2.5f, 0.0f, -0.5f, ATOM_C);       // 6: CH2
+    addAtom(mol, -3.6f, -0.8f, -1.0f, ATOM_C);      // 7: CH3
+
+    // S-CH(COOEt)2 group (succinate bridge)
+    addAtom(mol, -0.3f, -1.3f, 1.3f, ATOM_S);       // 8: S
+    addAtom(mol, -0.5f, -2.8f, 0.5f, ATOM_C);       // 9: CH
+
+    // First ester group on succinate
+    addAtom(mol, -1.8f, -3.5f, 0.8f, ATOM_C);       // 10: C=O
+    addAtom(mol, -2.1f, -4.7f, 0.5f, ATOM_O);       // 11: =O
+    addAtom(mol, -2.8f, -2.8f, 1.5f, ATOM_O);       // 12: O
+    addAtom(mol, -4.1f, -3.3f, 1.8f, ATOM_C);       // 13: CH2
+    addAtom(mol, -5.0f, -2.3f, 2.3f, ATOM_C);       // 14: CH3
+
+    // Second ester group on succinate
+    addAtom(mol, 0.5f, -3.5f, -0.3f, ATOM_C);       // 15: C=O
+    addAtom(mol, 0.3f, -4.7f, -0.5f, ATOM_O);       // 16: =O
+    addAtom(mol, 1.7f, -2.9f, -0.8f, ATOM_O);       // 17: O
+    addAtom(mol, 2.8f, -3.6f, -1.5f, ATOM_C);       // 18: CH2
+    addAtom(mol, 3.9f, -2.8f, -2.0f, ATOM_C);       // 19: CH3
+
+    // Hydrogens on first ethoxy CH2
+    addAtom(mol, 2.8f, 0.5f, -0.9f, ATOM_H);        // 20
+    addAtom(mol, 2.7f, 0.8f, 0.7f, ATOM_H);         // 21
+
+    // Hydrogens on first ethoxy CH3
+    addAtom(mol, 4.7f, -0.3f, 0.3f, ATOM_H);        // 22
+    addAtom(mol, 3.8f, -1.0f, 1.5f, ATOM_H);        // 23
+    addAtom(mol, 3.8f, -1.7f, 0.0f, ATOM_H);        // 24
+
+    // Hydrogens on second ethoxy CH2
+    addAtom(mol, -2.6f, 0.5f, 0.4f, ATOM_H);        // 25
+    addAtom(mol, -2.5f, 0.8f, -1.2f, ATOM_H);       // 26
+
+    // Hydrogens on second ethoxy CH3
+    addAtom(mol, -4.5f, -0.3f, -0.8f, ATOM_H);      // 27
+    addAtom(mol, -3.6f, -1.0f, -2.0f, ATOM_H);      // 28
+    addAtom(mol, -3.6f, -1.7f, -0.5f, ATOM_H);      // 29
+
+    // Hydrogen on succinate CH
+    addAtom(mol, -0.4f, -2.6f, -0.5f, ATOM_H);      // 30
+
+    // Hydrogens on first succinate ester CH2
+    addAtom(mol, -4.5f, -3.8f, 0.9f, ATOM_H);       // 31
+    addAtom(mol, -4.0f, -4.0f, 2.6f, ATOM_H);       // 32
+
+    // Hydrogens on first succinate ester CH3
+    addAtom(mol, -5.9f, -2.7f, 2.5f, ATOM_H);       // 33
+    addAtom(mol, -5.1f, -1.5f, 1.6f, ATOM_H);       // 34
+    addAtom(mol, -4.6f, -1.9f, 3.2f, ATOM_H);       // 35
+
+    // Hydrogens on second succinate ester CH2
+    addAtom(mol, 3.2f, -4.3f, -0.8f, ATOM_H);       // 36
+    addAtom(mol, 2.5f, -4.0f, -2.4f, ATOM_H);       // 37
+
+    // Hydrogens on second succinate ester CH3
+    addAtom(mol, 4.7f, -3.4f, -2.4f, ATOM_H);       // 38
+    addAtom(mol, 4.2f, -2.1f, -1.3f, ATOM_H);       // 39
+    addAtom(mol, 3.6f, -2.3f, -2.9f, ATOM_H);       // 40
+
+    // Phosphorus bonds
+    addBond(mol, 0, 1, 2);   // P=S
+    addBond(mol, 0, 2, 1);   // P-O
+    addBond(mol, 0, 5, 1);   // P-O
+    addBond(mol, 0, 8, 1);   // P-S
+
+    // First ethoxy group
+    addBond(mol, 2, 3, 1);   // O-CH2
+    addBond(mol, 3, 4, 1);   // CH2-CH3
+
+    // Second ethoxy group
+    addBond(mol, 5, 6, 1);   // O-CH2
+    addBond(mol, 6, 7, 1);   // CH2-CH3
+
+    // Succinate bridge
+    addBond(mol, 8, 9, 1);   // S-CH
+
+    // First ester on succinate
+    addBond(mol, 9, 10, 1);  // CH-C
+    addBond(mol, 10, 11, 2); // C=O
+    addBond(mol, 10, 12, 1); // C-O
+    addBond(mol, 12, 13, 1); // O-CH2
+    addBond(mol, 13, 14, 1); // CH2-CH3
+
+    // Second ester on succinate
+    addBond(mol, 9, 15, 1);  // CH-C
+    addBond(mol, 15, 16, 2); // C=O
+    addBond(mol, 15, 17, 1); // C-O
+    addBond(mol, 17, 18, 1); // O-CH2
+    addBond(mol, 18, 19, 1); // CH2-CH3
+
+    // All hydrogen bonds
+    addBond(mol, 3, 20, 1);
+    addBond(mol, 3, 21, 1);
+    addBond(mol, 4, 22, 1);
+    addBond(mol, 4, 23, 1);
+    addBond(mol, 4, 24, 1);
+    addBond(mol, 6, 25, 1);
+    addBond(mol, 6, 26, 1);
+    addBond(mol, 7, 27, 1);
+    addBond(mol, 7, 28, 1);
+    addBond(mol, 7, 29, 1);
+    addBond(mol, 9, 30, 1);
+    addBond(mol, 13, 31, 1);
+    addBond(mol, 13, 32, 1);
+    addBond(mol, 14, 33, 1);
+    addBond(mol, 14, 34, 1);
+    addBond(mol, 14, 35, 1);
+    addBond(mol, 18, 36, 1);
+    addBond(mol, 18, 37, 1);
+    addBond(mol, 19, 38, 1);
+    addBond(mol, 19, 39, 1);
+    addBond(mol, 19, 40, 1);
+
+    centerMolecule(mol);
+}
+
 // Random molecule generator
 float randf() { return (float)rand() / RAND_MAX; }
 
@@ -9957,7 +10259,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
-#define NUM_MOLECULES 213
+#define NUM_MOLECULES 216
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildWater, buildMethane, buildBenzene, buildEthanol,
@@ -10033,6 +10335,8 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildPenicillinG, buildAmoxicillin, buildVancomycin,
     // Explosives
     buildTNT, buildNitroglycerin, buildRDX,
+    // Pesticides/Herbicides
+    buildDDT, buildGlyphosate, buildMalathion,
     buildRandomMolecule
 };
 
@@ -10110,6 +10414,8 @@ const char* moleculeNames[NUM_MOLECULES] = {
     "Penicillin G", "Amoxicillin", "Vancomycin",
     // Explosives
     "TNT", "Nitroglycerin", "RDX",
+    // Pesticides/Herbicides
+    "DDT", "Glyphosate/Roundup", "Malathion",
     "Random"
 };
 
