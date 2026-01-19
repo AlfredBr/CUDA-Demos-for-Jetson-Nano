@@ -10735,6 +10735,57 @@ void buildCinnamaldehyde(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// Build syn-Propanethial-S-oxide (C3H6OS) - Onion lachrymatory factor (makes you cry)
+void buildPropanethialSoxide(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Propanethial-S-oxide (C3H6OS)");
+
+    // Structure: CH3-CH2-CH=S=O (syn configuration)
+    // The molecule has a thial S-oxide group (-CH=S(O)-)
+
+    // Carbon chain
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);         // 0: CH3 (methyl)
+    addAtom(mol, 1.5f, 0.0f, 0.0f, ATOM_C);         // 1: CH2 (methylene)
+    addAtom(mol, 2.5f, 1.2f, 0.0f, ATOM_C);         // 2: CH (thial carbon)
+
+    // Sulfoxide group (S=O)
+    addAtom(mol, 3.8f, 1.0f, 0.5f, ATOM_S);         // 3: S (sulfur)
+    addAtom(mol, 4.5f, 2.2f, 0.8f, ATOM_O);         // 4: O (oxide)
+
+    // Hydrogens on CH3
+    addAtom(mol, -0.5f, 0.9f, 0.3f, ATOM_H);        // 5
+    addAtom(mol, -0.5f, -0.7f, 0.6f, ATOM_H);       // 6
+    addAtom(mol, -0.3f, -0.2f, -1.0f, ATOM_H);      // 7
+
+    // Hydrogens on CH2
+    addAtom(mol, 1.7f, -0.5f, -0.9f, ATOM_H);       // 8
+    addAtom(mol, 1.7f, -0.7f, 0.8f, ATOM_H);        // 9
+
+    // Hydrogen on thial CH
+    addAtom(mol, 2.2f, 2.2f, -0.3f, ATOM_H);        // 10
+
+    // Bonds
+    addBond(mol, 0, 1, 1);   // CH3-CH2
+    addBond(mol, 1, 2, 1);   // CH2-CH
+    addBond(mol, 2, 3, 2);   // CH=S (double bond)
+    addBond(mol, 3, 4, 2);   // S=O (double bond)
+
+    // CH3 hydrogen bonds
+    addBond(mol, 0, 5, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 0, 7, 1);
+
+    // CH2 hydrogen bonds
+    addBond(mol, 1, 8, 1);
+    addBond(mol, 1, 9, 1);
+
+    // CH hydrogen bond
+    addBond(mol, 2, 10, 1);
+
+    centerMolecule(mol);
+}
+
 // Random molecule generator
 float randf() { return (float)rand() / RAND_MAX; }
 
@@ -10813,7 +10864,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
-#define NUM_MOLECULES 224
+#define NUM_MOLECULES 225
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildWater, buildMethane, buildBenzene, buildEthanol,
@@ -10895,6 +10946,8 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildDDT, buildGlyphosate, buildMalathion,
     // Fragrances/Flavors
     buildVanillin, buildLimonene, buildMenthol, buildCinnamaldehyde,
+    // Lachrymatory
+    buildPropanethialSoxide,
     buildRandomMolecule
 };
 
@@ -10978,6 +11031,8 @@ const char* moleculeNames[NUM_MOLECULES] = {
     "DDT", "Glyphosate/Roundup", "Malathion",
     // Fragrances/Flavors
     "Vanillin/Vanilla", "Limonene/Citrus", "Menthol/Mint", "Cinnamaldehyde/Cinnamon",
+    // Lachrymatory
+    "Onion Factor/Tears",
     "Random"
 };
 
