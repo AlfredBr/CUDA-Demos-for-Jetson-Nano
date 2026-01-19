@@ -10845,6 +10845,201 @@ void buildSF6(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// ============== ANESTHETICS ==============
+
+// Build Lidocaine (C14H22N2O) - Local anesthetic (Xylocaine)
+void buildLidocaine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Lidocaine (C14H22N2O)");
+
+    // Structure: 2,6-dimethylaniline linked via amide to diethylaminoethyl
+    // Benzene ring (2,6-dimethylaniline part)
+    float r = 1.4f;
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);  // 0-5
+    }
+
+    // Methyl groups at positions 2 and 6 (ortho to NH)
+    addAtom(mol, r * cosf(PI/3) + 1.0f, r * sinf(PI/3) + 0.5f, 0.0f, ATOM_C);   // 6: CH3
+    addAtom(mol, r * cosf(5*PI/3) + 1.0f, r * sinf(5*PI/3) - 0.5f, 0.0f, ATOM_C); // 7: CH3
+
+    // Amide linkage: -NH-C(=O)-CH2-
+    addAtom(mol, r + 1.3f, 0.0f, 0.0f, ATOM_N);         // 8: NH (amide)
+    addAtom(mol, r + 2.5f, 0.0f, 0.0f, ATOM_C);         // 9: C=O
+    addAtom(mol, r + 3.0f, 1.0f, 0.0f, ATOM_O);         // 10: =O
+    addAtom(mol, r + 3.5f, -0.8f, 0.0f, ATOM_C);        // 11: CH2
+
+    // Diethylamino group: -N(CH2CH3)2
+    addAtom(mol, r + 4.8f, -0.5f, 0.0f, ATOM_N);        // 12: N tertiary
+    addAtom(mol, r + 5.5f, 0.7f, 0.5f, ATOM_C);         // 13: CH2 (ethyl 1)
+    addAtom(mol, r + 6.8f, 0.5f, 0.8f, ATOM_C);         // 14: CH3 (ethyl 1)
+    addAtom(mol, r + 5.5f, -1.5f, -0.5f, ATOM_C);       // 15: CH2 (ethyl 2)
+    addAtom(mol, r + 6.8f, -1.8f, -0.8f, ATOM_C);       // 16: CH3 (ethyl 2)
+
+    // Key hydrogens (simplified)
+    addAtom(mol, r + 1.5f, 0.0f, 0.9f, ATOM_H);         // 17: H on NH
+    float rH = 2.4f;
+    addAtom(mol, rH * cosf(2*PI/3), rH * sinf(2*PI/3), 0.0f, ATOM_H);   // 18: H on C2
+    addAtom(mol, rH * cosf(PI), rH * sinf(PI), 0.0f, ATOM_H);           // 19: H on C3
+    addAtom(mol, rH * cosf(4*PI/3), rH * sinf(4*PI/3), 0.0f, ATOM_H);   // 20: H on C4
+
+    // Benzene ring bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+
+    // Methyl bonds
+    addBond(mol, 1, 6, 1);   // C-CH3
+    addBond(mol, 5, 7, 1);   // C-CH3
+
+    // Amide linkage bonds
+    addBond(mol, 0, 8, 1);   // C(ring)-N
+    addBond(mol, 8, 9, 1);   // N-C=O
+    addBond(mol, 9, 10, 2);  // C=O
+    addBond(mol, 9, 11, 1);  // C-CH2
+
+    // Diethylamino bonds
+    addBond(mol, 11, 12, 1); // CH2-N
+    addBond(mol, 12, 13, 1); // N-CH2
+    addBond(mol, 13, 14, 1); // CH2-CH3
+    addBond(mol, 12, 15, 1); // N-CH2
+    addBond(mol, 15, 16, 1); // CH2-CH3
+
+    // Hydrogen bonds
+    addBond(mol, 8, 17, 1);
+    addBond(mol, 2, 18, 1);
+    addBond(mol, 3, 19, 1);
+    addBond(mol, 4, 20, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Ketamine (C13H16ClNO) - Dissociative anesthetic
+void buildKetamine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Ketamine (C13H16ClNO)");
+
+    // Structure: 2-(2-chlorophenyl)-2-(methylamino)cyclohexanone
+    // Cyclohexanone ring
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);         // 0: C2 (chiral, with substituents)
+    addAtom(mol, 1.3f, 0.5f, 0.5f, ATOM_C);         // 1: C3
+    addAtom(mol, 2.3f, -0.5f, 0.3f, ATOM_C);        // 2: C4
+    addAtom(mol, 2.0f, -1.8f, -0.2f, ATOM_C);       // 3: C5
+    addAtom(mol, 0.6f, -2.0f, -0.5f, ATOM_C);       // 4: C6
+    addAtom(mol, -0.4f, -1.0f, -0.3f, ATOM_C);      // 5: C1 (ketone)
+    addAtom(mol, -1.6f, -1.2f, -0.5f, ATOM_O);      // 6: =O (ketone)
+
+    // 2-chlorophenyl ring attached to C2
+    float r = 1.4f;
+    float baseX = -0.5f, baseY = 1.5f;
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f + PI/2;
+        addAtom(mol, baseX + r * cosf(angle), baseY + r * sinf(angle), 0.0f, ATOM_C);  // 7-12
+    }
+
+    // Chlorine at ortho position (C2 of phenyl)
+    addAtom(mol, baseX + r * cosf(PI/2 + PI/3) - 0.8f, baseY + r * sinf(PI/2 + PI/3) + 0.8f, 0.0f, ATOM_CL); // 13: Cl
+
+    // Methylamino group on C2 of cyclohexanone
+    addAtom(mol, 0.5f, 0.5f, -1.3f, ATOM_N);        // 14: NH
+    addAtom(mol, 0.3f, 1.5f, -2.0f, ATOM_C);        // 15: CH3
+
+    // Key hydrogens
+    addAtom(mol, 1.0f, 0.0f, -1.8f, ATOM_H);        // 16: H on N
+    float rH = 2.4f;
+    addAtom(mol, baseX + rH * cosf(PI/2 + 2*PI/3), baseY + rH * sinf(PI/2 + 2*PI/3), 0.0f, ATOM_H);  // 17
+    addAtom(mol, baseX + rH * cosf(PI/2 + PI), baseY + rH * sinf(PI/2 + PI), 0.0f, ATOM_H);          // 18
+    addAtom(mol, baseX + rH * cosf(PI/2 + 4*PI/3), baseY + rH * sinf(PI/2 + 4*PI/3), 0.0f, ATOM_H);  // 19
+    addAtom(mol, baseX + rH * cosf(PI/2 + 5*PI/3), baseY + rH * sinf(PI/2 + 5*PI/3), 0.0f, ATOM_H);  // 20
+
+    // Cyclohexanone ring bonds
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 5, 6, 2);   // C=O
+
+    // Phenyl ring bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, 7 + i, 7 + ((i + 1) % 6), (i % 2 == 0) ? 2 : 1);
+    }
+
+    // Connections
+    addBond(mol, 0, 7, 1);   // cyclohexanone-phenyl
+    addBond(mol, 8, 13, 1);  // C-Cl
+    addBond(mol, 0, 14, 1);  // C-N
+    addBond(mol, 14, 15, 1); // N-CH3
+
+    // Hydrogen bonds
+    addBond(mol, 14, 16, 1);
+    addBond(mol, 9, 17, 1);
+    addBond(mol, 10, 18, 1);
+    addBond(mol, 11, 19, 1);
+    addBond(mol, 12, 20, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Sevoflurane (C4H3F7O) - Inhaled general anesthetic
+void buildSevoflurane(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Sevoflurane (C4H3F7O)");
+
+    // Structure: (CF3)2CH-O-CH2F (fluoromethyl 2,2,2-trifluoro-1-[trifluoromethyl]ethyl ether)
+    // Central CH connected to two CF3 groups and ether oxygen
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);         // 0: CH central
+
+    // First CF3 group
+    addAtom(mol, -1.3f, 0.8f, 0.0f, ATOM_C);        // 1: CF3
+    addAtom(mol, -1.8f, 1.3f, 1.0f, ATOM_F);        // 2: F
+    addAtom(mol, -2.2f, 0.3f, -0.5f, ATOM_F);       // 3: F
+    addAtom(mol, -1.0f, 1.8f, -0.7f, ATOM_F);       // 4: F
+
+    // Second CF3 group
+    addAtom(mol, -0.3f, -1.5f, 0.3f, ATOM_C);       // 5: CF3
+    addAtom(mol, -1.3f, -2.0f, -0.3f, ATOM_F);      // 6: F
+    addAtom(mol, 0.5f, -2.3f, -0.2f, ATOM_F);       // 7: F
+    addAtom(mol, -0.5f, -1.7f, 1.5f, ATOM_F);       // 8: F
+
+    // Ether linkage: -O-CH2F
+    addAtom(mol, 1.3f, 0.5f, -0.3f, ATOM_O);        // 9: O (ether)
+    addAtom(mol, 2.5f, 0.2f, 0.2f, ATOM_C);         // 10: CH2F
+    addAtom(mol, 3.5f, 0.8f, -0.3f, ATOM_F);        // 11: F on CH2F
+
+    // Hydrogens
+    addAtom(mol, 0.3f, 0.3f, 1.0f, ATOM_H);         // 12: H on central CH
+    addAtom(mol, 2.6f, -0.8f, 0.0f, ATOM_H);        // 13: H on CH2F
+    addAtom(mol, 2.6f, 0.5f, 1.2f, ATOM_H);         // 14: H on CH2F
+
+    // Bonds
+    addBond(mol, 0, 1, 1);   // CH-CF3
+    addBond(mol, 1, 2, 1);   // C-F
+    addBond(mol, 1, 3, 1);   // C-F
+    addBond(mol, 1, 4, 1);   // C-F
+
+    addBond(mol, 0, 5, 1);   // CH-CF3
+    addBond(mol, 5, 6, 1);   // C-F
+    addBond(mol, 5, 7, 1);   // C-F
+    addBond(mol, 5, 8, 1);   // C-F
+
+    addBond(mol, 0, 9, 1);   // CH-O
+    addBond(mol, 9, 10, 1);  // O-CH2F
+    addBond(mol, 10, 11, 1); // C-F
+
+    // Hydrogen bonds
+    addBond(mol, 0, 12, 1);
+    addBond(mol, 10, 13, 1);
+    addBond(mol, 10, 14, 1);
+
+    centerMolecule(mol);
+}
+
 // Random molecule generator
 float randf() { return (float)rand() / RAND_MAX; }
 
@@ -10923,7 +11118,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
-#define NUM_MOLECULES 227
+#define NUM_MOLECULES 230
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildWater, buildMethane, buildBenzene, buildEthanol,
@@ -11009,6 +11204,8 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildPropanethialSoxide,
     // Environmental/Climate
     buildCFC12, buildSF6,
+    // Anesthetics
+    buildLidocaine, buildKetamine, buildSevoflurane,
     buildRandomMolecule
 };
 
@@ -11096,6 +11293,8 @@ const char* moleculeNames[NUM_MOLECULES] = {
     "Onion Factor/Tears",
     // Environmental/Climate
     "CFC-12/Freon", "SF6/Greenhouse",
+    // Anesthetics
+    "Lidocaine/Xylocaine", "Ketamine", "Sevoflurane",
     "Random"
 };
 
