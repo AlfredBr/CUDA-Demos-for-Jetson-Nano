@@ -630,7 +630,7 @@ __global__ void radixSortPassKernel(unsigned int* output, const unsigned int* in
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n) {
         int bin = (input[idx] >> shift) & (numBins - 1);
-        // This is just illustrative - actual radix sort needs proper scatter
+        (void)bin;  // Illustrative - actual radix sort needs proper scatter
     }
 }
 
