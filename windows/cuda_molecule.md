@@ -5,7 +5,7 @@ A real-time 3D molecular visualization program using CUDA ray tracing. Renders b
 ## Features
 
 - **Real-time ray tracing** on NVIDIA GPUs
-- **100 molecules** covering organic chemistry, biochemistry, and common compounds
+- **115 molecules** covering organic chemistry, biochemistry, vitamins, and common compounds
 - **Ball-and-stick representation** with proper atomic radii
 - **CPK coloring scheme**:
   - Hydrogen (H) - White
@@ -35,7 +35,7 @@ A real-time 3D molecular visualization program using CUDA ray tracing. Renders b
 
 ---
 
-## Molecule Library (100 Molecules)
+## Molecule Library (115 Molecules)
 
 ### Simple Inorganic Molecules
 
@@ -246,6 +246,38 @@ A real-time 3D molecular visualization program using CUDA ray tracing. Renders b
 | # | Name | Formula | Description |
 |---|------|---------|-------------|
 | 99 | Pyruvate | C₃H₄O₃ | Glycolysis end product, Krebs cycle entry |
+
+### Vitamins
+
+#### Water-Soluble Vitamins
+
+| # | Name | Formula | Description |
+|---|------|---------|-------------|
+| 101 | Vitamin C | C₆H₈O₆ | L-Ascorbic acid, antioxidant, collagen synthesis |
+| 102 | Vitamin B₁ | C₁₂H₁₇N₄OS⁺ | Thiamine, carbohydrate metabolism |
+| 103 | Vitamin B₂ | C₁₇H₂₀N₄O₆ | Riboflavin, FAD/FMN precursor |
+| 104 | Vitamin B₃ | C₆H₅NO₂ | Niacin (Nicotinic acid), NAD precursor |
+| 105 | Vitamin B₅ | C₉H₁₇NO₅ | Pantothenic acid, CoA component |
+| 106 | Vitamin B₆ | C₈H₁₁NO₃ | Pyridoxine, amino acid metabolism |
+| 107 | Vitamin B₇ | C₁₀H₁₆N₂O₃S | Biotin, carboxylation reactions |
+| 108 | Vitamin B₉ | C₁₉H₁₉N₇O₆ | Folic acid, DNA synthesis |
+| 114 | Nicotinamide | C₆H₆N₂O | Niacinamide, NAD⁺ precursor |
+
+#### Fat-Soluble Vitamins
+
+| # | Name | Formula | Description |
+|---|------|---------|-------------|
+| 109 | Vitamin A | C₂₀H₃₀O | Retinol, vision, cell differentiation |
+| 110 | β-Carotene | C₄₀H₅₆ | Provitamin A, antioxidant pigment |
+| 111 | Vitamin D₃ | C₂₇H₄₄O | Cholecalciferol, calcium homeostasis |
+| 112 | Vitamin E | C₂₉H₅₀O₂ | α-Tocopherol, membrane antioxidant |
+| 113 | Vitamin K₁ | C₃₁H₄₆O₂ | Phylloquinone, blood clotting |
+
+### Random Generator
+
+| # | Name | Description |
+|---|------|-------------|
+| 115 | Random | Procedurally generated molecule |
 
 ---
 

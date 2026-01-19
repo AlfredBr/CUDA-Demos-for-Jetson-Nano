@@ -924,7 +924,7 @@ void buildGlucose(Molecule* mol) {
 void buildAspirin(Molecule* mol) {
     mol->numAtoms = 0;
     mol->numBonds = 0;
-    strcpy(mol->name, "Aspirin (C9H8O4)");
+    strcpy(mol->name, "Aspirin/Bayer (C9H8O4)");
 
     float r = 1.4f;
 
@@ -4211,6 +4211,1768 @@ void buildArginine(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// ============== VITAMINS ==============
+
+// Build Vitamin C - L-Ascorbic Acid (C6H8O6)
+void buildAscorbicAcid(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin C (C6H8O6)");
+
+    // Lactone ring (5-membered)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C1
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 2.0f, -0.3f, 0.0f, ATOM_C);     // C3
+    addAtom(mol, 1.3f, -1.4f, 0.0f, ATOM_O);     // O (ring)
+    addAtom(mol, 0.0f, -1.2f, 0.0f, ATOM_C);     // C4 (lactone carbonyl)
+    addAtom(mol, -1.0f, -1.8f, 0.0f, ATOM_O);    // =O (lactone)
+    // Side chain
+    addAtom(mol, 3.4f, -0.3f, 0.0f, ATOM_C);     // C5
+    addAtom(mol, 4.2f, 0.9f, 0.0f, ATOM_C);      // C6
+    // Hydroxyl groups
+    addAtom(mol, -0.8f, 0.8f, 0.0f, ATOM_O);     // OH on C1
+    addAtom(mol, 1.2f, 2.0f, 0.0f, ATOM_O);      // OH on C2
+    addAtom(mol, 3.8f, -1.5f, 0.0f, ATOM_O);     // OH on C5
+    addAtom(mol, 5.5f, 0.7f, 0.0f, ATOM_O);      // OH on C6
+    // H atoms on OH
+    addAtom(mol, -1.6f, 0.4f, 0.0f, ATOM_H);
+    addAtom(mol, 1.2f, 2.7f, 0.0f, ATOM_H);
+    addAtom(mol, 4.7f, -1.6f, 0.0f, ATOM_H);
+    addAtom(mol, 5.8f, 1.5f, 0.0f, ATOM_H);
+    // Other H atoms
+    addAtom(mol, 3.6f, 0.2f, 0.9f, ATOM_H);
+    addAtom(mol, 3.8f, 1.8f, 0.0f, ATOM_H);
+    addAtom(mol, 4.0f, 0.9f, -0.9f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 0, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 2, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 0, 8, 1);
+    addBond(mol, 1, 9, 1);
+    addBond(mol, 6, 10, 1);
+    addBond(mol, 7, 11, 1);
+    addBond(mol, 8, 12, 1);
+    addBond(mol, 9, 13, 1);
+    addBond(mol, 10, 14, 1);
+    addBond(mol, 11, 15, 1);
+    addBond(mol, 6, 16, 1);
+    addBond(mol, 7, 17, 1);
+    addBond(mol, 7, 18, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Thiamine - Vitamin B1 (C12H17N4OS)
+void buildThiamine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin B1 (C12H17N4OS)");
+
+    // Pyrimidine ring
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);      // N1
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_N);      // N3
+    addAtom(mol, 2.4f, -1.4f, 0.0f, ATOM_C);     // C4
+    addAtom(mol, 1.2f, -2.1f, 0.0f, ATOM_C);     // C5
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);     // C6
+    // Amino group on C4
+    addAtom(mol, 3.6f, -2.0f, 0.0f, ATOM_N);     // NH2
+    // Methyl on C2
+    addAtom(mol, 1.2f, 2.1f, 0.0f, ATOM_C);      // CH3
+    // Methylene bridge
+    addAtom(mol, 1.2f, -3.6f, 0.0f, ATOM_C);     // CH2
+    // Thiazole ring
+    addAtom(mol, 1.2f, -5.0f, 0.0f, ATOM_C);     // C
+    addAtom(mol, 0.0f, -5.7f, 0.0f, ATOM_N);     // N (positive)
+    addAtom(mol, 0.0f, -7.1f, 0.0f, ATOM_C);     // C
+    addAtom(mol, 1.2f, -7.8f, 0.0f, ATOM_C);     // C
+    addAtom(mol, 2.2f, -6.8f, 0.0f, ATOM_S);     // S
+    // Hydroxyethyl side chain
+    addAtom(mol, 1.2f, -9.3f, 0.0f, ATOM_C);     // CH2
+    addAtom(mol, 1.2f, -10.7f, 0.0f, ATOM_C);    // CH2
+    addAtom(mol, 1.2f, -12.0f, 0.0f, ATOM_O);    // OH
+    // Methyl on thiazole
+    addAtom(mol, 2.4f, -4.3f, 0.0f, ATOM_C);     // CH3
+    // H atoms
+    addAtom(mol, -0.9f, -1.8f, 0.0f, ATOM_H);
+    addAtom(mol, 3.6f, -3.0f, 0.0f, ATOM_H);
+    addAtom(mol, 4.4f, -1.5f, 0.0f, ATOM_H);
+    addAtom(mol, -0.9f, -7.5f, 0.0f, ATOM_H);
+    addAtom(mol, 1.2f, -12.8f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 3, 6, 1);
+    addBond(mol, 1, 7, 1);
+    addBond(mol, 4, 8, 1);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 9, 10, 2);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 11, 12, 2);
+    addBond(mol, 12, 13, 1);
+    addBond(mol, 13, 9, 1);
+    addBond(mol, 12, 14, 1);
+    addBond(mol, 14, 15, 1);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 9, 17, 1);
+    addBond(mol, 5, 18, 1);
+    addBond(mol, 6, 19, 1);
+    addBond(mol, 6, 20, 1);
+    addBond(mol, 11, 21, 1);
+    addBond(mol, 16, 22, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Riboflavin - Vitamin B2 (C17H20N4O6)
+void buildRiboflavin(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin B2 (C17H20N4O6)");
+
+    // Isoalloxazine ring system (flavin)
+    // Benzene ring (fused)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C5a
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);      // C6
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_C);      // C7
+    addAtom(mol, 2.4f, -1.4f, 0.0f, ATOM_C);     // C8
+    addAtom(mol, 1.2f, -2.1f, 0.0f, ATOM_C);     // C9
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);     // C9a
+    // Pyrazine ring
+    addAtom(mol, -1.2f, 0.7f, 0.0f, ATOM_N);     // N5
+    addAtom(mol, -1.2f, -2.1f, 0.0f, ATOM_N);    // N10
+    // Pyrimidine ring
+    addAtom(mol, -2.4f, 0.0f, 0.0f, ATOM_C);     // C4a
+    addAtom(mol, -2.4f, -1.4f, 0.0f, ATOM_C);    // C10a
+    addAtom(mol, -3.6f, 0.7f, 0.0f, ATOM_C);     // C4 (=O)
+    addAtom(mol, -3.6f, 2.0f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, -4.8f, 0.0f, 0.0f, ATOM_N);     // N3
+    addAtom(mol, -4.8f, -1.4f, 0.0f, ATOM_C);    // C2 (=O)
+    addAtom(mol, -4.8f, -2.6f, 0.0f, ATOM_O);    // =O
+    addAtom(mol, -3.6f, -2.1f, 0.0f, ATOM_N);    // N1
+    // Methyl groups
+    addAtom(mol, 1.2f, 2.1f, 0.0f, ATOM_C);      // CH3 on C6
+    addAtom(mol, 2.4f, -2.8f, 0.0f, ATOM_C);     // CH3 on C8
+    // Ribityl chain start
+    addAtom(mol, -1.2f, -3.5f, 0.0f, ATOM_C);    // CH2
+    addAtom(mol, -1.2f, -4.9f, 0.0f, ATOM_C);    // CHOH
+    addAtom(mol, -1.2f, -6.3f, 0.0f, ATOM_C);    // CHOH
+    addAtom(mol, -1.2f, -7.7f, 0.0f, ATOM_C);    // CHOH
+    addAtom(mol, -1.2f, -9.1f, 0.0f, ATOM_C);    // CH2OH
+    // Ribityl OH groups
+    addAtom(mol, 0.0f, -5.2f, 0.0f, ATOM_O);
+    addAtom(mol, -2.4f, -6.6f, 0.0f, ATOM_O);
+    addAtom(mol, 0.0f, -8.0f, 0.0f, ATOM_O);
+    addAtom(mol, -1.2f, -10.4f, 0.0f, ATOM_O);
+    // Some H atoms
+    addAtom(mol, 3.3f, 0.5f, 0.0f, ATOM_H);
+    addAtom(mol, -5.6f, 0.5f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 5, 7, 1);
+    addBond(mol, 6, 8, 2);
+    addBond(mol, 7, 9, 1);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 8, 10, 1);
+    addBond(mol, 10, 11, 2);
+    addBond(mol, 10, 12, 1);
+    addBond(mol, 12, 13, 1);
+    addBond(mol, 13, 14, 2);
+    addBond(mol, 13, 15, 1);
+    addBond(mol, 15, 9, 2);
+    addBond(mol, 1, 16, 1);
+    addBond(mol, 3, 17, 1);
+    addBond(mol, 7, 18, 1);
+    addBond(mol, 18, 19, 1);
+    addBond(mol, 19, 20, 1);
+    addBond(mol, 20, 21, 1);
+    addBond(mol, 21, 22, 1);
+    addBond(mol, 19, 23, 1);
+    addBond(mol, 20, 24, 1);
+    addBond(mol, 21, 25, 1);
+    addBond(mol, 22, 26, 1);
+    addBond(mol, 2, 27, 1);
+    addBond(mol, 12, 28, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Niacin - Vitamin B3 / Nicotinic Acid (C6H5NO2)
+void buildNiacin(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin B3 (C6H5NO2)");
+
+    // Pyridine ring
+    float r = 1.4f;
+    addAtom(mol, r * cosf(0), r * sinf(0), 0.0f, ATOM_N);        // N1
+    addAtom(mol, r * cosf(PI/3), r * sinf(PI/3), 0.0f, ATOM_C);  // C2
+    addAtom(mol, r * cosf(2*PI/3), r * sinf(2*PI/3), 0.0f, ATOM_C); // C3
+    addAtom(mol, r * cosf(PI), r * sinf(PI), 0.0f, ATOM_C);      // C4
+    addAtom(mol, r * cosf(4*PI/3), r * sinf(4*PI/3), 0.0f, ATOM_C); // C5
+    addAtom(mol, r * cosf(5*PI/3), r * sinf(5*PI/3), 0.0f, ATOM_C); // C6
+    // Carboxylic acid on C3
+    addAtom(mol, r * cosf(2*PI/3) * 1.8f, r * sinf(2*PI/3) * 1.8f + 0.6f, 0.0f, ATOM_C); // COOH C
+    addAtom(mol, r * cosf(2*PI/3) * 2.2f, r * sinf(2*PI/3) * 2.2f + 1.5f, 0.0f, ATOM_O); // =O
+    addAtom(mol, r * cosf(2*PI/3) * 2.4f, r * sinf(2*PI/3) * 1.2f, 0.0f, ATOM_O);        // OH
+    addAtom(mol, r * cosf(2*PI/3) * 3.2f, r * sinf(2*PI/3) * 1.0f, 0.0f, ATOM_H);        // H on OH
+    // H atoms on ring
+    float rH = 2.4f;
+    addAtom(mol, rH * cosf(PI/3), rH * sinf(PI/3), 0.0f, ATOM_H);
+    addAtom(mol, rH * cosf(PI), rH * sinf(PI), 0.0f, ATOM_H);
+    addAtom(mol, rH * cosf(4*PI/3), rH * sinf(4*PI/3), 0.0f, ATOM_H);
+    addAtom(mol, rH * cosf(5*PI/3), rH * sinf(5*PI/3), 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 2, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 6, 8, 1);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 1, 10, 1);
+    addBond(mol, 3, 11, 1);
+    addBond(mol, 4, 12, 1);
+    addBond(mol, 5, 13, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Pantothenic Acid - Vitamin B5 (C9H17NO5)
+void buildPanthothenicAcid(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin B5 (C9H17NO5)");
+
+    // Beta-alanine part
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // COOH C
+    addAtom(mol, 0.0f, 1.2f, 0.0f, ATOM_O);      // =O
+    addAtom(mol, 1.1f, -0.6f, 0.0f, ATOM_O);     // OH
+    addAtom(mol, -1.3f, -0.7f, 0.0f, ATOM_C);    // CH2
+    addAtom(mol, -2.6f, 0.0f, 0.0f, ATOM_C);     // CH2
+    addAtom(mol, -3.9f, -0.7f, 0.0f, ATOM_N);    // NH
+    // Amide linkage
+    addAtom(mol, -5.2f, 0.0f, 0.0f, ATOM_C);     // C=O
+    addAtom(mol, -5.2f, 1.2f, 0.0f, ATOM_O);     // =O
+    // Pantoic acid part
+    addAtom(mol, -6.5f, -0.7f, 0.0f, ATOM_C);    // C (with OH)
+    addAtom(mol, -6.5f, -2.1f, 0.0f, ATOM_O);    // OH
+    addAtom(mol, -7.8f, 0.0f, 0.0f, ATOM_C);     // C (quaternary)
+    addAtom(mol, -7.8f, 1.4f, 0.0f, ATOM_C);     // CH3
+    addAtom(mol, -7.8f, -1.4f, 0.0f, ATOM_C);    // CH3
+    addAtom(mol, -9.1f, 0.0f, 0.0f, ATOM_C);     // CH2
+    addAtom(mol, -10.4f, 0.0f, 0.0f, ATOM_O);    // OH
+    // H atoms
+    addAtom(mol, 1.8f, -0.1f, 0.0f, ATOM_H);
+    addAtom(mol, -3.9f, -1.6f, 0.0f, ATOM_H);
+    addAtom(mol, -6.5f, -2.8f, 0.0f, ATOM_H);
+    addAtom(mol, -11.1f, 0.0f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 0, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 6, 8, 1);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 8, 10, 1);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 10, 12, 1);
+    addBond(mol, 10, 13, 1);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 2, 15, 1);
+    addBond(mol, 5, 16, 1);
+    addBond(mol, 9, 17, 1);
+    addBond(mol, 14, 18, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Pyridoxine - Vitamin B6 (C8H11NO3)
+void buildPyridoxine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin B6 (C8H11NO3)");
+
+    // Pyridine ring
+    float r = 1.4f;
+    addAtom(mol, r * cosf(0), r * sinf(0), 0.0f, ATOM_N);        // N1
+    addAtom(mol, r * cosf(PI/3), r * sinf(PI/3), 0.0f, ATOM_C);  // C2
+    addAtom(mol, r * cosf(2*PI/3), r * sinf(2*PI/3), 0.0f, ATOM_C); // C3
+    addAtom(mol, r * cosf(PI), r * sinf(PI), 0.0f, ATOM_C);      // C4
+    addAtom(mol, r * cosf(4*PI/3), r * sinf(4*PI/3), 0.0f, ATOM_C); // C5
+    addAtom(mol, r * cosf(5*PI/3), r * sinf(5*PI/3), 0.0f, ATOM_C); // C6
+    // CH3 on C2
+    addAtom(mol, r * cosf(PI/3) * 1.8f, r * sinf(PI/3) * 1.8f, 0.0f, ATOM_C);
+    // CH2OH on C4
+    addAtom(mol, r * cosf(PI) * 1.8f, r * sinf(PI) * 1.8f, 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(PI) * 2.8f, r * sinf(PI) * 2.0f, 0.0f, ATOM_O);
+    // OH on C3
+    addAtom(mol, r * cosf(2*PI/3) * 1.8f, r * sinf(2*PI/3) * 1.8f, 0.0f, ATOM_O);
+    // CH2OH on C5
+    addAtom(mol, r * cosf(4*PI/3) * 1.8f, r * sinf(4*PI/3) * 1.8f, 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(4*PI/3) * 2.8f, r * sinf(4*PI/3) * 2.0f, 0.0f, ATOM_O);
+    // H atoms
+    addAtom(mol, r * cosf(5*PI/3) * 1.7f, r * sinf(5*PI/3) * 1.7f, 0.0f, ATOM_H);
+    addAtom(mol, r * cosf(2*PI/3) * 2.5f, r * sinf(2*PI/3) * 2.5f, 0.0f, ATOM_H);
+    addAtom(mol, r * cosf(PI) * 3.5f, r * sinf(PI) * 2.3f, 0.0f, ATOM_H);
+    addAtom(mol, r * cosf(4*PI/3) * 3.5f, r * sinf(4*PI/3) * 2.3f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 1, 6, 1);
+    addBond(mol, 3, 7, 1);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 2, 9, 1);
+    addBond(mol, 4, 10, 1);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 5, 12, 1);
+    addBond(mol, 9, 13, 1);
+    addBond(mol, 8, 14, 1);
+    addBond(mol, 11, 15, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Biotin - Vitamin B7 (C10H16N2O3S)
+void buildBiotin(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin B7 (C10H16N2O3S)");
+
+    // Ureido ring (imidazolidinone)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C=O (urea)
+    addAtom(mol, 0.0f, 1.2f, 0.0f, ATOM_O);      // =O
+    addAtom(mol, -1.1f, -0.7f, 0.0f, ATOM_N);    // NH
+    addAtom(mol, 1.1f, -0.7f, 0.0f, ATOM_N);     // NH
+    addAtom(mol, -1.1f, -2.1f, 0.0f, ATOM_C);    // CH
+    addAtom(mol, 1.1f, -2.1f, 0.0f, ATOM_C);     // CH
+    // Tetrahydrothiophene ring
+    addAtom(mol, 0.0f, -2.8f, 0.0f, ATOM_S);     // S
+    addAtom(mol, -1.1f, -3.5f, 0.0f, ATOM_C);    // CH
+    addAtom(mol, 1.1f, -3.5f, 0.0f, ATOM_C);     // CH2
+    // Valeric acid side chain
+    addAtom(mol, -1.1f, -5.0f, 0.0f, ATOM_C);    // CH2
+    addAtom(mol, -1.1f, -6.5f, 0.0f, ATOM_C);    // CH2
+    addAtom(mol, -1.1f, -8.0f, 0.0f, ATOM_C);    // CH2
+    addAtom(mol, -1.1f, -9.5f, 0.0f, ATOM_C);    // CH2
+    addAtom(mol, -1.1f, -11.0f, 0.0f, ATOM_C);   // COOH
+    addAtom(mol, -1.1f, -12.2f, 0.0f, ATOM_O);   // =O
+    addAtom(mol, 0.0f, -11.5f, 0.0f, ATOM_O);    // OH
+    // H atoms
+    addAtom(mol, -1.8f, -0.2f, 0.0f, ATOM_H);
+    addAtom(mol, 1.8f, -0.2f, 0.0f, ATOM_H);
+    addAtom(mol, 0.7f, -11.9f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 0, 3, 1);
+    addBond(mol, 2, 4, 1);
+    addBond(mol, 3, 5, 1);
+    addBond(mol, 4, 6, 1);
+    addBond(mol, 5, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 6, 8, 1);
+    addBond(mol, 4, 7, 1);
+    addBond(mol, 5, 8, 1);
+    addBond(mol, 7, 9, 1);
+    addBond(mol, 9, 10, 1);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 13, 1);
+    addBond(mol, 13, 14, 2);
+    addBond(mol, 13, 15, 1);
+    addBond(mol, 2, 16, 1);
+    addBond(mol, 3, 17, 1);
+    addBond(mol, 15, 18, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Folic Acid - Vitamin B9 (C19H19N7O6) - Simplified representation
+void buildFolicAcid(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin B9 (C19H19N7O6)");
+
+    // Pteridine ring system
+    // Pyrimidine
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);      // N1
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_N);      // N3
+    addAtom(mol, 2.4f, -1.4f, 0.0f, ATOM_C);     // C4
+    addAtom(mol, 1.2f, -2.1f, 0.0f, ATOM_C);     // C4a
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);     // C8a
+    // Pyrazine fused
+    addAtom(mol, 1.2f, -3.5f, 0.0f, ATOM_N);     // N5
+    addAtom(mol, 2.4f, -4.2f, 0.0f, ATOM_C);     // C6
+    addAtom(mol, 3.6f, -3.5f, 0.0f, ATOM_C);     // C7
+    addAtom(mol, 3.6f, -2.1f, 0.0f, ATOM_N);     // N8
+    // Amino on C2
+    addAtom(mol, 1.2f, 2.1f, 0.0f, ATOM_N);      // NH2
+    // =O on C4
+    addAtom(mol, 3.6f, -0.7f, 0.0f, ATOM_O);     // =O
+    // p-Aminobenzoic acid part (simplified)
+    addAtom(mol, 2.4f, -5.6f, 0.0f, ATOM_C);     // CH2
+    addAtom(mol, 2.4f, -7.0f, 0.0f, ATOM_N);     // NH
+    // Benzene ring
+    addAtom(mol, 2.4f, -8.4f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, -9.1f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, -10.5f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, -11.2f, 0.0f, ATOM_C);
+    addAtom(mol, 3.6f, -10.5f, 0.0f, ATOM_C);
+    addAtom(mol, 3.6f, -9.1f, 0.0f, ATOM_C);
+    // COOH on benzene
+    addAtom(mol, 2.4f, -12.6f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, -13.3f, 0.0f, ATOM_O);
+    addAtom(mol, 3.6f, -13.3f, 0.0f, ATOM_N);    // NH to glutamate
+    // Glutamate (simplified)
+    addAtom(mol, 4.8f, -12.6f, 0.0f, ATOM_C);    // CH
+    addAtom(mol, 6.0f, -13.3f, 0.0f, ATOM_C);    // COOH
+    addAtom(mol, 6.0f, -14.5f, 0.0f, ATOM_O);
+    addAtom(mol, 7.1f, -12.6f, 0.0f, ATOM_O);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 4, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 2);
+    addBond(mol, 9, 3, 1);
+    addBond(mol, 1, 10, 1);
+    addBond(mol, 3, 11, 1);
+    addBond(mol, 7, 12, 1);
+    addBond(mol, 12, 13, 1);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 2);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 2);
+    addBond(mol, 17, 18, 1);
+    addBond(mol, 18, 19, 2);
+    addBond(mol, 19, 14, 1);
+    addBond(mol, 17, 20, 1);
+    addBond(mol, 20, 21, 2);
+    addBond(mol, 20, 22, 1);
+    addBond(mol, 22, 23, 1);
+    addBond(mol, 23, 24, 1);
+    addBond(mol, 24, 25, 2);
+    addBond(mol, 24, 26, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Retinol - Vitamin A (C20H30O)
+void buildRetinol(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin A (C20H30O)");
+
+    // Cyclohexene ring (beta-ionone)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C1
+    addAtom(mol, 1.3f, 0.7f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 2.6f, 0.0f, 0.0f, ATOM_C);      // C3
+    addAtom(mol, 2.6f, -1.4f, 0.0f, ATOM_C);     // C4
+    addAtom(mol, 1.3f, -2.1f, 0.0f, ATOM_C);     // C5 (C=C)
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);     // C6 (C=C)
+    // Methyls on C1
+    addAtom(mol, -1.1f, 0.7f, 0.0f, ATOM_C);     // CH3
+    addAtom(mol, 0.0f, 1.0f, 1.0f, ATOM_C);      // CH3
+    // Methyl on C5
+    addAtom(mol, 1.3f, -3.5f, 0.0f, ATOM_C);     // CH3
+    // Polyene chain
+    addAtom(mol, -1.3f, -2.1f, 0.0f, ATOM_C);    // C7
+    addAtom(mol, -2.6f, -1.4f, 0.0f, ATOM_C);    // C8
+    addAtom(mol, -3.9f, -2.1f, 0.0f, ATOM_C);    // C9
+    addAtom(mol, -3.9f, -3.5f, 0.0f, ATOM_C);    // CH3 on C9
+    addAtom(mol, -5.2f, -1.4f, 0.0f, ATOM_C);    // C10
+    addAtom(mol, -6.5f, -2.1f, 0.0f, ATOM_C);    // C11
+    addAtom(mol, -7.8f, -1.4f, 0.0f, ATOM_C);    // C12
+    addAtom(mol, -9.1f, -2.1f, 0.0f, ATOM_C);    // C13
+    addAtom(mol, -9.1f, -3.5f, 0.0f, ATOM_C);    // CH3 on C13
+    addAtom(mol, -10.4f, -1.4f, 0.0f, ATOM_C);   // C14
+    addAtom(mol, -11.7f, -2.1f, 0.0f, ATOM_C);   // C15 (CH2OH)
+    addAtom(mol, -13.0f, -1.4f, 0.0f, ATOM_O);   // OH
+    addAtom(mol, -13.7f, -2.0f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 0, 7, 1);
+    addBond(mol, 4, 8, 1);
+    addBond(mol, 5, 9, 1);
+    addBond(mol, 9, 10, 2);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 11, 13, 2);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 2);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 2);
+    addBond(mol, 16, 18, 1);
+    addBond(mol, 17, 19, 1);
+    addBond(mol, 19, 20, 1);
+    addBond(mol, 20, 21, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Beta-Carotene (C40H56) - Provitamin A - Simplified
+void buildBetaCarotene(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Beta-Carotene (C40H56)");
+
+    // Simplified: Two beta-ionone rings connected by polyene chain
+    // Left ring
+    addAtom(mol, -8.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -7.0f, 1.2f, 0.0f, ATOM_C);
+    addAtom(mol, -5.6f, 1.0f, 0.0f, ATOM_C);
+    addAtom(mol, -5.0f, -0.3f, 0.0f, ATOM_C);
+    addAtom(mol, -5.8f, -1.5f, 0.0f, ATOM_C);
+    addAtom(mol, -7.2f, -1.3f, 0.0f, ATOM_C);
+    // Central polyene (simplified)
+    addAtom(mol, -3.6f, -0.5f, 0.0f, ATOM_C);
+    addAtom(mol, -2.4f, 0.2f, 0.0f, ATOM_C);
+    addAtom(mol, -1.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 0.2f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, 1.6f, 0.5f, 0.0f, ATOM_C);
+    addAtom(mol, 2.8f, 1.2f, 0.0f, ATOM_C);
+    addAtom(mol, 4.2f, 1.0f, 0.0f, ATOM_C);
+    // Right ring
+    addAtom(mol, 5.4f, 0.3f, 0.0f, ATOM_C);
+    addAtom(mol, 5.8f, -1.1f, 0.0f, ATOM_C);
+    addAtom(mol, 7.2f, -1.3f, 0.0f, ATOM_C);
+    addAtom(mol, 8.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 7.0f, 1.2f, 0.0f, ATOM_C);
+    addAtom(mol, 5.6f, 1.4f, 0.0f, ATOM_C);
+    // Methyls
+    addAtom(mol, -8.8f, 0.8f, 0.0f, ATOM_C);
+    addAtom(mol, 8.8f, -0.8f, 0.0f, ATOM_C);
+    addAtom(mol, -1.0f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, 1.6f, -0.9f, 0.0f, ATOM_C);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 2);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 3, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 2);
+    addBond(mol, 9, 10, 1);
+    addBond(mol, 10, 11, 2);
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 13, 2);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 1);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 17, 18, 1);
+    addBond(mol, 18, 13, 1);
+    addBond(mol, 0, 19, 1);
+    addBond(mol, 16, 20, 1);
+    addBond(mol, 8, 21, 1);
+    addBond(mol, 10, 22, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Cholecalciferol - Vitamin D3 (C27H44O)
+void buildCholecalciferol(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin D3 (C27H44O)");
+
+    // Secosteroid structure - simplified
+    // Ring A (opened)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C1
+    addAtom(mol, 1.3f, 0.7f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 2.6f, 0.0f, 0.0f, ATOM_C);      // C3 (with OH)
+    addAtom(mol, 2.6f, -1.4f, 0.0f, ATOM_O);     // OH
+    addAtom(mol, 2.6f, -2.2f, 0.0f, ATOM_H);
+    addAtom(mol, 3.9f, 0.7f, 0.0f, ATOM_C);      // C4
+    addAtom(mol, 3.9f, 2.1f, 0.0f, ATOM_C);      // C5
+    addAtom(mol, 2.6f, 2.8f, 0.0f, ATOM_C);      // C6
+    addAtom(mol, 1.3f, 2.1f, 0.0f, ATOM_C);      // C7
+    addAtom(mol, 0.0f, 2.8f, 0.0f, ATOM_C);      // C8
+    // Ring C
+    addAtom(mol, -1.3f, 2.1f, 0.0f, ATOM_C);     // C9
+    addAtom(mol, -1.3f, 0.7f, 0.0f, ATOM_C);     // C10
+    addAtom(mol, -2.6f, 2.8f, 0.0f, ATOM_C);     // C11
+    addAtom(mol, -3.9f, 2.1f, 0.0f, ATOM_C);     // C12
+    addAtom(mol, -3.9f, 0.7f, 0.0f, ATOM_C);     // C13
+    addAtom(mol, -2.6f, 0.0f, 0.0f, ATOM_C);     // C14
+    // Ring D
+    addAtom(mol, -5.2f, 0.0f, 0.0f, ATOM_C);     // C15
+    addAtom(mol, -6.5f, 0.7f, 0.0f, ATOM_C);     // C16
+    addAtom(mol, -6.5f, 2.1f, 0.0f, ATOM_C);     // C17
+    addAtom(mol, -5.2f, 2.8f, 0.0f, ATOM_C);     // C18 (CH3)
+    // Side chain
+    addAtom(mol, -7.8f, 2.8f, 0.0f, ATOM_C);     // C20
+    addAtom(mol, -7.8f, 4.2f, 0.0f, ATOM_C);     // CH3
+    addAtom(mol, -9.1f, 2.1f, 0.0f, ATOM_C);     // C22
+    addAtom(mol, -10.4f, 2.8f, 0.0f, ATOM_C);    // C23
+    addAtom(mol, -11.7f, 2.1f, 0.0f, ATOM_C);    // C24
+    addAtom(mol, -13.0f, 2.8f, 0.0f, ATOM_C);    // C25
+    addAtom(mol, -14.3f, 2.1f, 0.0f, ATOM_C);    // C26 (CH3)
+    addAtom(mol, -13.0f, 4.2f, 0.0f, ATOM_C);    // C27 (CH3)
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 2, 5, 1);
+    addBond(mol, 5, 6, 2);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 7, 8, 2);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 9, 10, 1);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 11, 0, 1);
+    addBond(mol, 9, 12, 1);
+    addBond(mol, 12, 13, 1);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 1);
+    addBond(mol, 15, 10, 1);
+    addBond(mol, 14, 16, 1);
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 17, 18, 1);
+    addBond(mol, 18, 13, 1);
+    addBond(mol, 13, 19, 1);
+    addBond(mol, 18, 20, 1);
+    addBond(mol, 20, 21, 1);
+    addBond(mol, 20, 22, 1);
+    addBond(mol, 22, 23, 1);
+    addBond(mol, 23, 24, 1);
+    addBond(mol, 24, 25, 1);
+    addBond(mol, 25, 26, 1);
+    addBond(mol, 25, 27, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Alpha-Tocopherol - Vitamin E (C29H50O2) - Simplified
+void buildAlphaTocopherol(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin E (C29H50O2)");
+
+    // Chromanol ring (benzene + pyran)
+    float r = 1.4f;
+    // Benzene part
+    addAtom(mol, r, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, r * 0.5f, r * 0.866f, 0.0f, ATOM_C);
+    addAtom(mol, -r * 0.5f, r * 0.866f, 0.0f, ATOM_C);
+    addAtom(mol, -r, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -r * 0.5f, -r * 0.866f, 0.0f, ATOM_C);
+    addAtom(mol, r * 0.5f, -r * 0.866f, 0.0f, ATOM_C);
+    // Pyran oxygen
+    addAtom(mol, r * 1.8f, 0.0f, 0.0f, ATOM_O);
+    // Pyran carbons
+    addAtom(mol, r * 2.2f, r * 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, r * 1.5f, r * 1.5f, 0.0f, ATOM_C);
+    // OH on benzene
+    addAtom(mol, -r * 1.8f, 0.0f, 0.0f, ATOM_O);
+    addAtom(mol, -r * 2.5f, 0.0f, 0.0f, ATOM_H);
+    // Methyls on benzene
+    addAtom(mol, r * 0.7f, r * 1.5f, 0.0f, ATOM_C);
+    addAtom(mol, -r * 0.7f, r * 1.5f, 0.0f, ATOM_C);
+    addAtom(mol, -r * 0.7f, -r * 1.5f, 0.0f, ATOM_C);
+    // Phytyl tail (simplified)
+    addAtom(mol, r * 3.5f, r * 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, r * 4.8f, r * 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, r * 6.1f, r * 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, r * 7.4f, r * 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, r * 8.7f, r * 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, r * 10.0f, r * 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, r * 3.5f, r * 2.0f, 0.0f, ATOM_C);  // CH3 branches
+    addAtom(mol, r * 6.1f, r * 2.0f, 0.0f, ATOM_C);
+    addAtom(mol, r * 8.7f, r * 2.0f, 0.0f, ATOM_C);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 1, 1);
+    addBond(mol, 3, 9, 1);
+    addBond(mol, 9, 10, 1);
+    addBond(mol, 1, 11, 1);
+    addBond(mol, 2, 12, 1);
+    addBond(mol, 4, 13, 1);
+    addBond(mol, 7, 14, 1);
+    addBond(mol, 14, 15, 1);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 17, 18, 1);
+    addBond(mol, 18, 19, 1);
+    addBond(mol, 14, 20, 1);
+    addBond(mol, 16, 21, 1);
+    addBond(mol, 18, 22, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Phylloquinone - Vitamin K1 (C31H46O2) - Simplified
+void buildPhylloquinone(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vitamin K1 (C31H46O2)");
+
+    // Naphthoquinone core
+    // First benzene ring
+    float r = 1.4f;
+    addAtom(mol, r, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, r * 0.5f, r * 0.866f, 0.0f, ATOM_C);
+    addAtom(mol, -r * 0.5f, r * 0.866f, 0.0f, ATOM_C);
+    addAtom(mol, -r, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -r * 0.5f, -r * 0.866f, 0.0f, ATOM_C);
+    addAtom(mol, r * 0.5f, -r * 0.866f, 0.0f, ATOM_C);
+    // Quinone ring (fused)
+    addAtom(mol, r * 1.5f, r * 0.866f, 0.0f, ATOM_C);   // C=O
+    addAtom(mol, r * 2.0f, r * 1.5f, 0.0f, ATOM_O);
+    addAtom(mol, r * 2.0f, r * 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, r * 2.0f, -r * 1.0f, 0.0f, ATOM_C);
+    addAtom(mol, r * 1.5f, -r * 0.866f, 0.0f, ATOM_C);  // C=O
+    addAtom(mol, r * 2.0f, -r * 1.8f, 0.0f, ATOM_O);
+    // Methyl on quinone
+    addAtom(mol, r * 3.3f, r * 0.0f, 0.0f, ATOM_C);
+    // Phytyl tail (simplified)
+    addAtom(mol, r * 3.3f, -r * 1.2f, 0.0f, ATOM_C);
+    addAtom(mol, r * 4.6f, -r * 1.2f, 0.0f, ATOM_C);
+    addAtom(mol, r * 5.9f, -r * 1.2f, 0.0f, ATOM_C);
+    addAtom(mol, r * 7.2f, -r * 1.2f, 0.0f, ATOM_C);
+    addAtom(mol, r * 8.5f, -r * 1.2f, 0.0f, ATOM_C);
+    // H atoms
+    addAtom(mol, -r * 1.7f, 0.0f, 0.0f, ATOM_H);
+    addAtom(mol, -r * 0.8f, r * 1.6f, 0.0f, ATOM_H);
+    addAtom(mol, -r * 0.8f, -r * 1.6f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 6, 8, 1);
+    addBond(mol, 8, 9, 2);
+    addBond(mol, 9, 10, 1);
+    addBond(mol, 10, 11, 2);
+    addBond(mol, 10, 5, 1);
+    addBond(mol, 8, 12, 1);
+    addBond(mol, 9, 13, 1);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 2);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 3, 18, 1);
+    addBond(mol, 2, 19, 1);
+    addBond(mol, 4, 20, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Nicotinamide (Niacinamide) - B3 form (C6H6N2O)
+void buildNicotinamide(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Nicotinamide (C6H6N2O)");
+
+    // Pyridine ring
+    float r = 1.4f;
+    addAtom(mol, r * cosf(0), r * sinf(0), 0.0f, ATOM_N);
+    addAtom(mol, r * cosf(PI/3), r * sinf(PI/3), 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(2*PI/3), r * sinf(2*PI/3), 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(PI), r * sinf(PI), 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(4*PI/3), r * sinf(4*PI/3), 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(5*PI/3), r * sinf(5*PI/3), 0.0f, ATOM_C);
+    // Amide on C3
+    addAtom(mol, r * cosf(2*PI/3) * 1.8f, r * sinf(2*PI/3) * 1.8f + 0.6f, 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(2*PI/3) * 2.2f, r * sinf(2*PI/3) * 2.2f + 1.5f, 0.0f, ATOM_O);
+    addAtom(mol, r * cosf(2*PI/3) * 2.4f, r * sinf(2*PI/3) * 1.2f, 0.0f, ATOM_N);
+    // H atoms
+    addAtom(mol, r * cosf(2*PI/3) * 3.0f, r * sinf(2*PI/3) * 0.8f, 0.0f, ATOM_H);
+    addAtom(mol, r * cosf(2*PI/3) * 2.8f, r * sinf(2*PI/3) * 1.8f, 0.0f, ATOM_H);
+    float rH = 2.4f;
+    addAtom(mol, rH * cosf(PI/3), rH * sinf(PI/3), 0.0f, ATOM_H);
+    addAtom(mol, rH * cosf(PI), rH * sinf(PI), 0.0f, ATOM_H);
+    addAtom(mol, rH * cosf(4*PI/3), rH * sinf(4*PI/3), 0.0f, ATOM_H);
+    addAtom(mol, rH * cosf(5*PI/3), rH * sinf(5*PI/3), 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 2, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 6, 8, 1);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 8, 10, 1);
+    addBond(mol, 1, 11, 1);
+    addBond(mol, 3, 12, 1);
+    addBond(mol, 4, 13, 1);
+    addBond(mol, 5, 14, 1);
+
+    centerMolecule(mol);
+}
+
+// ============== ADDITIONAL COMPOUNDS ==============
+
+// Build Cocaine (C17H21NO4) - Tropane alkaloid
+void buildCocaine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Cocaine (C17H21NO4)");
+
+    // Tropane ring system (bicyclic)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);      // N (bridgehead)
+    addAtom(mol, 1.3f, 0.7f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 2.6f, 0.0f, 0.0f, ATOM_C);      // C3 (with ester)
+    addAtom(mol, 2.6f, -1.4f, 0.0f, ATOM_C);     // C4
+    addAtom(mol, 1.3f, -2.1f, 0.0f, ATOM_C);     // C5
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);     // C6
+    addAtom(mol, -1.3f, -0.7f, 0.0f, ATOM_C);    // C7
+    // Bridge carbon
+    addAtom(mol, 1.3f, -0.7f, 1.2f, ATOM_C);     // C1 (bridge)
+    // N-methyl
+    addAtom(mol, -0.5f, 1.0f, 0.0f, ATOM_C);     // CH3 on N
+    // Benzoyl ester at C3
+    addAtom(mol, 3.9f, 0.7f, 0.0f, ATOM_C);      // C=O ester
+    addAtom(mol, 3.9f, 1.9f, 0.0f, ATOM_O);      // =O
+    addAtom(mol, 5.2f, 0.0f, 0.0f, ATOM_O);      // O-benzene
+    // Benzene ring
+    addAtom(mol, 6.5f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, 7.7f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 8.9f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, 8.9f, 2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 7.7f, 2.8f, 0.0f, ATOM_C);
+    addAtom(mol, 6.5f, 2.1f, 0.0f, ATOM_C);
+    // Methyl ester at C2
+    addAtom(mol, 1.3f, 2.1f, 0.0f, ATOM_C);      // C=O
+    addAtom(mol, 0.2f, 2.7f, 0.0f, ATOM_O);      // =O
+    addAtom(mol, 2.4f, 2.7f, 0.0f, ATOM_O);      // O-CH3
+    addAtom(mol, 2.4f, 4.0f, 0.0f, ATOM_C);      // CH3
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 6, 1);
+    addBond(mol, 6, 0, 1);
+    addBond(mol, 1, 7, 1);
+    addBond(mol, 4, 7, 1);
+    addBond(mol, 0, 8, 1);
+    addBond(mol, 2, 9, 1);
+    addBond(mol, 9, 10, 2);
+    addBond(mol, 9, 11, 1);
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 13, 2);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 2);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 2);
+    addBond(mol, 17, 12, 1);
+    addBond(mol, 1, 18, 1);
+    addBond(mol, 18, 19, 2);
+    addBond(mol, 18, 20, 1);
+    addBond(mol, 20, 21, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Heroin / Diacetylmorphine (C21H23NO5)
+void buildHeroin(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Heroin (C21H23NO5)");
+
+    // Morphine core - pentacyclic structure (simplified)
+    // Ring A (benzene)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, -2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);
+    // Ring B (cyclohexene fused)
+    addAtom(mol, -1.3f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, -1.3f, 2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, 2.8f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, 2.1f, 0.0f, ATOM_C);
+    // Ring C with oxygen bridge
+    addAtom(mol, -2.6f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -2.6f, -1.4f, 0.0f, ATOM_O);    // O bridge
+    addAtom(mol, -1.3f, -2.1f, 0.0f, ATOM_C);
+    // Ring D (piperidine with N)
+    addAtom(mol, -2.6f, 2.8f, 0.0f, ATOM_C);
+    addAtom(mol, -3.9f, 2.1f, 0.0f, ATOM_C);
+    addAtom(mol, -3.9f, 0.7f, 0.0f, ATOM_N);     // N
+    addAtom(mol, -4.5f, 0.0f, 0.0f, ATOM_C);     // N-CH3
+    // Acetyl groups (diacetyl = heroin)
+    addAtom(mol, 3.6f, 0.7f, 0.0f, ATOM_O);      // O-acetyl 1
+    addAtom(mol, 4.8f, 0.0f, 0.0f, ATOM_C);      // C=O
+    addAtom(mol, 4.8f, -1.2f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, 6.0f, 0.7f, 0.0f, ATOM_C);      // CH3
+    addAtom(mol, 3.6f, -2.1f, 0.0f, ATOM_O);     // O-acetyl 2
+    addAtom(mol, 4.8f, -2.8f, 0.0f, ATOM_C);     // C=O
+    addAtom(mol, 4.8f, -4.0f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, 6.0f, -2.1f, 0.0f, ATOM_C);     // CH3
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 7, 8, 2);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 9, 1, 1);
+    addBond(mol, 6, 10, 1);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 5, 1);
+    addBond(mol, 7, 13, 1);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 1);
+    addBond(mol, 15, 10, 1);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 2, 17, 1);
+    addBond(mol, 17, 18, 1);
+    addBond(mol, 18, 19, 2);
+    addBond(mol, 18, 20, 1);
+    addBond(mol, 3, 21, 1);
+    addBond(mol, 21, 22, 1);
+    addBond(mol, 22, 23, 2);
+    addBond(mol, 22, 24, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Fentanyl (C22H28N2O) - Synthetic opioid
+void buildFentanyl(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Fentanyl/Sublimaze (C22H28N2O)");
+
+    // Piperidine ring
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);      // N1
+    addAtom(mol, 1.3f, 0.7f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 2.6f, 0.0f, 0.0f, ATOM_C);      // C3
+    addAtom(mol, 2.6f, -1.4f, 0.0f, ATOM_C);     // C4 (with phenethyl)
+    addAtom(mol, 1.3f, -2.1f, 0.0f, ATOM_C);     // C5
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);     // C6
+    // Phenethyl group on C4
+    addAtom(mol, 3.9f, -2.1f, 0.0f, ATOM_C);     // CH2
+    addAtom(mol, 5.2f, -1.4f, 0.0f, ATOM_C);     // CH2
+    // Benzene ring
+    addAtom(mol, 6.5f, -2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 7.7f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, 8.9f, -2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 8.9f, -3.5f, 0.0f, ATOM_C);
+    addAtom(mol, 7.7f, -4.2f, 0.0f, ATOM_C);
+    addAtom(mol, 6.5f, -3.5f, 0.0f, ATOM_C);
+    // N-phenyl-propanamide on N1
+    addAtom(mol, -1.3f, 0.7f, 0.0f, ATOM_C);     // C=O
+    addAtom(mol, -1.3f, 2.0f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, -2.6f, 0.0f, 0.0f, ATOM_C);     // CH2CH3
+    addAtom(mol, -3.9f, 0.7f, 0.0f, ATOM_C);     // CH3
+    // Aniline (N-phenyl)
+    addAtom(mol, -1.3f, -2.1f, 0.0f, ATOM_N);    // N-aniline
+    addAtom(mol, -2.6f, -2.8f, 0.0f, ATOM_C);    // benzene
+    addAtom(mol, -2.6f, -4.2f, 0.0f, ATOM_C);
+    addAtom(mol, -3.8f, -4.9f, 0.0f, ATOM_C);
+    addAtom(mol, -5.0f, -4.2f, 0.0f, ATOM_C);
+    addAtom(mol, -5.0f, -2.8f, 0.0f, ATOM_C);
+    addAtom(mol, -3.8f, -2.1f, 0.0f, ATOM_C);
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 3, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 2);
+    addBond(mol, 9, 10, 1);
+    addBond(mol, 10, 11, 2);
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 13, 2);
+    addBond(mol, 13, 8, 1);
+    addBond(mol, 0, 14, 1);
+    addBond(mol, 14, 15, 2);
+    addBond(mol, 14, 16, 1);
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 5, 18, 1);
+    addBond(mol, 18, 19, 1);
+    addBond(mol, 19, 20, 2);
+    addBond(mol, 20, 21, 1);
+    addBond(mol, 21, 22, 2);
+    addBond(mol, 22, 23, 1);
+    addBond(mol, 23, 24, 2);
+    addBond(mol, 24, 19, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Propofol (C12H18O) - General anesthetic
+void buildPropofol(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Propofol/Diprivan (C12H18O)");
+
+    // Benzene ring with OH and two isopropyl groups
+    float r = 1.4f;
+    addAtom(mol, r * cosf(0), r * sinf(0), 0.0f, ATOM_C);           // C1 (OH)
+    addAtom(mol, r * cosf(PI/3), r * sinf(PI/3), 0.0f, ATOM_C);     // C2 (iPr)
+    addAtom(mol, r * cosf(2*PI/3), r * sinf(2*PI/3), 0.0f, ATOM_C); // C3
+    addAtom(mol, r * cosf(PI), r * sinf(PI), 0.0f, ATOM_C);         // C4
+    addAtom(mol, r * cosf(4*PI/3), r * sinf(4*PI/3), 0.0f, ATOM_C); // C5
+    addAtom(mol, r * cosf(5*PI/3), r * sinf(5*PI/3), 0.0f, ATOM_C); // C6 (iPr)
+    // OH on C1
+    addAtom(mol, r * 1.8f * cosf(0), r * 1.8f * sinf(0), 0.0f, ATOM_O);
+    addAtom(mol, r * 2.5f * cosf(0), r * 2.5f * sinf(0), 0.0f, ATOM_H);
+    // Isopropyl on C2
+    addAtom(mol, r * 1.8f * cosf(PI/3), r * 1.8f * sinf(PI/3), 0.0f, ATOM_C);  // CH
+    addAtom(mol, r * 2.2f * cosf(PI/4), r * 2.2f * sinf(PI/4), 0.8f, ATOM_C);  // CH3
+    addAtom(mol, r * 2.2f * cosf(PI/4), r * 2.2f * sinf(PI/4), -0.8f, ATOM_C); // CH3
+    // Isopropyl on C6
+    addAtom(mol, r * 1.8f * cosf(5*PI/3), r * 1.8f * sinf(5*PI/3), 0.0f, ATOM_C);  // CH
+    addAtom(mol, r * 2.2f * cosf(11*PI/6), r * 2.2f * sinf(11*PI/6), 0.8f, ATOM_C);  // CH3
+    addAtom(mol, r * 2.2f * cosf(11*PI/6), r * 2.2f * sinf(11*PI/6), -0.8f, ATOM_C); // CH3
+    // H atoms on ring
+    addAtom(mol, r * 1.7f * cosf(2*PI/3), r * 1.7f * sinf(2*PI/3), 0.0f, ATOM_H);
+    addAtom(mol, r * 1.7f * cosf(PI), r * 1.7f * sinf(PI), 0.0f, ATOM_H);
+    addAtom(mol, r * 1.7f * cosf(4*PI/3), r * 1.7f * sinf(4*PI/3), 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 1, 8, 1);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 8, 10, 1);
+    addBond(mol, 5, 11, 1);
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 11, 13, 1);
+    addBond(mol, 2, 14, 1);
+    addBond(mol, 3, 15, 1);
+    addBond(mol, 4, 16, 1);
+
+    centerMolecule(mol);
+}
+
+// Build THC - Tetrahydrocannabinol (C21H30O2)
+void buildTHC(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "THC (C21H30O2)");
+
+    // Dibenzopyran core
+    // Benzene ring A
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, -2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);
+    // Pyran ring (with O)
+    addAtom(mol, -1.2f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, -2.4f, 0.0f, 0.0f, ATOM_O);     // O in pyran
+    addAtom(mol, -2.4f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, -1.2f, -2.1f, 0.0f, ATOM_C);
+    // Cyclohexene ring C
+    addAtom(mol, -1.2f, -3.5f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, -4.2f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, -3.5f, 0.0f, ATOM_C);
+    // OH on benzene
+    addAtom(mol, 3.6f, 0.7f, 0.0f, ATOM_O);
+    addAtom(mol, 4.3f, 0.2f, 0.0f, ATOM_H);
+    // Pentyl chain
+    addAtom(mol, 3.6f, -2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 4.9f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, 6.2f, -2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 7.5f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, 8.8f, -2.1f, 0.0f, ATOM_C);
+    // Methyls on cyclohexene
+    addAtom(mol, -2.4f, -4.2f, 0.0f, ATOM_C);    // gem-dimethyl
+    addAtom(mol, -2.4f, -3.0f, 1.0f, ATOM_C);
+    addAtom(mol, -1.2f, 2.0f, 0.0f, ATOM_C);     // CH3 on C
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 9, 5, 1);
+    addBond(mol, 9, 10, 1);
+    addBond(mol, 10, 11, 2);
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 4, 1);
+    addBond(mol, 2, 13, 1);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 3, 15, 1);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 17, 18, 1);
+    addBond(mol, 18, 19, 1);
+    addBond(mol, 10, 20, 1);
+    addBond(mol, 10, 21, 1);
+    addBond(mol, 6, 22, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Creatine (C4H9N3O2) - Sports supplement
+void buildCreatine(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Creatine (C4H9N3O2)");
+
+    // Guanidino group
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // Central C of guanidino
+    addAtom(mol, 0.0f, 1.2f, 0.0f, ATOM_N);      // =NH
+    addAtom(mol, -1.1f, -0.7f, 0.0f, ATOM_N);    // NH2
+    addAtom(mol, 1.1f, -0.7f, 0.0f, ATOM_N);     // N-CH3
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_C);      // CH3 on N
+    // Acetic acid part
+    addAtom(mol, 1.1f, -2.1f, 0.0f, ATOM_C);     // CH2
+    addAtom(mol, 2.4f, -2.8f, 0.0f, ATOM_C);     // COOH
+    addAtom(mol, 2.4f, -4.0f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, 3.5f, -2.1f, 0.0f, ATOM_O);     // OH
+    // H atoms
+    addAtom(mol, 0.0f, 2.0f, 0.0f, ATOM_H);      // H on =NH
+    addAtom(mol, -1.8f, -0.2f, 0.0f, ATOM_H);    // H on NH2
+    addAtom(mol, -1.4f, -1.5f, 0.0f, ATOM_H);    // H on NH2
+    addAtom(mol, 4.3f, -2.5f, 0.0f, ATOM_H);     // H on OH
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 0, 2, 1);
+    addBond(mol, 0, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 3, 5, 1);
+    addBond(mol, 5, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 6, 8, 1);
+    addBond(mol, 1, 9, 1);
+    addBond(mol, 2, 10, 1);
+    addBond(mol, 2, 11, 1);
+    addBond(mol, 8, 12, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Octane (C8H18) - Representative gasoline component
+void buildOctane(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Octane/Gasoline (C8H18)");
+
+    // Linear 8-carbon chain
+    for (int i = 0; i < 8; i++) {
+        float x = i * 1.5f;
+        float y = (i % 2 == 0) ? 0.0f : 0.3f;  // Slight zigzag
+        addAtom(mol, x, y, 0.0f, ATOM_C);
+    }
+    // H atoms on each carbon (simplified - 3H on terminals, 2H on others)
+    // Terminal CH3 groups
+    addAtom(mol, -0.8f, 0.5f, 0.0f, ATOM_H);
+    addAtom(mol, -0.8f, -0.5f, 0.0f, ATOM_H);
+    addAtom(mol, -0.5f, 0.0f, 0.8f, ATOM_H);
+    addAtom(mol, 11.3f, 0.8f, 0.0f, ATOM_H);
+    addAtom(mol, 11.3f, -0.2f, 0.0f, ATOM_H);
+    addAtom(mol, 11.0f, 0.3f, 0.8f, ATOM_H);
+    // CH2 groups (2H each for carbons 1-6)
+    for (int i = 1; i < 7; i++) {
+        float x = i * 1.5f;
+        float y = (i % 2 == 0) ? 0.0f : 0.3f;
+        addAtom(mol, x, y + 0.8f, 0.0f, ATOM_H);
+        addAtom(mol, x, y - 0.8f, 0.0f, ATOM_H);
+    }
+
+    // C-C backbone bonds
+    for (int i = 0; i < 7; i++) {
+        addBond(mol, i, i + 1, 1);
+    }
+    // C-H bonds for terminal methyls
+    addBond(mol, 0, 8, 1);
+    addBond(mol, 0, 9, 1);
+    addBond(mol, 0, 10, 1);
+    addBond(mol, 7, 11, 1);
+    addBond(mol, 7, 12, 1);
+    addBond(mol, 7, 13, 1);
+    // C-H bonds for CH2 groups
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i + 1, 14 + i * 2, 1);
+        addBond(mol, i + 1, 15 + i * 2, 1);
+    }
+
+    centerMolecule(mol);
+}
+
+// ============== STATINS & NSAIDs ==============
+
+// Build Simvastatin (C25H38O5) - Statin cholesterol drug
+void buildSimvastatin(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Simvastatin/Zocor (C25H38O5)");
+
+    // Decalin-like fused ring system (simplified)
+    // Ring A (cyclohexene)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);      // C1
+    addAtom(mol, 1.3f, 0.7f, 0.0f, ATOM_C);      // C2
+    addAtom(mol, 2.6f, 0.0f, 0.0f, ATOM_C);      // C3
+    addAtom(mol, 2.6f, -1.4f, 0.0f, ATOM_C);     // C4
+    addAtom(mol, 1.3f, -2.1f, 0.0f, ATOM_C);     // C5
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);     // C6
+    // Ring B (fused cyclohexane)
+    addAtom(mol, -1.3f, 0.7f, 0.0f, ATOM_C);     // C7
+    addAtom(mol, -2.6f, 0.0f, 0.0f, ATOM_C);     // C8
+    addAtom(mol, -2.6f, -1.4f, 0.0f, ATOM_C);    // C9
+    addAtom(mol, -1.3f, -2.1f, 0.0f, ATOM_C);    // C10
+    // Lactone ring
+    addAtom(mol, 3.9f, 0.7f, 0.0f, ATOM_C);      // C11
+    addAtom(mol, 5.2f, 0.0f, 0.0f, ATOM_O);      // O (lactone)
+    addAtom(mol, 5.2f, -1.4f, 0.0f, ATOM_C);     // C12 (C=O)
+    addAtom(mol, 5.2f, -2.6f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, 3.9f, -0.7f, 0.0f, ATOM_C);     // C13
+    // Hydroxy groups
+    addAtom(mol, 3.9f, 2.0f, 0.0f, ATOM_O);      // OH
+    addAtom(mol, 3.9f, -2.0f, 0.0f, ATOM_O);     // OH
+    // Side chain ester
+    addAtom(mol, -3.9f, 0.7f, 0.0f, ATOM_O);     // O-ester
+    addAtom(mol, -5.2f, 0.0f, 0.0f, ATOM_C);     // C=O
+    addAtom(mol, -5.2f, -1.2f, 0.0f, ATOM_O);    // =O
+    addAtom(mol, -6.5f, 0.7f, 0.0f, ATOM_C);     // CH(CH3)2
+    addAtom(mol, -7.8f, 0.0f, 0.0f, ATOM_C);     // CH3
+    addAtom(mol, -6.5f, 2.0f, 0.0f, ATOM_C);     // CH3
+    // Methyls
+    addAtom(mol, 1.3f, 2.0f, 0.0f, ATOM_C);      // CH3
+    addAtom(mol, -1.3f, -3.5f, 0.0f, ATOM_C);    // CH3
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 2);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 9, 5, 1);
+    addBond(mol, 2, 10, 1);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 13, 2);
+    addBond(mol, 12, 14, 1);
+    addBond(mol, 14, 3, 1);
+    addBond(mol, 10, 15, 1);
+    addBond(mol, 14, 16, 1);
+    addBond(mol, 7, 17, 1);
+    addBond(mol, 17, 18, 1);
+    addBond(mol, 18, 19, 2);
+    addBond(mol, 18, 20, 1);
+    addBond(mol, 20, 21, 1);
+    addBond(mol, 20, 22, 1);
+    addBond(mol, 1, 23, 1);
+    addBond(mol, 9, 24, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Ibuprofen (C13H18O2) - NSAID
+void buildIbuprofen(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Ibuprofen/Advil (C13H18O2)");
+
+    // Benzene ring
+    float r = 1.4f;
+    addAtom(mol, r * cosf(0), r * sinf(0), 0.0f, ATOM_C);           // C1
+    addAtom(mol, r * cosf(PI/3), r * sinf(PI/3), 0.0f, ATOM_C);     // C2
+    addAtom(mol, r * cosf(2*PI/3), r * sinf(2*PI/3), 0.0f, ATOM_C); // C3
+    addAtom(mol, r * cosf(PI), r * sinf(PI), 0.0f, ATOM_C);         // C4 (isobutyl)
+    addAtom(mol, r * cosf(4*PI/3), r * sinf(4*PI/3), 0.0f, ATOM_C); // C5
+    addAtom(mol, r * cosf(5*PI/3), r * sinf(5*PI/3), 0.0f, ATOM_C); // C6
+    // Propionic acid on C1
+    addAtom(mol, r * 1.8f, 0.0f, 0.0f, ATOM_C);   // CH(CH3)
+    addAtom(mol, r * 2.4f, 1.0f, 0.0f, ATOM_C);   // CH3
+    addAtom(mol, r * 3.0f, -0.7f, 0.0f, ATOM_C);  // COOH
+    addAtom(mol, r * 3.0f, -1.9f, 0.0f, ATOM_O);  // =O
+    addAtom(mol, r * 4.1f, 0.0f, 0.0f, ATOM_O);   // OH
+    addAtom(mol, r * 4.8f, -0.5f, 0.0f, ATOM_H);
+    // Isobutyl on C4
+    addAtom(mol, r * cosf(PI) * 1.8f, r * sinf(PI) * 1.8f, 0.0f, ATOM_C);  // CH2
+    addAtom(mol, r * cosf(PI) * 2.8f, r * sinf(PI) * 1.2f, 0.0f, ATOM_C);  // CH
+    addAtom(mol, r * cosf(PI) * 3.5f, r * sinf(PI) * 0.5f, 0.0f, ATOM_C);  // CH3
+    addAtom(mol, r * cosf(PI) * 3.5f, r * sinf(PI) * 1.9f, 0.0f, ATOM_C);  // CH3
+    // H atoms on ring
+    addAtom(mol, r * 1.7f * cosf(PI/3), r * 1.7f * sinf(PI/3), 0.0f, ATOM_H);
+    addAtom(mol, r * 1.7f * cosf(2*PI/3), r * 1.7f * sinf(2*PI/3), 0.0f, ATOM_H);
+    addAtom(mol, r * 1.7f * cosf(4*PI/3), r * 1.7f * sinf(4*PI/3), 0.0f, ATOM_H);
+    addAtom(mol, r * 1.7f * cosf(5*PI/3), r * 1.7f * sinf(5*PI/3), 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 6, 8, 1);
+    addBond(mol, 8, 9, 2);
+    addBond(mol, 8, 10, 1);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 3, 12, 1);
+    addBond(mol, 12, 13, 1);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 13, 15, 1);
+    addBond(mol, 1, 16, 1);
+    addBond(mol, 2, 17, 1);
+    addBond(mol, 4, 18, 1);
+    addBond(mol, 5, 19, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Naproxen (C14H14O3) - NSAID
+void buildNaproxen(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Naproxen/Aleve (C14H14O3)");
+
+    // Naphthalene ring system
+    // Ring 1
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, -2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);
+    // Ring 2 (fused)
+    addAtom(mol, 3.6f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, 4.8f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 4.8f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, 3.6f, -2.1f, 0.0f, ATOM_C);
+    // Methoxy on C6 position
+    addAtom(mol, 3.6f, 2.0f, 0.0f, ATOM_O);      // O
+    addAtom(mol, 3.6f, 3.3f, 0.0f, ATOM_C);      // CH3
+    // Propionic acid on C2 position
+    addAtom(mol, -1.3f, 0.7f, 0.0f, ATOM_C);     // CH(CH3)
+    addAtom(mol, -1.3f, 2.0f, 0.0f, ATOM_C);     // CH3
+    addAtom(mol, -2.6f, 0.0f, 0.0f, ATOM_C);     // COOH
+    addAtom(mol, -2.6f, -1.2f, 0.0f, ATOM_O);    // =O
+    addAtom(mol, -3.7f, 0.7f, 0.0f, ATOM_O);     // OH
+    addAtom(mol, -4.4f, 0.2f, 0.0f, ATOM_H);
+    // H atoms
+    addAtom(mol, 1.2f, 1.7f, 0.0f, ATOM_H);
+    addAtom(mol, 1.2f, -3.1f, 0.0f, ATOM_H);
+    addAtom(mol, 5.7f, 0.5f, 0.0f, ATOM_H);
+    addAtom(mol, 5.7f, -1.9f, 0.0f, ATOM_H);
+    addAtom(mol, 3.6f, -3.1f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 2, 6, 1);
+    addBond(mol, 6, 7, 2);
+    addBond(mol, 7, 8, 1);
+    addBond(mol, 8, 9, 2);
+    addBond(mol, 9, 3, 1);
+    addBond(mol, 6, 10, 1);
+    addBond(mol, 10, 11, 1);
+    addBond(mol, 0, 12, 1);
+    addBond(mol, 12, 13, 1);
+    addBond(mol, 12, 14, 1);
+    addBond(mol, 14, 15, 2);
+    addBond(mol, 14, 16, 1);
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 1, 18, 1);
+    addBond(mol, 4, 19, 1);
+    addBond(mol, 7, 20, 1);
+    addBond(mol, 8, 21, 1);
+    addBond(mol, 9, 22, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Diclofenac (C14H11Cl2NO2) - NSAID
+void buildDiclofenac(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Diclofenac/Voltaren (C14H11Cl2NO2)");
+
+    // Phenylacetic acid ring
+    float r = 1.4f;
+    addAtom(mol, r * cosf(0), r * sinf(0), 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(PI/3), r * sinf(PI/3), 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(2*PI/3), r * sinf(2*PI/3), 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(PI), r * sinf(PI), 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(4*PI/3), r * sinf(4*PI/3), 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(5*PI/3), r * sinf(5*PI/3), 0.0f, ATOM_C);
+    // Acetic acid on C1
+    addAtom(mol, r * 1.8f, 0.0f, 0.0f, ATOM_C);   // CH2
+    addAtom(mol, r * 3.0f, 0.0f, 0.0f, ATOM_C);   // COOH
+    addAtom(mol, r * 3.5f, 1.0f, 0.0f, ATOM_O);   // =O
+    addAtom(mol, r * 3.5f, -1.0f, 0.0f, ATOM_O);  // OH
+    addAtom(mol, r * 4.3f, -1.3f, 0.0f, ATOM_H);
+    // NH bridge on C2
+    addAtom(mol, r * cosf(PI/3) * 1.8f, r * sinf(PI/3) * 1.8f, 0.0f, ATOM_N);
+    // Dichlorophenyl ring
+    addAtom(mol, r * cosf(PI/3) * 2.8f, r * sinf(PI/3) * 2.8f, 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(PI/3) * 3.3f + 0.6f, r * sinf(PI/3) * 3.3f + 1.0f, 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(PI/3) * 3.8f + 1.2f, r * sinf(PI/3) * 3.3f + 0.3f, 0.0f, ATOM_C);  // Cl
+    addAtom(mol, r * cosf(PI/3) * 3.8f + 1.2f, r * sinf(PI/3) * 2.3f - 0.4f, 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(PI/3) * 3.3f + 0.6f, r * sinf(PI/3) * 1.8f - 0.4f, 0.0f, ATOM_C);
+    addAtom(mol, r * cosf(PI/3) * 2.8f, r * sinf(PI/3) * 2.3f, 0.0f, ATOM_C);   // Cl
+    // Chlorines
+    addAtom(mol, r * cosf(PI/3) * 4.5f + 1.8f, r * sinf(PI/3) * 3.5f + 0.5f, 0.0f, ATOM_CL);
+    addAtom(mol, r * cosf(PI/3) * 2.3f - 0.6f, r * sinf(PI/3) * 2.3f - 0.6f, 0.0f, ATOM_CL);
+    // H on NH
+    addAtom(mol, r * cosf(PI/3) * 1.8f + 0.5f, r * sinf(PI/3) * 1.8f + 0.7f, 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 7, 8, 2);
+    addBond(mol, 7, 9, 1);
+    addBond(mol, 9, 10, 1);
+    addBond(mol, 1, 11, 1);
+    addBond(mol, 11, 12, 1);
+    addBond(mol, 12, 13, 2);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 2);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 2);
+    addBond(mol, 17, 12, 1);
+    addBond(mol, 14, 18, 1);
+    addBond(mol, 17, 19, 1);
+    addBond(mol, 11, 20, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Indomethacin (C19H16ClNO4) - NSAID
+void buildIndomethacin(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Indomethacin/Indocin (C19H16ClNO4)");
+
+    // Indole ring system
+    // Benzene
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, -2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);
+    // Pyrrole fused
+    addAtom(mol, -1.0f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, -1.0f, -0.7f, 0.0f, ATOM_C);
+    addAtom(mol, -2.2f, 0.0f, 0.0f, ATOM_N);
+    // Methoxy on benzene
+    addAtom(mol, 3.6f, 0.7f, 0.0f, ATOM_O);
+    addAtom(mol, 4.8f, 0.0f, 0.0f, ATOM_C);
+    // N-p-chlorobenzoyl
+    addAtom(mol, -3.4f, 0.7f, 0.0f, ATOM_C);     // C=O
+    addAtom(mol, -3.4f, 2.0f, 0.0f, ATOM_O);     // =O
+    // p-Chlorobenzene
+    addAtom(mol, -4.6f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -5.8f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, -7.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, -7.0f, -1.4f, 0.0f, ATOM_C);    // para-Cl
+    addAtom(mol, -5.8f, -2.1f, 0.0f, ATOM_C);
+    addAtom(mol, -4.6f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, -8.2f, -2.1f, 0.0f, ATOM_CL);   // Cl
+    // Acetic acid on pyrrole C3
+    addAtom(mol, -1.0f, -2.1f, 0.0f, ATOM_C);    // CH2
+    addAtom(mol, -1.0f, -3.5f, 0.0f, ATOM_C);    // COOH
+    addAtom(mol, 0.1f, -4.1f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, -2.1f, -4.1f, 0.0f, ATOM_O);    // OH
+    // Methyl on pyrrole C2
+    addAtom(mol, -1.0f, 2.0f, 0.0f, ATOM_C);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 5, 7, 1);
+    addBond(mol, 6, 8, 1);
+    addBond(mol, 8, 7, 1);
+    addBond(mol, 2, 9, 1);
+    addBond(mol, 9, 10, 1);
+    addBond(mol, 8, 11, 1);
+    addBond(mol, 11, 12, 2);
+    addBond(mol, 11, 13, 1);
+    addBond(mol, 13, 14, 2);
+    addBond(mol, 14, 15, 1);
+    addBond(mol, 15, 16, 2);
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 17, 18, 2);
+    addBond(mol, 18, 13, 1);
+    addBond(mol, 16, 19, 1);
+    addBond(mol, 7, 20, 1);
+    addBond(mol, 20, 21, 1);
+    addBond(mol, 21, 22, 2);
+    addBond(mol, 21, 23, 1);
+    addBond(mol, 6, 24, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Celecoxib (C17H14F3N3O2S) - COX-2 selective NSAID
+void buildCelecoxib(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Celecoxib/Celebrex (C17H14F3N3O2S)");
+
+    // Pyrazole ring
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_N);      // N1
+    addAtom(mol, 1.0f, 0.8f, 0.0f, ATOM_N);      // N2
+    addAtom(mol, 2.2f, 0.2f, 0.0f, ATOM_C);      // C3
+    addAtom(mol, 2.0f, -1.2f, 0.0f, ATOM_C);     // C4
+    addAtom(mol, 0.6f, -1.2f, 0.0f, ATOM_C);     // C5
+    // Tolyl (4-methylphenyl) on C3
+    addAtom(mol, 3.5f, 0.9f, 0.0f, ATOM_C);      // benzene
+    addAtom(mol, 4.7f, 0.2f, 0.0f, ATOM_C);
+    addAtom(mol, 5.9f, 0.9f, 0.0f, ATOM_C);
+    addAtom(mol, 5.9f, 2.3f, 0.0f, ATOM_C);      // para-CH3
+    addAtom(mol, 4.7f, 3.0f, 0.0f, ATOM_C);
+    addAtom(mol, 3.5f, 2.3f, 0.0f, ATOM_C);
+    addAtom(mol, 7.1f, 3.0f, 0.0f, ATOM_C);      // CH3
+    // Trifluoromethylphenyl on C5
+    addAtom(mol, 0.0f, -2.5f, 0.0f, ATOM_C);     // benzene
+    addAtom(mol, -1.2f, -3.2f, 0.0f, ATOM_C);
+    addAtom(mol, -1.2f, -4.6f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, -5.3f, 0.0f, ATOM_C);     // para-CF3
+    addAtom(mol, 1.2f, -4.6f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, -3.2f, 0.0f, ATOM_C);
+    // CF3 group
+    addAtom(mol, 0.0f, -6.7f, 0.0f, ATOM_C);
+    addAtom(mol, -1.1f, -7.3f, 0.0f, ATOM_F);
+    addAtom(mol, 0.0f, -7.9f, 0.0f, ATOM_F);
+    addAtom(mol, 1.1f, -7.3f, 0.0f, ATOM_F);
+    // Sulfonamide on N1
+    addAtom(mol, -1.3f, 0.7f, 0.0f, ATOM_S);     // S
+    addAtom(mol, -1.3f, 2.0f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, -2.5f, 0.0f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, -1.3f, 0.7f, 1.5f, ATOM_N);     // NH2
+
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 2);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 2);
+    addBond(mol, 4, 0, 1);
+    addBond(mol, 2, 5, 1);
+    addBond(mol, 5, 6, 2);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 7, 8, 2);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 9, 10, 2);
+    addBond(mol, 10, 5, 1);
+    addBond(mol, 8, 11, 1);
+    addBond(mol, 4, 12, 1);
+    addBond(mol, 12, 13, 2);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 2);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 2);
+    addBond(mol, 17, 12, 1);
+    addBond(mol, 15, 18, 1);
+    addBond(mol, 18, 19, 1);
+    addBond(mol, 18, 20, 1);
+    addBond(mol, 18, 21, 1);
+    addBond(mol, 0, 22, 1);
+    addBond(mol, 22, 23, 2);
+    addBond(mol, 22, 24, 2);
+    addBond(mol, 22, 25, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Meloxicam (C14H13N3O4S2) - NSAID
+void buildMeloxicam(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Meloxicam/Mobic (C14H13N3O4S2)");
+
+    // Benzothiazine core
+    // Benzene ring
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, 0.7f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_C);
+    addAtom(mol, 2.4f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, 1.2f, -2.1f, 0.0f, ATOM_C);
+    addAtom(mol, 0.0f, -1.4f, 0.0f, ATOM_C);
+    // Thiazine fused
+    addAtom(mol, -1.2f, 0.7f, 0.0f, ATOM_S);     // S
+    addAtom(mol, -2.4f, 0.0f, 0.0f, ATOM_C);     // C
+    addAtom(mol, -2.4f, -1.4f, 0.0f, ATOM_C);    // C (enol)
+    addAtom(mol, -1.2f, -2.1f, 0.0f, ATOM_N);    // N
+    // Sulfonamide SO2 on S
+    addAtom(mol, -1.2f, 2.0f, 0.0f, ATOM_O);     // =O
+    addAtom(mol, -0.5f, 0.7f, 1.2f, ATOM_O);     // =O
+    // Amide C=O
+    addAtom(mol, -3.6f, 0.7f, 0.0f, ATOM_O);     // =O on C8
+    // Thiazole ring on enol C
+    addAtom(mol, -3.6f, -2.1f, 0.0f, ATOM_N);
+    addAtom(mol, -4.8f, -1.4f, 0.0f, ATOM_C);
+    addAtom(mol, -6.0f, -2.1f, 0.0f, ATOM_S);
+    addAtom(mol, -5.5f, -3.5f, 0.0f, ATOM_C);
+    addAtom(mol, -4.0f, -3.5f, 0.0f, ATOM_C);
+    // Methyl on thiazole
+    addAtom(mol, -4.8f, 0.0f, 0.0f, ATOM_C);     // CH3
+    // OH (enol)
+    addAtom(mol, -2.4f, -2.6f, 0.0f, ATOM_O);
+    // N-methyl
+    addAtom(mol, -1.2f, -3.5f, 0.0f, ATOM_C);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 7, 8, 2);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 9, 5, 1);
+    addBond(mol, 6, 10, 2);
+    addBond(mol, 6, 11, 2);
+    addBond(mol, 7, 12, 2);
+    addBond(mol, 8, 13, 1);
+    addBond(mol, 13, 14, 2);
+    addBond(mol, 14, 15, 1);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 2);
+    addBond(mol, 17, 13, 1);
+    addBond(mol, 14, 18, 1);
+    addBond(mol, 8, 19, 1);
+    addBond(mol, 9, 20, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Acetaminophen/Paracetamol (C8H9NO2) - Tylenol
+void buildAcetaminophen(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Acetaminophen/Tylenol (C8H9NO2)");
+
+    // Benzene ring (para-substituted)
+    float r = 1.4f;
+    addAtom(mol, r * cosf(0), r * sinf(0), 0.0f, ATOM_C);           // C1 (OH)
+    addAtom(mol, r * cosf(PI/3), r * sinf(PI/3), 0.0f, ATOM_C);     // C2
+    addAtom(mol, r * cosf(2*PI/3), r * sinf(2*PI/3), 0.0f, ATOM_C); // C3
+    addAtom(mol, r * cosf(PI), r * sinf(PI), 0.0f, ATOM_C);         // C4 (NHCOCH3)
+    addAtom(mol, r * cosf(4*PI/3), r * sinf(4*PI/3), 0.0f, ATOM_C); // C5
+    addAtom(mol, r * cosf(5*PI/3), r * sinf(5*PI/3), 0.0f, ATOM_C); // C6
+    // Hydroxyl on C1 (para to amide)
+    addAtom(mol, r * 1.8f * cosf(0), r * 1.8f * sinf(0), 0.0f, ATOM_O);  // OH
+    addAtom(mol, r * 2.5f * cosf(0), r * 2.5f * sinf(0), 0.0f, ATOM_H);  // H
+    // Acetamide on C4 (para position)
+    addAtom(mol, r * 1.8f * cosf(PI), r * 1.8f * sinf(PI), 0.0f, ATOM_N);   // NH
+    addAtom(mol, r * 1.8f * cosf(PI) - 0.5f, r * 1.8f * sinf(PI) + 0.8f, 0.0f, ATOM_H);  // H on N
+    addAtom(mol, r * 2.8f * cosf(PI), r * 2.8f * sinf(PI), 0.0f, ATOM_C);   // C=O
+    addAtom(mol, r * 2.8f * cosf(PI), r * 2.8f * sinf(PI) + 1.2f, 0.0f, ATOM_O);  // =O
+    addAtom(mol, r * 4.0f * cosf(PI), r * 4.0f * sinf(PI), 0.0f, ATOM_C);   // CH3
+    // H atoms on ring
+    addAtom(mol, r * 1.7f * cosf(PI/3), r * 1.7f * sinf(PI/3), 0.0f, ATOM_H);
+    addAtom(mol, r * 1.7f * cosf(2*PI/3), r * 1.7f * sinf(2*PI/3), 0.0f, ATOM_H);
+    addAtom(mol, r * 1.7f * cosf(4*PI/3), r * 1.7f * sinf(4*PI/3), 0.0f, ATOM_H);
+    addAtom(mol, r * 1.7f * cosf(5*PI/3), r * 1.7f * sinf(5*PI/3), 0.0f, ATOM_H);
+
+    addBond(mol, 0, 1, 2);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 2);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 2);
+    addBond(mol, 5, 0, 1);
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 6, 7, 1);
+    addBond(mol, 3, 8, 1);
+    addBond(mol, 8, 9, 1);
+    addBond(mol, 8, 10, 1);
+    addBond(mol, 10, 11, 2);
+    addBond(mol, 10, 12, 1);
+    addBond(mol, 1, 13, 1);
+    addBond(mol, 2, 14, 1);
+    addBond(mol, 4, 15, 1);
+    addBond(mol, 5, 16, 1);
+
+    centerMolecule(mol);
+}
+
 // Random molecule generator
 float randf() { return (float)rand() / RAND_MAX; }
 
@@ -4289,7 +6051,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
-#define NUM_MOLECULES 100
+#define NUM_MOLECULES 130
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildWater, buildMethane, buildBenzene, buildEthanol,
@@ -4318,12 +6080,24 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildDeoxyribose, buildIsoleucine, buildSerine, buildThreonine,
     buildAsparticAcid, buildGlutamicAcid, buildLysine, buildHistidine,
     buildPhenylalanine, buildTyrosine, buildTryptophan, buildProline,
-    buildCysteine, buildMethionine, buildPyruvate, buildArginine
+    buildCysteine, buildMethionine, buildPyruvate, buildArginine,
+    // Vitamins
+    buildAscorbicAcid, buildThiamine, buildRiboflavin, buildNiacin,
+    buildPanthothenicAcid, buildPyridoxine, buildBiotin, buildFolicAcid,
+    buildRetinol, buildBetaCarotene, buildCholecalciferol, buildAlphaTocopherol,
+    buildPhylloquinone, buildNicotinamide,
+    // Additional compounds
+    buildCocaine, buildHeroin, buildFentanyl, buildPropofol,
+    buildTHC, buildCreatine, buildOctane,
+    // Statins & NSAIDs
+    buildSimvastatin, buildIbuprofen, buildNaproxen, buildDiclofenac,
+    buildIndomethacin, buildCelecoxib, buildMeloxicam, buildAcetaminophen,
+    buildRandomMolecule
 };
 
 const char* moleculeNames[NUM_MOLECULES] = {
     "Water", "Methane", "Benzene", "Ethanol",
-    "Caffeine", "Adenine", "Glucose", "Aspirin",
+    "Caffeine", "Adenine", "Glucose", "Aspirin/Bayer",
     "Ammonia", "CO2", "Formaldehyde", "Acetone",
     "Acetic Acid", "Propane", "Butane", "Cyclohexane",
     "Naphthalene", "Urea", "Glycine", "Alanine",
@@ -4348,7 +6122,19 @@ const char* moleculeNames[NUM_MOLECULES] = {
     "Deoxyribose", "Isoleucine", "Serine", "Threonine",
     "Aspartic Acid", "Glutamic Acid", "Lysine", "Histidine",
     "Phenylalanine", "Tyrosine", "Tryptophan", "Proline",
-    "Cysteine", "Methionine", "Pyruvate", "Arginine"
+    "Cysteine", "Methionine", "Pyruvate", "Arginine",
+    // Vitamins
+    "Vitamin C", "Vitamin B1", "Vitamin B2", "Vitamin B3",
+    "Vitamin B5", "Vitamin B6", "Vitamin B7", "Vitamin B9",
+    "Vitamin A", "Beta-Carotene", "Vitamin D3", "Vitamin E",
+    "Vitamin K1", "Nicotinamide",
+    // Additional compounds
+    "Cocaine", "Heroin", "Fentanyl/Sublimaze", "Propofol/Diprivan",
+    "THC", "Creatine", "Octane",
+    // Statins & NSAIDs
+    "Simvastatin/Zocor", "Ibuprofen/Advil", "Naproxen/Aleve", "Diclofenac/Voltaren",
+    "Indomethacin/Indocin", "Celecoxib/Celebrex", "Meloxicam/Mobic", "Tylenol",
+    "Random"
 };
 
 int main() {
