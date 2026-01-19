@@ -9879,6 +9879,175 @@ void buildRDX(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// Build Sucrose (C12H22O11) - Table sugar (glucose + fructose disaccharide)
+void buildSucrose(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Sucrose (C12H22O11)");
+
+    // Glucose ring (6-membered pyranose)
+    // C1-C5 + ring oxygen
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);         // 0: C1 (anomeric)
+    addAtom(mol, 1.2f, 0.7f, 0.3f, ATOM_C);         // 1: C2
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_C);         // 2: C3
+    addAtom(mol, 2.4f, -1.4f, 0.5f, ATOM_C);        // 3: C4
+    addAtom(mol, 1.2f, -2.1f, 0.2f, ATOM_C);        // 4: C5
+    addAtom(mol, 0.0f, -1.4f, 0.5f, ATOM_O);        // 5: ring O
+
+    // Glucose hydroxyl groups and CH2OH
+    addAtom(mol, -1.0f, 0.5f, 0.5f, ATOM_O);        // 6: OH on C1
+    addAtom(mol, 1.2f, 2.1f, 0.0f, ATOM_O);         // 7: OH on C2
+    addAtom(mol, 3.5f, 0.7f, 0.3f, ATOM_O);         // 8: OH on C3
+    addAtom(mol, 3.5f, -2.1f, 0.2f, ATOM_O);        // 9: OH on C4
+    addAtom(mol, 1.2f, -3.5f, 0.5f, ATOM_C);        // 10: C6 (CH2OH)
+    addAtom(mol, 1.2f, -4.2f, 1.5f, ATOM_O);        // 11: OH on C6
+
+    // Fructose ring (5-membered furanose)
+    // Connected via glycosidic bond from glucose C1 to fructose C2
+    addAtom(mol, -2.2f, 0.0f, -0.3f, ATOM_C);       // 12: C1 (CH2OH)
+    addAtom(mol, -3.0f, 1.2f, 0.0f, ATOM_C);        // 13: C2 (anomeric, ketose)
+    addAtom(mol, -4.4f, 0.8f, -0.3f, ATOM_C);       // 14: C3
+    addAtom(mol, -4.7f, -0.5f, 0.4f, ATOM_C);       // 15: C4
+    addAtom(mol, -3.4f, -1.2f, 0.2f, ATOM_C);       // 16: C5
+    addAtom(mol, -2.8f, -0.5f, -0.9f, ATOM_O);      // 17: ring O
+
+    // Fructose hydroxyl groups and CH2OH
+    addAtom(mol, -1.8f, 0.5f, -1.3f, ATOM_O);       // 18: OH on C1
+    addAtom(mol, -5.3f, 1.7f, 0.0f, ATOM_O);        // 19: OH on C3
+    addAtom(mol, -5.8f, -1.2f, 0.2f, ATOM_O);       // 20: OH on C4
+    addAtom(mol, -3.4f, -2.6f, 0.5f, ATOM_C);       // 21: C6 (CH2OH)
+    addAtom(mol, -3.4f, -3.3f, -0.5f, ATOM_O);      // 22: OH on C6
+
+    // Key hydrogens (selected for clarity)
+    addAtom(mol, 0.0f, 0.0f, 1.0f, ATOM_H);         // 23: H on C1
+    addAtom(mol, 1.2f, 0.7f, 1.3f, ATOM_H);         // 24: H on C2
+    addAtom(mol, 2.4f, 0.0f, -1.0f, ATOM_H);        // 25: H on C3
+    addAtom(mol, 2.4f, -1.4f, 1.5f, ATOM_H);        // 26: H on C4
+    addAtom(mol, 1.2f, -2.1f, -0.8f, ATOM_H);       // 27: H on C5
+
+    // Glucose ring bonds
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 0, 1);  // ring closure
+
+    // Glucose substituents
+    addBond(mol, 0, 6, 1);  // C1-OH (anomeric)
+    addBond(mol, 1, 7, 1);  // C2-OH
+    addBond(mol, 2, 8, 1);  // C3-OH
+    addBond(mol, 3, 9, 1);  // C4-OH
+    addBond(mol, 4, 10, 1); // C5-C6
+    addBond(mol, 10, 11, 1);// C6-OH
+
+    // Glycosidic bond (glucose C1 O to fructose C2)
+    addBond(mol, 6, 13, 1);
+
+    // Fructose ring bonds
+    addBond(mol, 12, 13, 1);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 1);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 17, 12, 1); // ring closure
+
+    // Fructose substituents
+    addBond(mol, 12, 18, 1); // C1-OH
+    addBond(mol, 14, 19, 1); // C3-OH
+    addBond(mol, 15, 20, 1); // C4-OH
+    addBond(mol, 16, 21, 1); // C5-C6
+    addBond(mol, 21, 22, 1); // C6-OH
+
+    // Selected hydrogen bonds
+    addBond(mol, 0, 23, 1);
+    addBond(mol, 1, 24, 1);
+    addBond(mol, 2, 25, 1);
+    addBond(mol, 3, 26, 1);
+    addBond(mol, 4, 27, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Aspartame (C14H18N2O5) - Diet soda sweetener (aspartyl-phenylalanine methyl ester)
+void buildAspartame(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Aspartame (C14H18N2O5)");
+
+    // Aspartic acid part (left side)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);         // 0: C alpha
+    addAtom(mol, -0.5f, 1.3f, 0.3f, ATOM_N);        // 1: N amino
+    addAtom(mol, 0.8f, -0.7f, 1.2f, ATOM_C);        // 2: C beta
+    addAtom(mol, 0.3f, -0.5f, 2.5f, ATOM_C);        // 3: C gamma (carboxyl)
+    addAtom(mol, -0.7f, 0.2f, 2.8f, ATOM_O);        // 4: O (C=O)
+    addAtom(mol, 0.9f, -1.2f, 3.5f, ATOM_O);        // 5: OH
+
+    // Peptide bond to phenylalanine
+    addAtom(mol, 1.2f, -0.3f, -0.8f, ATOM_C);       // 6: C carbonyl
+    addAtom(mol, 1.0f, -0.5f, -2.0f, ATOM_O);       // 7: O (C=O)
+    addAtom(mol, 2.3f, 0.4f, -0.4f, ATOM_N);        // 8: N amide
+
+    // Phenylalanine part
+    addAtom(mol, 3.5f, 0.5f, -1.2f, ATOM_C);        // 9: C alpha
+    addAtom(mol, 4.3f, -0.8f, -1.5f, ATOM_C);       // 10: C beta
+    
+    // Phenyl ring
+    float r = 1.4f;
+    float baseX = 5.5f;
+    float baseY = -0.8f;
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, baseX + r * cosf(angle), baseY + r * sinf(angle), 0.0f, ATOM_C);  // 11-16
+    }
+
+    // Methyl ester on C-terminus
+    addAtom(mol, 4.3f, 1.5f, -0.5f, ATOM_C);        // 17: C carbonyl
+    addAtom(mol, 4.2f, 2.7f, -0.8f, ATOM_O);        // 18: O (C=O)
+    addAtom(mol, 5.3f, 1.0f, 0.3f, ATOM_O);         // 19: O ester
+    addAtom(mol, 6.3f, 1.8f, 0.6f, ATOM_C);         // 20: CH3
+
+    // Key hydrogens
+    addAtom(mol, -1.4f, 1.2f, 0.7f, ATOM_H);        // 21: NH2
+    addAtom(mol, -0.3f, 2.1f, -0.3f, ATOM_H);       // 22: NH2
+    addAtom(mol, 2.2f, 1.3f, 0.0f, ATOM_H);         // 23: NH
+    addAtom(mol, 0.0f, -0.3f, -0.9f, ATOM_H);       // 24: H on C alpha
+    addAtom(mol, 3.3f, 1.0f, -2.1f, ATOM_H);        // 25: H on C alpha
+
+    // Aspartic acid bonds
+    addBond(mol, 0, 1, 1);   // C-N
+    addBond(mol, 0, 2, 1);   // C-C beta
+    addBond(mol, 2, 3, 1);   // C beta - C gamma
+    addBond(mol, 3, 4, 2);   // C=O
+    addBond(mol, 3, 5, 1);   // C-OH
+
+    // Peptide bond
+    addBond(mol, 0, 6, 1);   // C alpha - C carbonyl
+    addBond(mol, 6, 7, 2);   // C=O
+    addBond(mol, 6, 8, 1);   // C-N amide
+
+    // Phenylalanine bonds
+    addBond(mol, 8, 9, 1);   // N-C alpha
+    addBond(mol, 9, 10, 1);  // C alpha - C beta
+    addBond(mol, 10, 11, 1); // C beta - phenyl ring
+
+    // Phenyl ring
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, 11 + i, 11 + ((i + 1) % 6), (i % 2 == 0) ? 2 : 1);
+    }
+
+    // Ester bonds
+    addBond(mol, 9, 17, 1);  // C alpha - C carbonyl
+    addBond(mol, 17, 18, 2); // C=O
+    addBond(mol, 17, 19, 1); // C-O ester
+    addBond(mol, 19, 20, 1); // O-CH3
+
+    // Hydrogen bonds
+    addBond(mol, 1, 21, 1);
+    addBond(mol, 1, 22, 1);
+    addBond(mol, 8, 23, 1);
+    addBond(mol, 0, 24, 1);
+    addBond(mol, 9, 25, 1);
 // Build DDT (C14H9Cl5) - Dichlorodiphenyltrichloroethane - Historic insecticide
 void buildDDT(Molecule* mol) {
     mol->numAtoms = 0;
@@ -9963,6 +10132,58 @@ void buildDDT(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// Build Saccharin (C7H5NO3S) - Original artificial sweetener (benzoic sulfimide)
+void buildSaccharin(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Saccharin (C7H5NO3S)");
+
+    // Benzene ring
+    float r = 1.4f;
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);  // 0-5
+    }
+
+    // Fused heterocycle (isothiazole S-dioxide ring)
+    // Connected to C1-C2 of benzene
+    addAtom(mol, r * cosf(PI/3) + 1.0f, r * sinf(PI/3) + 1.0f, 0.5f, ATOM_S);   // 6: S
+    addAtom(mol, r * cosf(PI/3) + 0.3f, r * sinf(PI/3) + 2.2f, 0.3f, ATOM_O);   // 7: O on S (sulfonyl)
+    addAtom(mol, r * cosf(PI/3) + 2.2f, r * sinf(PI/3) + 1.0f, 0.3f, ATOM_O);   // 8: O on S (sulfonyl)
+    addAtom(mol, r * cosf(0) + 0.8f, r * sinf(0) + 1.3f, 0.5f, ATOM_N);         // 9: N
+    addAtom(mol, r * cosf(0) + 1.5f, r * sinf(0) + 0.3f, 0.3f, ATOM_C);         // 10: C=O
+    addAtom(mol, r * cosf(0) + 2.7f, r * sinf(0) + 0.5f, 0.5f, ATOM_O);         // 11: O (C=O)
+
+    // Hydrogens on benzene
+    float rH = 2.4f;
+    addAtom(mol, rH * cosf(2*PI/3), rH * sinf(2*PI/3), 0.0f, ATOM_H);   // 12: H
+    addAtom(mol, rH * cosf(PI), rH * sinf(PI), 0.0f, ATOM_H);           // 13: H
+    addAtom(mol, rH * cosf(4*PI/3), rH * sinf(4*PI/3), 0.0f, ATOM_H);   // 14: H
+    addAtom(mol, rH * cosf(5*PI/3), rH * sinf(5*PI/3), 0.0f, ATOM_H);   // 15: H
+
+    // Hydrogen on nitrogen (acidic)
+    addAtom(mol, r * cosf(0) + 0.5f, r * sinf(0) + 2.2f, 0.8f, ATOM_H); // 16: NH
+
+    // Benzene ring bonds
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+
+    // Fused ring bonds
+    addBond(mol, 1, 6, 1);   // C-S
+    addBond(mol, 6, 7, 2);   // S=O
+    addBond(mol, 6, 8, 2);   // S=O
+    addBond(mol, 6, 9, 1);   // S-N
+    addBond(mol, 9, 10, 1);  // N-C
+    addBond(mol, 10, 11, 2); // C=O
+    addBond(mol, 10, 0, 1);  // C-C (ring fusion)
+
+    // Hydrogen bonds
+    addBond(mol, 2, 12, 1);
+    addBond(mol, 3, 13, 1);
+    addBond(mol, 4, 14, 1);
+    addBond(mol, 5, 15, 1);
+    addBond(mol, 9, 16, 1);
 // Build Glyphosate (C3H8NO5P) - World's most used herbicide (Roundup)
 void buildGlyphosate(Molecule* mol) {
     mol->numAtoms = 0;
@@ -10024,6 +10245,91 @@ void buildGlyphosate(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// Build Sucralose (C12H19Cl3O8) - Splenda (chlorinated sucrose)
+void buildSucralose(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Sucralose (C12H19Cl3O8)");
+
+    // Similar to sucrose but with 3 Cl substitutions (positions 4-OH, 1'-OH, 6'-OH)
+    // Glucose ring (6-membered pyranose)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);         // 0: C1 (anomeric)
+    addAtom(mol, 1.2f, 0.7f, 0.3f, ATOM_C);         // 1: C2
+    addAtom(mol, 2.4f, 0.0f, 0.0f, ATOM_C);         // 2: C3
+    addAtom(mol, 2.4f, -1.4f, 0.5f, ATOM_C);        // 3: C4
+    addAtom(mol, 1.2f, -2.1f, 0.2f, ATOM_C);        // 4: C5
+    addAtom(mol, 0.0f, -1.4f, 0.5f, ATOM_O);        // 5: ring O
+
+    // Glucose substituents (one Cl on C4)
+    addAtom(mol, -1.0f, 0.5f, 0.5f, ATOM_O);        // 6: OH on C1
+    addAtom(mol, 1.2f, 2.1f, 0.0f, ATOM_O);         // 7: OH on C2
+    addAtom(mol, 3.5f, 0.7f, 0.3f, ATOM_O);         // 8: OH on C3
+    addAtom(mol, 3.5f, -2.1f, 0.2f, ATOM_CL);       // 9: Cl on C4 (substitution!)
+    addAtom(mol, 1.2f, -3.5f, 0.5f, ATOM_C);        // 10: C6 (CH2OH)
+    addAtom(mol, 1.2f, -4.2f, 1.5f, ATOM_O);        // 11: OH on C6
+
+    // Fructose ring (5-membered furanose)
+    addAtom(mol, -2.2f, 0.0f, -0.3f, ATOM_C);       // 12: C1 (CH2Cl - substitution!)
+    addAtom(mol, -3.0f, 1.2f, 0.0f, ATOM_C);        // 13: C2 (anomeric)
+    addAtom(mol, -4.4f, 0.8f, -0.3f, ATOM_C);       // 14: C3
+    addAtom(mol, -4.7f, -0.5f, 0.4f, ATOM_C);       // 15: C4
+    addAtom(mol, -3.4f, -1.2f, 0.2f, ATOM_C);       // 16: C5
+    addAtom(mol, -2.8f, -0.5f, -0.9f, ATOM_O);      // 17: ring O
+
+    // Fructose substituents (Cl on C1' and C6')
+    addAtom(mol, -1.8f, 0.5f, -1.3f, ATOM_CL);      // 18: Cl on C1' (substitution!)
+    addAtom(mol, -5.3f, 1.7f, 0.0f, ATOM_O);        // 19: OH on C3'
+    addAtom(mol, -5.8f, -1.2f, 0.2f, ATOM_O);       // 20: OH on C4'
+    addAtom(mol, -3.4f, -2.6f, 0.5f, ATOM_C);       // 21: C6' (CH2Cl)
+    addAtom(mol, -3.4f, -3.3f, -0.5f, ATOM_CL);     // 22: Cl on C6' (substitution!)
+
+    // Selected hydrogens
+    addAtom(mol, 0.0f, 0.0f, 1.0f, ATOM_H);         // 23: H on C1
+    addAtom(mol, 1.2f, 0.7f, 1.3f, ATOM_H);         // 24: H on C2
+    addAtom(mol, 2.4f, 0.0f, -1.0f, ATOM_H);        // 25: H on C3
+    addAtom(mol, 2.4f, -1.4f, 1.5f, ATOM_H);        // 26: H on C4
+    addAtom(mol, 1.2f, -2.1f, -0.8f, ATOM_H);       // 27: H on C5
+
+    // Glucose ring bonds
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 0, 1);
+
+    // Glucose substituents
+    addBond(mol, 0, 6, 1);
+    addBond(mol, 1, 7, 1);
+    addBond(mol, 2, 8, 1);
+    addBond(mol, 3, 9, 1);  // C4-Cl
+    addBond(mol, 4, 10, 1);
+    addBond(mol, 10, 11, 1);
+
+    // Glycosidic bond
+    addBond(mol, 6, 13, 1);
+
+    // Fructose ring bonds
+    addBond(mol, 12, 13, 1);
+    addBond(mol, 13, 14, 1);
+    addBond(mol, 14, 15, 1);
+    addBond(mol, 15, 16, 1);
+    addBond(mol, 16, 17, 1);
+    addBond(mol, 17, 12, 1);
+
+    // Fructose substituents
+    addBond(mol, 12, 18, 1); // C1'-Cl
+    addBond(mol, 14, 19, 1);
+    addBond(mol, 15, 20, 1);
+    addBond(mol, 16, 21, 1);
+    addBond(mol, 21, 22, 1); // C6'-Cl
+
+    // Hydrogen bonds
+    addBond(mol, 0, 23, 1);
+    addBond(mol, 1, 24, 1);
+    addBond(mol, 2, 25, 1);
+    addBond(mol, 3, 26, 1);
+    addBond(mol, 4, 27, 1);
 // Build Malathion (C10H19O6PS2) - Common organophosphate insecticide
 void buildMalathion(Molecule* mol) {
     mol->numAtoms = 0;
@@ -10179,6 +10485,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
+#define NUM_MOLECULES 217
 #define NUM_MOLECULES 216
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
@@ -10255,6 +10562,8 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildPenicillinG, buildAmoxicillin, buildVancomycin,
     // Explosives
     buildTNT, buildNitroglycerin, buildRDX,
+    // Sweeteners
+    buildSucrose, buildAspartame, buildSaccharin, buildSucralose,
     // Pesticides/Herbicides
     buildDDT, buildGlyphosate, buildMalathion,
     buildRandomMolecule
@@ -10334,6 +10643,8 @@ const char* moleculeNames[NUM_MOLECULES] = {
     "Penicillin G", "Amoxicillin", "Vancomycin",
     // Explosives
     "TNT", "Nitroglycerin", "RDX",
+    // Sweeteners
+    "Sucrose/Table Sugar", "Aspartame", "Saccharin", "Sucralose/Splenda",
     // Pesticides/Herbicides
     "DDT", "Glyphosate/Roundup", "Malathion",
     "Random"
