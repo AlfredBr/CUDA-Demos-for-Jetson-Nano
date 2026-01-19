@@ -302,7 +302,36 @@ __device__ unsigned char getPixel(int c, int px, int py) {
     return (row >> (4 - px)) & 1;
 }
 
-// Text rendering kernel - renders scaled bitmap text
+// Text rendering kernel - renders scaled bitmap text with subscript support for chemical formulas
+// Subscripts: digits that follow letters (element symbols) are rendered smaller and lower
+__device__ bool isElementChar(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+}
+
+__device__ bool isDigit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+// Check if character at position should be subscripted (digit following element symbol)
+__device__ bool shouldSubscript(const char* text, int textLen, int charIndex) {
+    if (charIndex <= 0 || charIndex >= textLen) return false;
+    char current = text[charIndex];
+    char prev = text[charIndex - 1];
+
+    // Digit following a letter (element symbol) should be subscript
+    if (isDigit(current) && isElementChar(prev)) return true;
+
+    // Digit following another subscript digit (e.g., "10" in H10)
+    if (isDigit(current) && isDigit(prev) && charIndex >= 2) {
+        // Check if the digit sequence started after a letter
+        int i = charIndex - 1;
+        while (i >= 0 && isDigit(text[i])) i--;
+        if (i >= 0 && isElementChar(text[i])) return true;
+    }
+
+    return false;
+}
+
 __global__ void renderTextKernel(
     unsigned char* pixels, int width, int height,
     const char* text, int textLen, int startX, int startY, int scale)
@@ -312,27 +341,59 @@ __global__ void renderTextKernel(
 
     if (x >= width || y >= height) return;
 
-    // Check if pixel is in text region
-    int charWidth = 6 * scale;
+    // Calculate character positions with subscript handling
     int charHeight = 8 * scale;
-    int textWidth = textLen * charWidth;
+    int subScale = (scale * 2) / 3;  // Subscript is 2/3 size
+    if (subScale < 1) subScale = 1;
+    int subCharWidth = 6 * subScale;
+    int subCharHeight = 8 * subScale;
+    int subOffsetY = charHeight - subCharHeight;  // Subscript lowered
 
-    if (x < startX || x >= startX + textWidth || y < startY || y >= startY + charHeight)
-        return;
+    // Calculate total text width and find which character we're in
+    int curX = startX;
+    int hitChar = -1;
+    int charStartX = 0;
+    bool hitIsSubscript = false;
 
-    // Find which character and which pixel within the character
-    int relX = x - startX;
-    int relY = y - startY;
-    int charIndex = relX / charWidth;
-    int pixelX = (relX % charWidth) / scale;
-    int pixelY = relY / scale;
+    for (int i = 0; i < textLen; i++) {
+        bool isSub = shouldSubscript(text, textLen, i);
+        int cw = isSub ? subCharWidth : (6 * scale);
 
-    if (charIndex >= textLen) return;
+        if (x >= curX && x < curX + cw) {
+            hitChar = i;
+            charStartX = curX;
+            hitIsSubscript = isSub;
+            break;
+        }
+        curX += cw;
+    }
 
-    unsigned char c = text[charIndex];
+    if (hitChar < 0) return;
+
+    // Check Y bounds
+    int charY, charH, charScale;
+    if (hitIsSubscript) {
+        charY = startY + subOffsetY;
+        charH = subCharHeight;
+        charScale = subScale;
+    } else {
+        charY = startY;
+        charH = charHeight;
+        charScale = scale;
+    }
+
+    if (y < charY || y >= charY + charH) return;
+
+    // Find pixel within character
+    int relX = x - charStartX;
+    int relY = y - charY;
+    int pixelX = relX / charScale;
+    int pixelY = relY / charScale;
+
+    unsigned char c = text[hitChar];
     if (getPixel(c, pixelX, pixelY)) {
         int idx = (y * width + x) * 4;
-        // White text
+        // White text with slight transparency for subscripts
         pixels[idx + 0] = 255;  // B
         pixels[idx + 1] = 255;  // G
         pixels[idx + 2] = 255;  // R
