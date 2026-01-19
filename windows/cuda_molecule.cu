@@ -10413,6 +10413,328 @@ void buildMalathion(Molecule* mol) {
     centerMolecule(mol);
 }
 
+// ============== FRAGRANCES/FLAVORS ==============
+
+// Build Vanillin (C8H8O3) - Vanilla flavor/fragrance
+void buildVanillin(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Vanillin (C8H8O3)");
+
+    // Benzene ring (phenyl)
+    float r = 1.4f;
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);  // 0-5
+    }
+
+    // Substituents on benzene:
+    // Position 1 (C0): -CHO (aldehyde)
+    // Position 3 (C2): -OCH3 (methoxy)
+    // Position 4 (C3): -OH (hydroxyl)
+
+    // Aldehyde group at C0
+    addAtom(mol, r + 1.2f, 0.0f, 0.0f, ATOM_C);         // 6: CHO carbon
+    addAtom(mol, r + 1.8f, 1.0f, 0.0f, ATOM_O);         // 7: =O
+    addAtom(mol, r + 1.8f, -0.9f, 0.0f, ATOM_H);        // 8: H on CHO
+
+    // Methoxy group at C2 (meta to aldehyde)
+    addAtom(mol, r * cosf(2*PI/3) - 1.2f, r * sinf(2*PI/3), 0.0f, ATOM_O);  // 9: O
+    addAtom(mol, r * cosf(2*PI/3) - 2.4f, r * sinf(2*PI/3), 0.0f, ATOM_C);  // 10: CH3
+
+    // Hydroxyl at C3 (para to aldehyde)
+    addAtom(mol, r * cosf(PI) - 1.2f, 0.0f, 0.0f, ATOM_O);    // 11: OH oxygen
+    addAtom(mol, r * cosf(PI) - 1.8f, 0.8f, 0.0f, ATOM_H);    // 12: H on OH
+
+    // Hydrogens on benzene (positions 2, 5, 6 / C1, C4, C5)
+    float rH = 2.4f;
+    addAtom(mol, rH * cosf(PI/3), rH * sinf(PI/3), 0.0f, ATOM_H);       // 13: H on C1
+    addAtom(mol, rH * cosf(4*PI/3), rH * sinf(4*PI/3), 0.0f, ATOM_H);   // 14: H on C4
+    addAtom(mol, rH * cosf(5*PI/3), rH * sinf(5*PI/3), 0.0f, ATOM_H);   // 15: H on C5
+
+    // Methyl hydrogens
+    addAtom(mol, r * cosf(2*PI/3) - 2.8f, r * sinf(2*PI/3) + 0.9f, 0.0f, ATOM_H);   // 16
+    addAtom(mol, r * cosf(2*PI/3) - 2.8f, r * sinf(2*PI/3) - 0.5f, 0.8f, ATOM_H);   // 17
+    addAtom(mol, r * cosf(2*PI/3) - 2.8f, r * sinf(2*PI/3) - 0.5f, -0.8f, ATOM_H);  // 18
+
+    // Benzene ring bonds (alternating single/double)
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+
+    // Aldehyde bonds
+    addBond(mol, 0, 6, 1);   // C-CHO
+    addBond(mol, 6, 7, 2);   // C=O
+    addBond(mol, 6, 8, 1);   // C-H
+
+    // Methoxy bonds
+    addBond(mol, 2, 9, 1);   // C-O
+    addBond(mol, 9, 10, 1);  // O-CH3
+
+    // Hydroxyl bonds
+    addBond(mol, 3, 11, 1);  // C-O
+    addBond(mol, 11, 12, 1); // O-H
+
+    // Benzene hydrogen bonds
+    addBond(mol, 1, 13, 1);
+    addBond(mol, 4, 14, 1);
+    addBond(mol, 5, 15, 1);
+
+    // Methyl hydrogen bonds
+    addBond(mol, 10, 16, 1);
+    addBond(mol, 10, 17, 1);
+    addBond(mol, 10, 18, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Limonene (C10H16) - Citrus scent (D-limonene shown)
+void buildLimonene(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Limonene (C10H16)");
+
+    // Cyclohexene ring with isopropenyl substituent
+    // Ring carbons (chair-like conformation)
+    addAtom(mol, 0.0f, 0.0f, 0.0f, ATOM_C);         // 0: C1 (double bond)
+    addAtom(mol, 1.3f, 0.5f, 0.3f, ATOM_C);         // 1: C2 (double bond)
+    addAtom(mol, 2.3f, -0.5f, 0.0f, ATOM_C);        // 2: C3
+    addAtom(mol, 2.0f, -1.8f, -0.5f, ATOM_C);       // 3: C4 (chiral, with substituent)
+    addAtom(mol, 0.6f, -2.0f, -0.3f, ATOM_C);       // 4: C5
+    addAtom(mol, -0.4f, -1.0f, 0.2f, ATOM_C);       // 5: C6 (methyl attached)
+
+    // Methyl group on C6
+    addAtom(mol, -1.8f, -1.3f, 0.5f, ATOM_C);       // 6: CH3 on C6
+
+    // Isopropenyl group on C4: =C(CH3)2 -> actually =CH-CH3 (prop-1-en-2-yl)
+    addAtom(mol, 2.8f, -2.8f, -0.8f, ATOM_C);       // 7: =CH2 carbon
+    addAtom(mol, 2.5f, -2.5f, -2.2f, ATOM_C);       // 8: CH3 on isopropenyl
+
+    // Hydrogens on ring
+    addAtom(mol, -0.5f, 0.8f, -0.5f, ATOM_H);       // 9: H on C1
+    addAtom(mol, 1.5f, 1.5f, 0.6f, ATOM_H);         // 10: H on C2
+    addAtom(mol, 3.2f, -0.2f, 0.5f, ATOM_H);        // 11: H on C3
+    addAtom(mol, 2.8f, -0.6f, -0.9f, ATOM_H);       // 12: H on C3
+    addAtom(mol, 2.3f, -1.8f, 0.5f, ATOM_H);        // 13: H on C4
+    addAtom(mol, 0.3f, -2.2f, -1.3f, ATOM_H);       // 14: H on C5
+    addAtom(mol, 0.4f, -2.9f, 0.3f, ATOM_H);        // 15: H on C5
+    addAtom(mol, -0.1f, -0.8f, 1.2f, ATOM_H);       // 16: H on C6
+
+    // Methyl hydrogens on C6-CH3
+    addAtom(mol, -2.0f, -2.3f, 0.8f, ATOM_H);       // 17
+    addAtom(mol, -2.4f, -0.9f, -0.3f, ATOM_H);      // 18
+    addAtom(mol, -2.1f, -0.7f, 1.3f, ATOM_H);       // 19
+
+    // Isopropenyl =CH2 hydrogens
+    addAtom(mol, 3.8f, -2.6f, -0.5f, ATOM_H);       // 20
+    addAtom(mol, 2.6f, -3.8f, -0.5f, ATOM_H);       // 21
+
+    // Isopropenyl CH3 hydrogens
+    addAtom(mol, 1.5f, -2.7f, -2.5f, ATOM_H);       // 22
+    addAtom(mol, 3.2f, -3.2f, -2.6f, ATOM_H);       // 23
+    addAtom(mol, 2.7f, -1.5f, -2.5f, ATOM_H);       // 24
+
+    // Ring bonds
+    addBond(mol, 0, 1, 2);   // C1=C2 double bond
+    addBond(mol, 1, 2, 1);   // C2-C3
+    addBond(mol, 2, 3, 1);   // C3-C4
+    addBond(mol, 3, 4, 1);   // C4-C5
+    addBond(mol, 4, 5, 1);   // C5-C6
+    addBond(mol, 5, 0, 1);   // C6-C1
+
+    // Substituent bonds
+    addBond(mol, 5, 6, 1);   // C6-CH3
+    addBond(mol, 3, 7, 1);   // C4-isopropenyl
+    addBond(mol, 7, 8, 2);   // C=CH2 (actually shown as single for =C)
+
+    // Ring hydrogen bonds
+    addBond(mol, 0, 9, 1);
+    addBond(mol, 1, 10, 1);
+    addBond(mol, 2, 11, 1);
+    addBond(mol, 2, 12, 1);
+    addBond(mol, 3, 13, 1);
+    addBond(mol, 4, 14, 1);
+    addBond(mol, 4, 15, 1);
+    addBond(mol, 5, 16, 1);
+
+    // Methyl hydrogen bonds
+    addBond(mol, 6, 17, 1);
+    addBond(mol, 6, 18, 1);
+    addBond(mol, 6, 19, 1);
+
+    // Isopropenyl hydrogen bonds
+    addBond(mol, 7, 20, 1);
+    addBond(mol, 7, 21, 1);
+    addBond(mol, 8, 22, 1);
+    addBond(mol, 8, 23, 1);
+    addBond(mol, 8, 24, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Menthol (C10H20O) - Mint/cooling sensation
+void buildMenthol(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Menthol (C10H20O)");
+
+    // Cyclohexane ring with three substituents (chair conformation)
+    // C1-OH, C2-isopropyl, C5-methyl
+    addAtom(mol, 0.0f, 0.0f, 0.5f, ATOM_C);         // 0: C1 (OH attached)
+    addAtom(mol, 1.4f, 0.3f, 0.0f, ATOM_C);         // 1: C2 (isopropyl attached)
+    addAtom(mol, 2.2f, -0.9f, 0.4f, ATOM_C);        // 2: C3
+    addAtom(mol, 1.5f, -2.2f, 0.0f, ATOM_C);        // 3: C4
+    addAtom(mol, 0.1f, -2.0f, 0.5f, ATOM_C);        // 4: C5 (methyl attached)
+    addAtom(mol, -0.7f, -0.8f, 0.1f, ATOM_C);       // 5: C6
+
+    // Hydroxyl on C1
+    addAtom(mol, -0.5f, 1.2f, 0.0f, ATOM_O);        // 6: OH oxygen
+    addAtom(mol, -0.1f, 1.9f, 0.5f, ATOM_H);        // 7: H on OH
+
+    // Isopropyl on C2
+    addAtom(mol, 2.0f, 1.6f, 0.4f, ATOM_C);         // 8: CH (isopropyl)
+    addAtom(mol, 1.3f, 2.7f, -0.2f, ATOM_C);        // 9: CH3
+    addAtom(mol, 3.4f, 1.8f, 0.0f, ATOM_C);         // 10: CH3
+
+    // Methyl on C5
+    addAtom(mol, -0.6f, -3.2f, 0.0f, ATOM_C);       // 11: CH3
+
+    // Ring hydrogens (axial/equatorial)
+    addAtom(mol, 0.0f, 0.0f, 1.6f, ATOM_H);         // 12: H on C1
+    addAtom(mol, 1.4f, 0.3f, -1.1f, ATOM_H);        // 13: H on C2
+    addAtom(mol, 3.2f, -0.8f, 0.0f, ATOM_H);        // 14: H on C3
+    addAtom(mol, 2.3f, -1.0f, 1.5f, ATOM_H);        // 15: H on C3
+    addAtom(mol, 1.5f, -2.3f, -1.1f, ATOM_H);       // 16: H on C4
+    addAtom(mol, 2.0f, -3.1f, 0.4f, ATOM_H);        // 17: H on C4
+    addAtom(mol, 0.1f, -2.0f, 1.6f, ATOM_H);        // 18: H on C5
+    addAtom(mol, -1.7f, -0.7f, 0.5f, ATOM_H);       // 19: H on C6
+    addAtom(mol, -0.8f, -0.8f, -1.0f, ATOM_H);      // 20: H on C6
+
+    // Isopropyl CH hydrogen
+    addAtom(mol, 1.9f, 1.7f, 1.5f, ATOM_H);         // 21: H on CH
+
+    // Isopropyl CH3 hydrogens (first methyl)
+    addAtom(mol, 0.3f, 2.5f, 0.0f, ATOM_H);         // 22
+    addAtom(mol, 1.4f, 3.6f, 0.3f, ATOM_H);         // 23
+    addAtom(mol, 1.5f, 2.8f, -1.3f, ATOM_H);        // 24
+
+    // Isopropyl CH3 hydrogens (second methyl)
+    addAtom(mol, 3.5f, 1.9f, -1.1f, ATOM_H);        // 25
+    addAtom(mol, 3.9f, 2.6f, 0.5f, ATOM_H);         // 26
+    addAtom(mol, 3.9f, 0.9f, 0.3f, ATOM_H);         // 27
+
+    // C5 methyl hydrogens
+    addAtom(mol, -1.6f, -3.1f, 0.3f, ATOM_H);       // 28
+    addAtom(mol, -0.5f, -3.3f, -1.1f, ATOM_H);      // 29
+    addAtom(mol, -0.3f, -4.1f, 0.5f, ATOM_H);       // 30
+
+    // Ring bonds
+    addBond(mol, 0, 1, 1);
+    addBond(mol, 1, 2, 1);
+    addBond(mol, 2, 3, 1);
+    addBond(mol, 3, 4, 1);
+    addBond(mol, 4, 5, 1);
+    addBond(mol, 5, 0, 1);
+
+    // Hydroxyl bonds
+    addBond(mol, 0, 6, 1);   // C-O
+    addBond(mol, 6, 7, 1);   // O-H
+
+    // Isopropyl bonds
+    addBond(mol, 1, 8, 1);   // C-CH
+    addBond(mol, 8, 9, 1);   // CH-CH3
+    addBond(mol, 8, 10, 1);  // CH-CH3
+
+    // Methyl bond
+    addBond(mol, 4, 11, 1);  // C-CH3
+
+    // Ring hydrogen bonds
+    addBond(mol, 0, 12, 1);
+    addBond(mol, 1, 13, 1);
+    addBond(mol, 2, 14, 1);
+    addBond(mol, 2, 15, 1);
+    addBond(mol, 3, 16, 1);
+    addBond(mol, 3, 17, 1);
+    addBond(mol, 4, 18, 1);
+    addBond(mol, 5, 19, 1);
+    addBond(mol, 5, 20, 1);
+
+    // Isopropyl hydrogen bonds
+    addBond(mol, 8, 21, 1);
+    addBond(mol, 9, 22, 1);
+    addBond(mol, 9, 23, 1);
+    addBond(mol, 9, 24, 1);
+    addBond(mol, 10, 25, 1);
+    addBond(mol, 10, 26, 1);
+    addBond(mol, 10, 27, 1);
+
+    // C5 methyl hydrogen bonds
+    addBond(mol, 11, 28, 1);
+    addBond(mol, 11, 29, 1);
+    addBond(mol, 11, 30, 1);
+
+    centerMolecule(mol);
+}
+
+// Build Cinnamaldehyde (C9H8O) - Cinnamon flavor/fragrance
+void buildCinnamaldehyde(Molecule* mol) {
+    mol->numAtoms = 0;
+    mol->numBonds = 0;
+    strcpy(mol->name, "Cinnamaldehyde (C9H8O)");
+
+    // Benzene ring
+    float r = 1.4f;
+    for (int i = 0; i < 6; i++) {
+        float angle = i * PI / 3.0f;
+        addAtom(mol, r * cosf(angle), r * sinf(angle), 0.0f, ATOM_C);  // 0-5
+    }
+
+    // Propenal chain: -CH=CH-CHO (trans configuration)
+    // Attached at C0 (position 0)
+    addAtom(mol, r + 1.3f, 0.0f, 0.0f, ATOM_C);         // 6: =CH (alpha)
+    addAtom(mol, r + 2.5f, 0.7f, 0.0f, ATOM_C);         // 7: =CH (beta)
+    addAtom(mol, r + 3.8f, 0.2f, 0.0f, ATOM_C);         // 8: CHO
+    addAtom(mol, r + 4.8f, 0.9f, 0.0f, ATOM_O);         // 9: =O
+
+    // Hydrogens on benzene ring
+    float rH = 2.4f;
+    addAtom(mol, rH * cosf(PI/3), rH * sinf(PI/3), 0.0f, ATOM_H);       // 10: H on C1
+    addAtom(mol, rH * cosf(2*PI/3), rH * sinf(2*PI/3), 0.0f, ATOM_H);   // 11: H on C2
+    addAtom(mol, rH * cosf(PI), rH * sinf(PI), 0.0f, ATOM_H);           // 12: H on C3
+    addAtom(mol, rH * cosf(4*PI/3), rH * sinf(4*PI/3), 0.0f, ATOM_H);   // 13: H on C4
+    addAtom(mol, rH * cosf(5*PI/3), rH * sinf(5*PI/3), 0.0f, ATOM_H);   // 14: H on C5
+
+    // Hydrogens on propenal chain
+    addAtom(mol, r + 1.3f, -1.0f, 0.0f, ATOM_H);        // 15: H on alpha carbon
+    addAtom(mol, r + 2.5f, 1.7f, 0.0f, ATOM_H);         // 16: H on beta carbon
+    addAtom(mol, r + 3.9f, -0.8f, 0.0f, ATOM_H);        // 17: H on CHO
+
+    // Benzene ring bonds (alternating single/double for resonance)
+    for (int i = 0; i < 6; i++) {
+        addBond(mol, i, (i + 1) % 6, (i % 2 == 0) ? 2 : 1);
+    }
+
+    // Propenal chain bonds
+    addBond(mol, 0, 6, 1);   // C(ring)-CH
+    addBond(mol, 6, 7, 2);   // CH=CH (double bond)
+    addBond(mol, 7, 8, 1);   // CH-CHO
+    addBond(mol, 8, 9, 2);   // C=O (aldehyde)
+
+    // Benzene hydrogen bonds
+    addBond(mol, 1, 10, 1);
+    addBond(mol, 2, 11, 1);
+    addBond(mol, 3, 12, 1);
+    addBond(mol, 4, 13, 1);
+    addBond(mol, 5, 14, 1);
+
+    // Chain hydrogen bonds
+    addBond(mol, 6, 15, 1);
+    addBond(mol, 7, 16, 1);
+    addBond(mol, 8, 17, 1);
+
+    centerMolecule(mol);
+}
+
 // Random molecule generator
 float randf() { return (float)rand() / RAND_MAX; }
 
@@ -10491,7 +10813,7 @@ void buildRandomMolecule(Molecule* mol) {
 // Molecule builder function pointers
 typedef void (*MoleculeBuilder)(Molecule*);
 
-#define NUM_MOLECULES 220
+#define NUM_MOLECULES 224
 
 MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildWater, buildMethane, buildBenzene, buildEthanol,
@@ -10571,6 +10893,8 @@ MoleculeBuilder moleculeBuilders[NUM_MOLECULES] = {
     buildSucrose, buildAspartame, buildSaccharin, buildSucralose,
     // Pesticides/Herbicides
     buildDDT, buildGlyphosate, buildMalathion,
+    // Fragrances/Flavors
+    buildVanillin, buildLimonene, buildMenthol, buildCinnamaldehyde,
     buildRandomMolecule
 };
 
@@ -10652,6 +10976,8 @@ const char* moleculeNames[NUM_MOLECULES] = {
     "Sucrose/Table Sugar", "Aspartame", "Saccharin", "Sucralose/Splenda",
     // Pesticides/Herbicides
     "DDT", "Glyphosate/Roundup", "Malathion",
+    // Fragrances/Flavors
+    "Vanillin/Vanilla", "Limonene/Citrus", "Menthol/Mint", "Cinnamaldehyde/Cinnamon",
     "Random"
 };
 
