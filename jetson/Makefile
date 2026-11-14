@@ -12,7 +12,7 @@ DEMOS := $(SOURCES:.cu=)
 all: $(DEMOS)
 
 # CUDA 10.2 needs C++11 for these demos' host-side clocks and framebuffers.
-cuda_metamorphosis cuda_not_quite_home: NVCCFLAGS += -std=c++11
+cuda_metamorphosis cuda_not_quite_home cuda_molecule: NVCCFLAGS += -std=c++11
 
 %: %.cu
 	$(NVCC) $(NVCCFLAGS) -o $@ $< $(LIBS)

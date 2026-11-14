@@ -47,6 +47,10 @@ make clean
 
 ## 🎮 Demo Gallery
 
+New: [Molecule Visualization](jetson/cuda_molecule.md), the Windows demo ported
+to Jetson/X11 with all 233 library entries. Build with `make cuda_molecule`
+in `jetson`.
+
 New: [Not quite home](jetson/cuda_not_quite_home.md), a CUDA port of
 [xwize's procedural planet](https://www.shadertoy.com/view/Mt33Wj), with terrain,
 moving clouds, atmosphere and a star field. Build with `make cuda_not_quite_home`
