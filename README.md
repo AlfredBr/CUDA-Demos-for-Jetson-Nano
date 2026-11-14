@@ -26,6 +26,8 @@ I could not get RayLib to use the GPU on the Jetson (but RayLib's software rende
 
 ## 🔨 Building
 
+Run these commands from the `jetson` directory (`cd jetson`).
+
 ```bash
 # Build all demos
 make all
@@ -44,6 +46,16 @@ make clean
 ```
 
 ## 🎮 Demo Gallery
+
+New: [Not quite home](jetson/cuda_not_quite_home.md), a CUDA port of
+[xwize's procedural planet](https://www.shadertoy.com/view/Mt33Wj), with terrain,
+moving clouds, atmosphere and a star field. Build with `make cuda_not_quite_home`
+in `jetson`. This shader retains its original CC BY-NC-SA 3.0 license.
+
+New: [Metamorphosis Volume](jetson/cuda_metamorphosis.md), a CUDA port of
+[dathor's Shadertoy](https://www.shadertoy.com/view/NXySRV), with a cloud-to-lotus
+morph, reflective water and cinematic post-processing. Build with
+`make cuda_metamorphosis` in `jetson`.
 
 | Demo | Description | FPS | Complexity |
 |------|-------------|-----|------------|

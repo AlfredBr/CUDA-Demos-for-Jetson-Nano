@@ -4,38 +4,27 @@ NVCC = /usr/local/cuda/bin/nvcc
 NVCCFLAGS = -O3 -arch=sm_53
 LIBS = -lX11
 
-DEMOS = cuda_render cuda_particles cuda_mandelbrot cuda_3d_cube cuda_fluid cuda_raymarcher cuda_nbody cuda_primitives
+SOURCES := $(wildcard *.cu)
+DEMOS := $(SOURCES:.cu=)
 
 .PHONY: all clean help
 
 all: $(DEMOS)
 
-cuda_render: cuda_render.cu
-	\$(NVCC) \$(NVCCFLAGS) -o \$@ \$< \$(LIBS)
+# CUDA 10.2 needs C++11 for these demos' host-side clocks and framebuffers.
+cuda_metamorphosis cuda_not_quite_home: NVCCFLAGS += -std=c++11
 
-cuda_particles: cuda_particles.cu
-	\$(NVCC) \$(NVCCFLAGS) -o \$@ \$< \$(LIBS)
-
-cuda_mandelbrot: cuda_mandelbrot.cu
-	\$(NVCC) \$(NVCCFLAGS) -o \$@ \$< \$(LIBS)
-
-cuda_3d_cube: cuda_3d_cube.cu
-	\$(NVCC) \$(NVCCFLAGS) -o \$@ \$< \$(LIBS)
-
-cuda_fluid: cuda_fluid.cu
-	\$(NVCC) \$(NVCCFLAGS) -o \$@ \$< \$(LIBS)
-
-cuda_raymarcher: cuda_raymarcher.cu
-	\$(NVCC) \$(NVCCFLAGS) -o \$@ \$< \$(LIBS)
-
-cuda_nbody: cuda_nbody.cu
-	\$(NVCC) \$(NVCCFLAGS) -o \$@ \$< \$(LIBS)
-
-cuda_primitives: cuda_primitives.cu
-	\$(NVCC) \$(NVCCFLAGS) -o \$@ \$< \$(LIBS)
+%: %.cu
+	$(NVCC) $(NVCCFLAGS) -o $@ $< $(LIBS)
 
 run-%: cuda_%
 	./cuda_$*
 
 clean:
 	rm -f $(DEMOS)
+
+help:
+	@echo "make all          Build all CUDA demos"
+	@echo "make cuda_life    Build an individual demo"
+	@echo "make run-life     Build and run an individual demo"
+	@echo "make clean        Remove all demo binaries"
